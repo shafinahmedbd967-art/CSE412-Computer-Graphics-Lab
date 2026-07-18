@@ -125,3 +125,5 @@ int main(int argc, char** argv)
 
     return 0;
 }
+
+// it's running in codeblocks but not in vs code. I have added the tasks.json file for vs code. 
