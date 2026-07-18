@@ -4,11 +4,15 @@
         {
             "label": "Build OpenGL",
             "type": "shell",
-            "command": "g++",
+            "command": "gcc",
             "args": [
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-I", "C:\\src\\freeglut\\include",
+                "-I", "C:\\MinGW\\include",
+                "-L", "C:\\src\\freeglut\\lib",
+                "-L", "C:\\MinGW\\lib",
                 "-lfreeglut",
                 "-lopengl32",
                 "-lglu32"
