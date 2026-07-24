@@ -1,6 +1,7 @@
 // Shafin Ahmed 232-15-184 65-M1
+// Using DDA Algorithm to draw a line between two points
+// Straight line
 
-// Styraight line
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <stdio.h>
