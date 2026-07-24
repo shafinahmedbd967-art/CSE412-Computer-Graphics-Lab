@@ -1,6 +1,6 @@
 // Shafin Ahmed_232-15-184_65-M1
 // Lab Session 01
-
+// Rectangle 
 #include <GL/gl.h>
 #include <GL/glut.h>
 void display(void)

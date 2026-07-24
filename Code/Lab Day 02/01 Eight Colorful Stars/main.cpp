@@ -1,5 +1,5 @@
 //Shafin Ahmed   232-15-184   65-M1    (Lab 03) 
- 
+// Eight COlorful Stars 
 #include <GL/gl.h> 
  
  
