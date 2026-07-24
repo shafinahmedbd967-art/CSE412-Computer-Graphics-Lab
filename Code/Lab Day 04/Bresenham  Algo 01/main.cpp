@@ -1,5 +1,8 @@
 // Shafin Ahmed 232-15-184  65-M1
 // FOR 0 < m <= 1
+// BRESENHAM'S LINE DRAWING ALGORITHM
+
+
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <stdio.h>
