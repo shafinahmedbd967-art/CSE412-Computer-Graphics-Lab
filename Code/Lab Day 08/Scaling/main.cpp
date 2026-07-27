@@ -1,3 +1,4 @@
+// 3D Scaling
 #include <GL/glut.h>
 #include <iostream>
 using namespace std;
