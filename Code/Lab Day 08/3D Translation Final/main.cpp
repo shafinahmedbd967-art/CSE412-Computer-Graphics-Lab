@@ -1,4 +1,4 @@
-// 3D Transformations
+// 3D Translation, Rotation and Scaling
 
 #include <GL/glut.h>
 #include <iostream>
