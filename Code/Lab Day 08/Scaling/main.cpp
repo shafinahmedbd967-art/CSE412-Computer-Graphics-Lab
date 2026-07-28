@@ -1,3 +1,4 @@
+// Shafin Ahmed 232-15-184 65-M1
 // 3D Scaling
 #include <GL/glut.h>
 #include <iostream>
