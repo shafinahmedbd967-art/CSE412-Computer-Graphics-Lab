@@ -768,7 +768,51 @@ void drawSchool()
         glVertex2f(500.0f, 430.0f);
     glEnd();
 }
-void drawRoof() { }
+/* ==========================================================
+   DRAW ROOF FUNCTION
+   Draws the top roof structure, shaded trapezoid canopy,
+   and parapet boundary railing for the school building.
+   Position: X (470 -> 1510), Y (150 -> 220)
+   ========================================================== */
+void drawRoof()
+{
+    // 1. Main Roof Canopy (Gray Slanted Trapezoid)
+    glColor3fv(COLOR_ROOF_GRAY);
+    glBegin(GL_POLYGON);
+        glVertex2f(510.0f, 175.0f); // Top Left
+        glVertex2f(1470.0f, 175.0f); // Top Right
+        glVertex2f(1500.0f, 220.0f); // Bottom Right Eave
+        glVertex2f(480.0f, 220.0f);  // Bottom Left Eave
+    glEnd();
+
+    // 2. Roof Bottom Overhang/Eave Border (Dark Red Strip)
+    glColor3fv(COLOR_BUILDING_RED);
+    glBegin(GL_QUADS);
+        glVertex2f(475.0f, 215.0f);
+        glVertex2f(1505.0f, 215.0f);
+        glVertex2f(1505.0f, 222.0f);
+        glVertex2f(475.0f, 222.0f);
+    glEnd();
+
+    // 3. Roof Top Parapet Crest Line (Dark Gray Accent Line)
+    glColor3f(0.35f, 0.35f, 0.35f);
+    glBegin(GL_QUADS);
+        glVertex2f(505.0f, 170.0f);
+        glVertex2f(1475.0f, 170.0f);
+        glVertex2f(1475.0f, 175.0f);
+        glVertex2f(505.0f, 170.0f);
+    glEnd();
+
+    // 4. Black Structural Outlines for Crisp Visuals
+    glLineWidth(2.0f);
+    glColor3fv(COLOR_BLACK);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(510.0f, 175.0f);
+        glVertex2f(1470.0f, 175.0f);
+        glVertex2f(1500.0f, 220.0f);
+        glVertex2f(480.0f, 220.0f);
+    glEnd();
+}
 void drawWindow() { }
 void drawDoor() { }
 void drawClock() { }
