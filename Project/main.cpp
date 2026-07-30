@@ -813,7 +813,63 @@ void drawRoof()
         glVertex2f(480.0f, 220.0f);
     glEnd();
 }
-void drawWindow() { }
+/* ==========================================================
+   DRAW WINDOW FUNCTION
+   Draws 2 rows of blue grid windows for both 1st and 2nd floors.
+   ========================================================== */
+void drawWindow()
+{
+    // Helper lambda/inline drawing logic for a window grid panel
+    auto drawSingleWindow = [](float wx, float wy) {
+        float wWidth = 45.0f;
+        float wHeight = 50.0f;
+
+        // Glass Pane (Blue Background)
+        glColor3fv(COLOR_WINDOW_BLUE);
+        glBegin(GL_QUADS);
+            glVertex2f(wx, wy);
+            glVertex2f(wx + wWidth, wy);
+            glVertex2f(wx + wWidth, wy + wHeight);
+            glVertex2f(wx, wy + wHeight);
+        glEnd();
+
+        // Window Frame & Grids (Dark Gray / Black)
+        glColor3fv(COLOR_BLACK);
+        glLineWidth(1.5f);
+
+        // Outer Frame
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(wx, wy);
+            glVertex2f(wx + wWidth, wy);
+            glVertex2f(wx + wWidth, wy + wHeight);
+            glVertex2f(wx, wy + wHeight);
+        glEnd();
+
+        // Inner Vertical & Horizontal Grids
+        glBegin(GL_LINES);
+            // Center Vertical Bar
+            glVertex2f(wx + wWidth / 2.0f, wy);
+            glVertex2f(wx + wWidth / 2.0f, wy + wHeight);
+            // Center Horizontal Bar
+            glVertex2f(wx, wy + wHeight / 2.0f);
+            glVertex2f(wx + wWidth, wy + wHeight / 2.0f);
+        glEnd();
+    };
+
+    // --- 2nd Floor Windows (Top Row: Y = 245) ---
+    for (float x = 580.0f; x <= 1400.0f; x += 130.0f)
+    {
+        drawSingleWindow(x, 245.0f);
+    }
+
+    // --- 1st Floor Windows (Bottom Row: Y = 350) ---
+    // (Skip entrance door center area at x = 970)
+    for (float x = 580.0f; x <= 1400.0f; x += 130.0f)
+    {
+        if (x > 900.0f && x < 1050.0f) continue; // Leave space for main door
+        drawSingleWindow(x, 350.0f);
+    }
+}
 void drawDoor() { }
 void drawClock() { }
 void drawFlagPole() { }
