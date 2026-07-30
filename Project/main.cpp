@@ -1123,7 +1123,94 @@ void drawRoofBanner()
 }
 
 /* ---- Campus / Garden Layer ---- */
-void drawShaheedMinar() { }
+/* ==========================================================
+   DRAW SHAHEED MINAR FUNCTION (Campus Layer)
+   Position: Left Side Campus Field (X: 180 -> 320, Y: 360 -> 430)
+   ========================================================== */
+void drawShaheedMinar()
+{
+    // 1. Red Sun behind Central Column (Symbol of 1952)
+    float sunX = 250.0f, sunY = 320.0f, sunR = 22.0f;
+    glColor3f(0.85f, 0.10f, 0.10f); // Deep Blood Red
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i += 10) {
+        float rad = i * 3.14159f / 180.0f;
+        glVertex2f(sunX + cos(rad) * sunR, sunY + sin(rad) * sunR);
+    }
+    glEnd();
+
+    // 2. Base Steps / Pedestal (3-Tiered White Marble Base)
+    glColor3fv(COLOR_WHITE);
+    // Tier 1 (Bottom Base)
+    glBegin(GL_QUADS);
+    glVertex2f(170.0f, 420.0f); glVertex2f(330.0f, 420.0f);
+    glVertex2f(330.0f, 430.0f); glVertex2f(170.0f, 430.0f);
+    // Tier 2 (Middle Base)
+    glVertex2f(185.0f, 410.0f); glVertex2f(315.0f, 410.0f);
+    glVertex2f(315.0f, 420.0f); glVertex2f(185.0f, 420.0f);
+    // Tier 3 (Top Base)
+    glVertex2f(200.0f, 400.0f); glVertex2f(300.0f, 400.0f);
+    glVertex2f(300.0f, 410.0f); glVertex2f(200.0f, 410.0f);
+    glEnd();
+
+    // Outlines for Base Steps
+    glColor3fv(COLOR_BLACK);
+    glLineWidth(1.2f);
+    glBegin(GL_LINE_LOOP); glVertex2f(170.0f, 420.0f); glVertex2f(330.0f, 420.0f); glVertex2f(330.0f, 430.0f); glVertex2f(170.0f, 430.0f); glEnd();
+    glBegin(GL_LINE_LOOP); glVertex2f(185.0f, 410.0f); glVertex2f(315.0f, 410.0f); glVertex2f(315.0f, 420.0f); glVertex2f(185.0f, 420.0f); glEnd();
+    glBegin(GL_LINE_LOOP); glVertex2f(200.0f, 400.0f); glVertex2f(300.0f, 400.0f); glVertex2f(300.0f, 410.0f); glVertex2f(200.0f, 410.0f); glEnd();
+
+    // 3. Vertical Columns (Pillars)
+    // Helper lambda for Drawing Minar Pillars with Top Slant Angle
+    auto drawPillar = [](float x, float topY, float width, float slantHeight) {
+        // Concrete Light Gray
+        glColor3f(0.90f, 0.90f, 0.92f);
+        glBegin(GL_POLYGON);
+        glVertex2f(x, 400.0f);                  // Bottom Left
+        glVertex2f(x + width, 400.0f);          // Bottom Right
+        glVertex2f(x + width, topY);            // Top Right
+        glVertex2f(x, topY + slantHeight);      // Top Left (Slanted)
+        glEnd();
+
+        // Pillar Black Outline
+        glColor3fv(COLOR_BLACK);
+        glLineWidth(1.5f);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(x, 400.0f);
+        glVertex2f(x + width, 400.0f);
+        glVertex2f(x + width, topY);
+        glVertex2f(x, topY + slantHeight);
+        glEnd();
+    };
+
+    // Outer Pair (Shortest)
+    drawPillar(205.0f, 350.0f, 10.0f, 10.0f); // Outer Left
+    drawPillar(285.0f, 350.0f, 10.0f, -10.0f); // Outer Right
+
+    // Inner Pair (Medium Height)
+    drawPillar(223.0f, 320.0f, 11.0f, 12.0f); // Inner Left
+    drawPillar(266.0f, 320.0f, 11.0f, -12.0f); // Inner Right
+
+    // Central Main Pillar (Tallest & Tilted Header)
+    drawPillar(243.0f, 280.0f, 14.0f, 0.0f);
+
+    // Tilted Header Roof on Central Pillar
+    glColor3f(0.85f, 0.85f, 0.88f);
+    glBegin(GL_POLYGON);
+    glVertex2f(238.0f, 280.0f);
+    glVertex2f(262.0f, 280.0f);
+    glVertex2f(258.0f, 268.0f);
+    glVertex2f(242.0f, 268.0f);
+    glEnd();
+    glColor3fv(COLOR_BLACK);
+    glLineWidth(1.5f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(238.0f, 280.0f);
+    glVertex2f(262.0f, 280.0f);
+    glVertex2f(258.0f, 268.0f);
+    glVertex2f(242.0f, 268.0f);
+    glEnd();
+}
 void drawGarden() { }
 void drawFlower() { }
 void drawBush() { }
