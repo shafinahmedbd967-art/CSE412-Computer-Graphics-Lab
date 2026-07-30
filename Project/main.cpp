@@ -818,7 +818,43 @@ void drawDoor() { }
 void drawClock() { }
 void drawFlagPole() { }
 void drawBangladeshFlag() { }
-void drawRoofBanner() { }
+/* ==========================================================
+   DRAW ROOF BANNER FUNCTION
+   Draws the red banner board located on top of the school roof.
+   Position: X (820 -> 1180), Y (160 -> 200)
+   ========================================================== */
+void drawRoofBanner()
+{
+    // 1. Banner Background Plate (Vibrant Red Frame)
+    glColor3fv(COLOR_FLAG_RED);
+    glBegin(GL_QUADS);
+        glVertex2f(820.0f, 160.0f);
+        glVertex2f(1180.0f, 160.0f);
+        glVertex2f(1180.0f, 200.0f);
+        glVertex2f(820.0f, 200.0f);
+    glEnd();
+
+    // 2. Banner Inner Border (Yellow Accent Frame)
+    glLineWidth(2.5f);
+    glColor3fv(COLOR_FLOWER_YELLOW);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(824.0f, 164.0f);
+        glVertex2f(1176.0f, 164.0f);
+        glVertex2f(1176.0f, 196.0f);
+        glVertex2f(824.0f, 196.0f);
+    glEnd();
+
+    // 3. Banner Mounting Steel Posts (Connecting Roof to Banner)
+    glColor3fv(COLOR_BLACK);
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        glVertex2f(860.0f, 200.0f);
+        glVertex2f(860.0f, 215.0f);
+
+        glVertex2f(1140.0f, 200.0f);
+        glVertex2f(1140.0f, 215.0f);
+    glEnd();
+}
 
 /* ---- Campus / Garden Layer ---- */
 void drawShaheedMinar() { }
