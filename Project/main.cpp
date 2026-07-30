@@ -932,14 +932,14 @@ void drawDoor()
     glEnd();
 }
 /* ==========================================================
-   DRAW CLOCK FUNCTION (Fixed for 1600x900 canvas)
-   Position: Center of Roof Banner (X: 1000, Y: 180)
+   DRAW CLOCK FUNCTION (Reference Blueprint Aligned)
+   Position: On School Wall below banner (X: 1010, Y: 245)
    ========================================================== */
 void drawClock()
 {
-    float cx = 1000.0f; // Centered on roof banner
-    float cy = 180.0f;
-    float radius = 14.0f;
+    float cx = 1010.0f; // Center of the building wall
+    float cy = 245.0f;
+    float radius = 12.0f;
 
     // Get System Time
     time_t t = time(0);
@@ -948,7 +948,7 @@ void drawClock()
     int min = now->tm_min;
     int hour = now->tm_hour % 12;
 
-    // 1. Clock Outer Rim (Dark Border)
+    // 1. Outer Border
     glColor3f(0.1f, 0.1f, 0.1f);
     glBegin(GL_POLYGON);
     for (int i = 0; i < 360; i += 10) {
@@ -957,8 +957,8 @@ void drawClock()
     }
     glEnd();
 
-    // 2. Clock Face (White)
-    glColor3f(0.95f, 0.95f, 0.95f);
+    // 2. White Dial Face
+    glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_POLYGON);
     for (int i = 0; i < 360; i += 10) {
         float rad = i * 3.14159f / 180.0f;
@@ -968,7 +968,7 @@ void drawClock()
 
     // 3. Hour Marks
     glColor3f(0.0f, 0.0f, 0.0f);
-    glLineWidth(1.5f);
+    glLineWidth(1.0f);
     for (int i = 0; i < 12; i++) {
         float angle = i * 30.0f * 3.14159f / 180.0f;
         glBegin(GL_LINES);
@@ -977,21 +977,21 @@ void drawClock()
         glEnd();
     }
 
-    // Hand Angles (Y increases downwards, so sin/cos are adjusted)
+    // Angles for Hands
     float secAngle = (sec * 6.0f - 90.0f) * 3.14159f / 180.0f;
     float minAngle = (min * 6.0f + sec * 0.1f - 90.0f) * 3.14159f / 180.0f;
     float hourAngle = (hour * 30.0f + min * 0.5f - 90.0f) * 3.14159f / 180.0f;
 
     // Hour Hand
     glColor3f(0.0f, 0.0f, 0.0f);
-    glLineWidth(3.0f);
+    glLineWidth(2.5f);
     glBegin(GL_LINES);
     glVertex2f(cx, cy);
     glVertex2f(cx + cos(hourAngle) * (radius * 0.5f), cy + sin(hourAngle) * (radius * 0.5f));
     glEnd();
 
     // Minute Hand
-    glLineWidth(2.0f);
+    glLineWidth(1.5f);
     glBegin(GL_LINES);
     glVertex2f(cx, cy);
     glVertex2f(cx + cos(minAngle) * (radius * 0.75f), cy + sin(minAngle) * (radius * 0.75f));
@@ -1010,36 +1010,36 @@ void drawClock()
     glBegin(GL_POLYGON);
     for (int i = 0; i < 360; i += 30) {
         float rad = i * 3.14159f / 180.0f;
-        glVertex2f(cx + cos(rad) * 2.0f, cy + sin(rad) * 2.0f);
+        glVertex2f(cx + cos(rad) * 1.5f, cy + sin(rad) * 1.5f);
     }
     glEnd();
 }
 
 /* ==========================================================
-   DRAW FLAG POLE FUNCTION (Fixed for 1600x900 canvas)
-   Position: Front Ground Left Side (X: 300, Y: 430 -> 210)
+   DRAW FLAG POLE FUNCTION (Reference Blueprint Aligned)
+   Position: In front of the central entrance (X: 1050, Y: 430)
    ========================================================== */
 void drawFlagPole()
 {
-    float px = 300.0f; // Stand position on ground
-    float py = 430.0f;
+    float px = 1050.0f; // Centered in front of school entrance
+    float py = 430.0f;  // Base on ground level
 
-    // 1. Base Stand (Concrete Steps)
+    // 1. Concrete Base / Pedestal
     glColor3fv(COLOR_WALL_GRAY);
     glBegin(GL_QUADS);
-    glVertex2f(px - 25.0f, py);
-    glVertex2f(px + 25.0f, py);
-    glVertex2f(px + 20.0f, py - 10.0f);
-    glVertex2f(px - 20.0f, py - 10.0f);
+    glVertex2f(px - 15.0f, py);
+    glVertex2f(px + 15.0f, py);
+    glVertex2f(px + 12.0f, py - 10.0f);
+    glVertex2f(px - 12.0f, py - 10.0f);
     glEnd();
 
-    // 2. Metallic Pole
+    // 2. Metallic Silver Pole
     glColor3fv(COLOR_POLE_GRAY);
     glBegin(GL_QUADS);
-    glVertex2f(px - 3.0f, py - 10.0f);
-    glVertex2f(px + 3.0f, py - 10.0f);
-    glVertex2f(px + 3.0f, py - 220.0f);
-    glVertex2f(px - 3.0f, py - 220.0f);
+    glVertex2f(px - 2.5f, py - 10.0f);
+    glVertex2f(px + 2.5f, py - 10.0f);
+    glVertex2f(px + 2.5f, py - 180.0f);
+    glVertex2f(px - 2.5f, py - 180.0f);
     glEnd();
 
     // 3. Gold Finial Ball at Top
@@ -1047,23 +1047,23 @@ void drawFlagPole()
     glBegin(GL_POLYGON);
     for (int i = 0; i < 360; i += 20) {
         float rad = i * 3.14159f / 180.0f;
-        glVertex2f(px + cos(rad) * 6.0f, (py - 222.0f) + sin(rad) * 6.0f);
+        glVertex2f(px + cos(rad) * 5.0f, (py - 182.0f) + sin(rad) * 5.0f);
     }
     glEnd();
 }
 
 /* ==========================================================
-   DRAW BANGLADESH FLAG FUNCTION (Fixed for 1600x900 canvas)
-   Position: Attached to Flag Pole (X: 303 -> 383, Y: 210 -> 258)
+   DRAW BANGLADESH FLAG FUNCTION (Reference Blueprint Aligned)
+   Position: Attached right side of center pole
    ========================================================== */
 void drawBangladeshFlag()
 {
-    float fx = 303.0f; // Attached right next to pole
-    float fy = 210.0f;
-    float flagWidth = 80.0f;
-    float flagHeight = 48.0f; // Standard 5:3 ratio
+    float fx = 1052.5f; // Attached to the pole (px + 2.5)
+    float fy = 250.0f;   // Top-center position
+    float flagWidth = 65.0f;
+    float flagHeight = 39.0f;
 
-    // 1. Green Flag Rectangle
+    // 1. Green Rectangle
     glColor3fv(COLOR_FLAG_GREEN);
     glBegin(GL_QUADS);
     glVertex2f(fx, fy);
@@ -1072,10 +1072,10 @@ void drawBangladeshFlag()
     glVertex2f(fx, fy + flagHeight);
     glEnd();
 
-    // 2. Red Circle Center (slightly offset towards hoist according to standard spec)
+    // 2. Red Circle
     float cx = fx + (flagWidth * 0.45f);
     float cy = fy + (flagHeight * 0.5f);
-    float radius = 16.0f;
+    float radius = 13.0f;
 
     glColor3fv(COLOR_FLAG_RED);
     glBegin(GL_POLYGON);
