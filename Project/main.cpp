@@ -383,7 +383,25 @@ void specialKeys(int key, int x, int y)
    ========================================================== */
 
 /* ---- Sky Layer ---- */
-void drawSky() { }
+/* ==========================================================
+   DRAW SKY FUNCTION
+   Fills the background sky layer with a smooth light cyan/sky gradient
+   Area: X (0 -> 1600), Y (0 -> 260)
+   ========================================================== */
+void drawSky()
+{
+    glBegin(GL_QUADS);
+        // Top edge: Slightly deeper sky blue
+        glColor3f(0.40f, 0.70f, 0.95f);
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(1600.0f, 0.0f);
+
+        // Horizon transition edge: Very light soft cyan
+        glColor3f(0.75f, 0.90f, 0.98f);
+        glVertex2f(1600.0f, 260.0f);
+        glVertex2f(0.0f, 260.0f);
+    glEnd();
+}
 void drawSun() { }
 void drawCloud() { }
 void drawBird() { }
