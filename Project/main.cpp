@@ -552,7 +552,72 @@ void drawBird()
     glPopMatrix();
 }
 void drawButterfly() { }
-void drawAirplane() { }
+/* ==========================================================
+   DRAW AIRPLANE FUNCTION
+   Draws a sleek passenger airplane flying near the top right sky
+   ========================================================== */
+void drawAirplane()
+{
+    glPushMatrix();
+        glTranslatef(airplaneOffsetX, 0.0f, 0.0f);
+
+        // 1. Airplane Main Body (Fuselage) - Light Gray / Blue Tint
+        glColor3f(0.88f, 0.92f, 0.96f);
+        glBegin(GL_POLYGON);
+            glVertex2f(1180.0f, 75.0f); // Nose cone tip
+            glVertex2f(1200.0f, 68.0f); // Top windshield curve
+            glVertex2f(1290.0f, 68.0f); // Top body line
+            glVertex2f(1310.0f, 55.0f); // Tail fin top rear
+            glVertex2f(1315.0f, 55.0f);
+            glVertex2f(1300.0f, 78.0f); // Rear fuselage bottom
+            glVertex2f(1200.0f, 78.0f); // Bottom body line
+        glEnd();
+
+        // 2. Main Wings (Sweep-back design)
+        glColor3f(0.20f, 0.40f, 0.70f); // Royal Blue Wings
+        glBegin(GL_TRIANGLES);
+            // Main Wing
+            glVertex2f(1235.0f, 73.0f);
+            glVertex2f(1220.0f, 95.0f);
+            glVertex2f(1255.0f, 73.0f);
+
+            // Tail Fin Accent Wing
+            glVertex2f(1285.0f, 70.0f);
+            glVertex2f(1310.0f, 50.0f);
+            glVertex2f(1298.0f, 70.0f);
+        glEnd();
+
+        // 3. Cockpit Glass & Windows
+        glColor3f(0.15f, 0.25f, 0.45f); // Dark Window Blue
+        // Cockpit Windshield
+        glBegin(GL_TRIANGLES);
+            glVertex2f(1185.0f, 74.0f);
+            glVertex2f(1198.0f, 70.0f);
+            glVertex2f(1198.0f, 74.0f);
+        glEnd();
+
+        // Passenger Windows (Small Dots/Dots row)
+        for (float wx = 1210.0f; wx <= 1275.0f; wx += 10.0f)
+        {
+            glBegin(GL_QUADS);
+                glVertex2f(wx, 71.0f);
+                glVertex2f(wx + 4.0f, 71.0f);
+                glVertex2f(wx + 4.0f, 74.0f);
+                glVertex2f(wx, 74.0f);
+            glEnd();
+        }
+
+        // 4. Red Stripe Along Body (Airlines Decor)
+        glColor3f(0.85f, 0.15f, 0.15f);
+        glBegin(GL_QUADS);
+            glVertex2f(1190.0f, 75.0f);
+            glVertex2f(1295.0f, 75.0f);
+            glVertex2f(1295.0f, 76.5f);
+            glVertex2f(1190.0f, 76.5f);
+        glEnd();
+
+    glPopMatrix();
+}
 
 /* ---- School Building Layer ---- */
 void drawSchool() { }
