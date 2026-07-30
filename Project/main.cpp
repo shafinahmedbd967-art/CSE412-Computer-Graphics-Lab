@@ -702,7 +702,72 @@ void drawAirplane()
 }
 
 /* ---- School Building Layer ---- */
-void drawSchool() { }
+/* ==========================================================
+   DRAW SCHOOL FUNCTION
+   Draws the main 2-story school building structure, base walls,
+   veranda pillars, and floor separator borders.
+   Position: X (500 -> 1480), Y (220 -> 430)
+   ========================================================== */
+void drawSchool()
+{
+    // 1. Main Building Wall (Light Cream Base)
+    glColor3fv(COLOR_BUILDING_CREAM);
+    glBegin(GL_QUADS);
+        glVertex2f(500.0f, 220.0f);
+        glVertex2f(1480.0f, 220.0f);
+        glVertex2f(1480.0f, 430.0f);
+        glVertex2f(500.0f, 430.0f);
+    glEnd();
+
+    // 2. Building Plinth / Base Foundation (Dark Brick Red Bottom Border)
+    glColor3fv(COLOR_BUILDING_RED);
+    glBegin(GL_QUADS);
+        glVertex2f(490.0f, 420.0f);
+        glVertex2f(1490.0f, 420.0f);
+        glVertex2f(1490.0f, 430.0f);
+        glVertex2f(490.0f, 430.0f);
+    glEnd();
+
+    // 3. Middle Floor Separator / Slab (Brick Red Belt)
+    glColor3fv(COLOR_BUILDING_RED);
+    glBegin(GL_QUADS);
+        glVertex2f(495.0f, 320.0f);
+        glVertex2f(1485.0f, 320.0f);
+        glVertex2f(1485.0f, 330.0f);
+        glVertex2f(495.0f, 330.0f);
+    glEnd();
+
+    // 4. Veranda Structural Support Pillars (White/Cream Vertical Pillars)
+    glColor3f(0.88f, 0.82f, 0.65f);
+    for (float px = 550.0f; px <= 1450.0f; px += 130.0f)
+    {
+        // 2nd Floor Pillars
+        glBegin(GL_QUADS);
+            glVertex2f(px, 220.0f);
+            glVertex2f(px + 12.0f, 220.0f);
+            glVertex2f(px + 12.0f, 320.0f);
+            glVertex2f(px, 320.0f);
+        glEnd();
+
+        // 1st Floor Pillars
+        glBegin(GL_QUADS);
+            glVertex2f(px, 330.0f);
+            glVertex2f(px + 12.0f, 330.0f);
+            glVertex2f(px + 12.0f, 420.0f);
+            glVertex2f(px, 420.0f);
+        glEnd();
+    }
+
+    // 5. Outer Structural Boundary Outline (Subtle contrast frame)
+    glLineWidth(2.0f);
+    glColor3fv(COLOR_BLACK);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(500.0f, 220.0f);
+        glVertex2f(1480.0f, 220.0f);
+        glVertex2f(1480.0f, 430.0f);
+        glVertex2f(500.0f, 430.0f);
+    glEnd();
+}
 void drawRoof() { }
 void drawWindow() { }
 void drawDoor() { }
