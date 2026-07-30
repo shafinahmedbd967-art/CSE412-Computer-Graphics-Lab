@@ -19,6 +19,8 @@
    ========================================================== */
 
 #include <GL/glut.h>
+#include <cmath>
+#include <ctime>
 
 /* ==========================================================
    WINDOW CONSTANTS
@@ -929,8 +931,151 @@ void drawDoor()
         glVertex2f(dx, dy + dh);
     glEnd();
 }
-void drawClock() { }
-void drawFlagPole() { }
+/* ==========================================================
+   DRAW CLOCK FUNCTION
+   ========================================================== */
+void drawClock()
+{
+    glPushMatrix();
+
+    // 1. Get System Time
+    time_t t = time(0);
+    struct tm *now = localtime(&t);
+    int sec = now->tm_sec;
+    int min = now->tm_min;
+    int hour = now->tm_hour % 12;
+
+    // 2. Draw Clock Outer Rim / Circle Background
+    glColor3f(0.1f, 0.1f, 0.1f); // Dark Border
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i += 10) {
+        float rad = i * 3.14159f / 180.0f;
+        glVertex2f(cos(rad) * 1.05f, sin(rad) * 1.05f);
+    }
+    glEnd();
+
+    glColor3f(0.95f, 0.95f, 0.95f); // Clock Face (White/Off-white)
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i += 10) {
+        float rad = i * 3.14159f / 180.0f;
+        glVertex2f(cos(rad) * 1.0f, sin(rad) * 1.0f);
+    }
+    glEnd();
+
+    // 3. Draw Hour Marks (12 ticks around the dial)
+    glColor3f(0.0f, 0.0f, 0.0f);
+    for (int i = 0; i < 12; i++) {
+        glPushMatrix();
+        float angle = i * 30.0f * 3.14159f / 180.0f;
+        glLineWidth(3.0f);
+        glBegin(GL_LINES);
+            glVertex2f(cos(angle) * 0.85f, sin(angle) * 0.85f);
+            glVertex2f(cos(angle) * 0.95f, sin(angle) * 0.95f);
+        glEnd();
+        glPopMatrix();
+    }
+
+    // 4. Calculate Angles for Hands
+    // Angle math: 90 degrees offset to start from top (12 o'clock position)
+    float secAngle  = 90.0f - (sec * 6.0f);
+    float minAngle  = 90.0f - (min * 6.0f + sec * 0.1f);
+    float hourAngle = 90.0f - (hour * 30.0f + min * 0.5f);
+
+    // --- HOUR HAND (Short & Thick) ---
+    glPushMatrix();
+    glRotatef(hourAngle, 0.0f, 0.0f, 1.0f);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(5.0f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(0.5f, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    // --- MINUTE HAND (Long & Medium Thick) ---
+    glPushMatrix();
+    glRotatef(minAngle, 0.0f, 0.0f, 1.0f);
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(0.75f, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    // --- SECOND HAND (Red & Thin) ---
+    glPushMatrix();
+    glRotatef(secAngle, 0.0f, 0.0f, 1.0f);
+    glColor3f(1.0f, 0.0f, 0.0f); // Red
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(-0.1f, 0.0f); // Center offset tail
+        glVertex2f(0.85f, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    // 5. Center Pivot Pin
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i += 20) {
+        float rad = i * 3.14159f / 180.0f;
+        glVertex2f(cos(rad) * 0.05f, sin(rad) * 0.05f);
+    }
+    glEnd();
+
+    glPopMatrix();
+}
+/* ==========================================================
+   DRAW FLAG POLE FUNCTION
+   ========================================================== */
+/* ==========================================================
+   DRAW FLAG POLE FUNCTION
+   ========================================================== */
+void drawFlagPole()
+{
+    glPushMatrix();
+
+    // Position the flag pole in front of the school on the ground field
+    // Adjust glTranslatef(X, Y, Z) if you want to shift its position
+    glTranslatef(-0.6f, -0.7f, 0.0f);
+
+    // 1. Concrete Base / Stand
+    glColor3f(0.2f, 0.2f, 0.2f); // Dark Charcoal Base
+    glBegin(GL_QUADS);
+        glVertex2f(-0.08f, 0.0f);
+        glVertex2f( 0.08f, 0.0f);
+        glVertex2f( 0.06f, 0.08f);
+        glVertex2f(-0.06f, 0.08f);
+    glEnd();
+
+    // 2. Metallic Pole (Thicker & Taller for Visibility)
+    glColor3f(0.1f, 0.1f, 0.1f); // Dark Pipe / Pole Border
+    glBegin(GL_QUADS);
+        glVertex2f(-0.022f, 0.08f);
+        glVertex2f( 0.022f, 0.08f);
+        glVertex2f( 0.022f, 0.70f);
+        glVertex2f(-0.022f, 0.70f);
+    glEnd();
+
+    glColor3f(0.75f, 0.75f, 0.75f); // Silver Inner Metallic Fill
+    glBegin(GL_QUADS);
+        glVertex2f(-0.015f, 0.08f);
+        glVertex2f( 0.015f, 0.08f);
+        glVertex2f( 0.015f, 0.70f);
+        glVertex2f(-0.015f, 0.70f);
+    glEnd();
+
+    // 3. Gold Finial Ball at Top
+    glColor3f(0.9f, 0.7f, 0.0f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 360; i += 20) {
+        float rad = i * 3.14159f / 180.0f;
+        glVertex2f(cos(rad) * 0.035f, 0.71f + sin(rad) * 0.035f);
+    }
+    glEnd();
+
+    glPopMatrix();
+}
 void drawBangladeshFlag() { }
 /* ==========================================================
    DRAW ROOF BANNER FUNCTION
