@@ -932,13 +932,13 @@ void drawDoor()
     glEnd();
 }
 /* ==========================================================
-   DRAW CLOCK FUNCTION (Reference Blueprint Aligned)
-   Position: On School Wall below banner (X: 1010, Y: 245)
+   DRAW CLOCK FUNCTION (Perfectly Centered on Wall)
+   Position: On Wall between windows, below roof banner
    ========================================================== */
 void drawClock()
 {
-    float cx = 1010.0f; // Center of the building wall
-    float cy = 245.0f;
+    float cx = 990.0f; // Shifted left to center between window gap
+    float cy = 282.0f; // Moved down to rest on empty wall below banner
     float radius = 12.0f;
 
     // Get System Time
@@ -977,7 +977,7 @@ void drawClock()
         glEnd();
     }
 
-    // Angles for Hands
+    // Hand Angles
     float secAngle = (sec * 6.0f - 90.0f) * 3.14159f / 180.0f;
     float minAngle = (min * 6.0f + sec * 0.1f - 90.0f) * 3.14159f / 180.0f;
     float hourAngle = (hour * 30.0f + min * 0.5f - 90.0f) * 3.14159f / 180.0f;
@@ -1014,7 +1014,6 @@ void drawClock()
     }
     glEnd();
 }
-
 /* ==========================================================
    DRAW FLAG POLE FUNCTION (Reference Blueprint Aligned)
    Position: In front of the central entrance (X: 1050, Y: 430)
