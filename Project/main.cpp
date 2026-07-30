@@ -444,7 +444,79 @@ void drawSun()
         }
     glEnd();
 }
-void drawCloud() { }
+/* ==========================================================
+   HELPER FUNCTION FOR CLOUD PUFFS
+   ========================================================== */
+void drawCircleShape(float cx, float cy, float radius)
+{
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(cx, cy);
+        for (int i = 0; i <= 30; i++)
+        {
+            float theta = 2.0f * 3.1415926f * float(i) / 30.0f;
+            float x = radius * cosf(theta);
+            float y = radius * sinf(theta);
+            glVertex2f(cx + x, cy + y);
+        }
+    glEnd();
+}
+
+/* ==========================================================
+   DRAW CLOUD FUNCTION
+   Draws 3 fluffy white clouds across the sky
+   ========================================================== */
+void drawCloud()
+{
+    glColor3fv(COLOR_CLOUD_WHITE);
+
+    // --- Cloud 1 (Left Side, Large) ---
+    glPushMatrix();
+        glTranslatef(cloud1OffsetX, 0.0f, 0.0f);
+        drawCircleShape(400.0f, 100.0f, 35.0f);
+        drawCircleShape(430.0f, 85.0f,  45.0f);
+        drawCircleShape(470.0f, 90.0f,  40.0f);
+        drawCircleShape(500.0f, 105.0f, 30.0f);
+        // Base fill
+        glBegin(GL_QUADS);
+            glVertex2f(385.0f, 120.0f);
+            glVertex2f(515.0f, 120.0f);
+            glVertex2f(515.0f, 95.0f);
+            glVertex2f(385.0f, 95.0f);
+        glEnd();
+    glPopMatrix();
+
+    // --- Cloud 2 (Center-Right, Medium) ---
+    glPushMatrix();
+        glTranslatef(cloud2OffsetX, 0.0f, 0.0f);
+        drawCircleShape(850.0f, 75.0f,  28.0f);
+        drawCircleShape(875.0f, 60.0f,  38.0f);
+        drawCircleShape(910.0f, 65.0f,  32.0f);
+        drawCircleShape(935.0f, 80.0f,  22.0f);
+        // Base fill
+        glBegin(GL_QUADS);
+            glVertex2f(835.0f, 92.0f);
+            glVertex2f(945.0f, 92.0f);
+            glVertex2f(945.0f, 72.0f);
+            glVertex2f(835.0f, 72.0f);
+        glEnd();
+    glPopMatrix();
+
+    // --- Cloud 3 (Far Right, Fluffy Small-Medium) ---
+    glPushMatrix();
+        glTranslatef(cloud3OffsetX, 0.0f, 0.0f);
+        drawCircleShape(1420.0f, 110.0f, 25.0f);
+        drawCircleShape(1445.0f, 95.0f,  35.0f);
+        drawCircleShape(1480.0f, 100.0f, 30.0f);
+        drawCircleShape(1505.0f, 115.0f, 20.0f);
+        // Base fill
+        glBegin(GL_QUADS);
+            glVertex2f(1405.0f, 125.0f);
+            glVertex2f(1515.0f, 125.0f);
+            glVertex2f(1515.0f, 105.0f);
+            glVertex2f(1405.0f, 105.0f);
+        glEnd();
+    glPopMatrix();
+}
 void drawBird() { }
 void drawButterfly() { }
 void drawAirplane() { }
