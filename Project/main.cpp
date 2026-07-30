@@ -551,7 +551,89 @@ void drawBird()
         drawSingleBird(290.0f, 195.0f, 8.0f);  // Trailing bird
     glPopMatrix();
 }
-void drawButterfly() { }
+/* ==========================================================
+   DRAW BUTTERFLY FUNCTION
+   Draws colorful butterflies hovering near vegetation/sky
+   ========================================================== */
+void drawButterfly()
+{
+    glPushMatrix();
+        glTranslatef(butterflyOffsetX, butterflyOffsetY, 0.0f);
+
+        // --- Butterfly 1 (Bright Orange/Red Winged) ---
+        float bx1 = 450.0f, by1 = 210.0f;
+
+        // Outer Left Wing
+        glColor3f(0.95f, 0.40f, 0.10f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx1, by1);
+            glVertex2f(bx1 - 15.0f, by1 - 12.0f);
+            glVertex2f(bx1 - 12.0f, by1 + 5.0f);
+
+            glVertex2f(bx1, by1);
+            glVertex2f(bx1 - 12.0f, by1 + 6.0f);
+            glVertex2f(bx1 - 8.0f, by1 + 14.0f);
+        glEnd();
+
+        // Outer Right Wing
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx1, by1);
+            glVertex2f(bx1 + 15.0f, by1 - 12.0f);
+            glVertex2f(bx1 + 12.0f, by1 + 5.0f);
+
+            glVertex2f(bx1, by1);
+            glVertex2f(bx1 + 12.0f, by1 + 6.0f);
+            glVertex2f(bx1 + 8.0f, by1 + 14.0f);
+        glEnd();
+
+        // Inner Wing Patterns (Yellow accent)
+        glColor3fv(COLOR_FLOWER_YELLOW);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx1, by1);
+            glVertex2f(bx1 - 8.0f, by1 - 6.0f);
+            glVertex2f(bx1 - 6.0f, by1 + 2.0f);
+
+            glVertex2f(bx1, by1);
+            glVertex2f(bx1 + 8.0f, by1 - 6.0f);
+            glVertex2f(bx1 + 6.0f, by1 + 2.0f);
+        glEnd();
+
+        // Body & Antennae
+        glColor3fv(COLOR_BLACK);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            // Body
+            glVertex2f(bx1, by1 - 8.0f);
+            glVertex2f(bx1, by1 + 8.0f);
+            // Antennae
+            glVertex2f(bx1, by1 - 8.0f);
+            glVertex2f(bx1 - 4.0f, by1 - 14.0f);
+            glVertex2f(bx1, by1 - 8.0f);
+            glVertex2f(bx1 + 4.0f, by1 - 14.0f);
+        glEnd();
+
+        // --- Butterfly 2 (Cyan/Blue Winged, slightly smaller) ---
+        float bx2 = 1120.0f, by2 = 230.0f;
+
+        glColor3f(0.10f, 0.70f, 0.90f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx2, by2);
+            glVertex2f(bx2 - 12.0f, by2 - 10.0f);
+            glVertex2f(bx2 - 10.0f, by2 + 4.0f);
+
+            glVertex2f(bx2, by2);
+            glVertex2f(bx2 + 12.0f, by2 - 10.0f);
+            glVertex2f(bx2 + 10.0f, by2 + 4.0f);
+        glEnd();
+
+        glColor3fv(COLOR_BLACK);
+        glBegin(GL_LINES);
+            glVertex2f(bx2, by2 - 6.0f);
+            glVertex2f(bx2, by2 + 6.0f);
+        glEnd();
+
+    glPopMatrix();
+}
 /* ==========================================================
    DRAW AIRPLANE FUNCTION
    Draws a sleek passenger airplane flying near the top right sky
