@@ -517,7 +517,40 @@ void drawCloud()
         glEnd();
     glPopMatrix();
 }
-void drawBird() { }
+/* ==========================================================
+   HELPER FUNCTION TO DRAW A SINGLE BIRD (V-SHAPE / WINGS)
+   ========================================================== */
+void drawSingleBird(float x, float y, float size)
+{
+    glLineWidth(2.0f);
+    glColor3fv(COLOR_BLACK);
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(x - size, y - size * 0.4f);  // Left wing tip
+        glVertex2f(x - size * 0.3f, y);         // Left arch
+        glVertex2f(x, y + size * 0.5f);         // Center body junction
+        glVertex2f(x + size * 0.3f, y);         // Right arch
+        glVertex2f(x + size, y - size * 0.4f);  // Right wing tip
+    glEnd();
+}
+
+/* ==========================================================
+   DRAW BIRD FLOCK FUNCTION
+   Draws a flock of birds flying across the sky in formation
+   ========================================================== */
+void drawBird()
+{
+    glPushMatrix();
+        glTranslatef(birdOffsetX, 0.0f, 0.0f);
+
+        // Flock of birds flying in V-formation
+        drawSingleBird(280.0f, 150.0f, 14.0f); // Leader bird
+        drawSingleBird(250.0f, 170.0f, 11.0f); // Wingman 1 (Left)
+        drawSingleBird(220.0f, 185.0f, 9.0f);  // Wingman 2 (Left back)
+        drawSingleBird(315.0f, 168.0f, 11.0f); // Wingman 3 (Right)
+        drawSingleBird(345.0f, 182.0f, 9.0f);  // Wingman 4 (Right back)
+        drawSingleBird(290.0f, 195.0f, 8.0f);  // Trailing bird
+    glPopMatrix();
+}
 void drawButterfly() { }
 void drawAirplane() { }
 
