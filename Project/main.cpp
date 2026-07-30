@@ -402,7 +402,48 @@ void drawSky()
         glVertex2f(0.0f, 260.0f);
     glEnd();
 }
-void drawSun() { }
+#include <cmath> // Math library top-e na thakle math.h use kora jabe, simple circle math er jonno
+
+/* ==========================================================
+   DRAW SUN FUNCTION
+   Draws a bright yellow sun with a subtle outer glow layer
+   Position: Center (110, 110), Core Radius: 55px, Glow Radius: 70px
+   ========================================================== */
+void drawSun()
+{
+    float cx = 110.0f;
+    float cy = 110.0f;
+    float rOuter = 70.0f;
+    float rInner = 55.0f;
+    int numSegments = 50;
+
+    // 1. Outer Sun Glow (Soft Yellow Radial Blend)
+    glBegin(GL_TRIANGLE_FAN);
+        glColor4f(1.00f, 0.95f, 0.40f, 0.50f); // Soft semi-transparent yellow center
+        glVertex2f(cx, cy);
+        glColor4f(1.00f, 0.95f, 0.40f, 0.00f); // Fades out to transparent
+        for (int i = 0; i <= numSegments; i++)
+        {
+            float theta = 2.0f * 3.1415926f * float(i) / float(numSegments);
+            float x = rOuter * cosf(theta);
+            float y = rOuter * sinf(theta);
+            glVertex2f(cx + x, cy + y);
+        }
+    glEnd();
+
+    // 2. Inner Solid Sun Core (Bright Vibrant Yellow)
+    glBegin(GL_TRIANGLE_FAN);
+        glColor3fv(COLOR_SUN_YELLOW);
+        glVertex2f(cx, cy);
+        for (int i = 0; i <= numSegments; i++)
+        {
+            float theta = 2.0f * 3.1415926f * float(i) / float(numSegments);
+            float x = rInner * cosf(theta);
+            float y = rInner * sinf(theta);
+            glVertex2f(cx + x, cy + y);
+        }
+    glEnd();
+}
 void drawCloud() { }
 void drawBird() { }
 void drawButterfly() { }
