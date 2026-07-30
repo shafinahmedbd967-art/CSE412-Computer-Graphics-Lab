@@ -870,7 +870,65 @@ void drawWindow()
         drawSingleWindow(x, 350.0f);
     }
 }
-void drawDoor() { }
+/* ==========================================================
+   DRAW DOOR FUNCTION
+   Draws the main entrance double door on the ground floor.
+   Position: X (950 -> 1030), Y (330 -> 420)
+   ========================================================== */
+/* ==========================================================
+   DRAW DOOR FUNCTION (CENTER ALIGNED)
+   Draws the main entrance double door centered with the roof banner.
+   Position: X (950 -> 970), Y (330 -> 420)
+   ========================================================== */
+void drawDoor()
+{
+    float dx = 970.0f; // Shifted right by 20px for perfect middle alignment
+    float dy = 330.0f;
+    float dw = 80.0f;
+    float dh = 90.0f;
+
+    // 1. Outer Door Frame / Arch Trim (Dark Wood)
+    glColor3fv(COLOR_DOOR_BROWN);
+    glBegin(GL_QUADS);
+        glVertex2f(dx - 4.0f, dy - 4.0f);
+        glVertex2f(dx + dw + 4.0f, dy - 4.0f);
+        glVertex2f(dx + dw + 4.0f, dy + dh);
+        glVertex2f(dx - 4.0f, dy + dh);
+    glEnd();
+
+    // 2. Door Panels Background (Wooden finish)
+    glColor3f(0.55f, 0.35f, 0.15f);
+    glBegin(GL_QUADS);
+        glVertex2f(dx, dy);
+        glVertex2f(dx + dw, dy);
+        glVertex2f(dx + dw, dy + dh);
+        glVertex2f(dx, dy + dh);
+    glEnd();
+
+    // 3. Center Split Line (Double Door Separation)
+    glColor3fv(COLOR_BLACK);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(dx + dw / 2.0f, dy);
+        glVertex2f(dx + dw / 2.0f, dy + dh);
+    glEnd();
+
+    // 4. Door Handles (Golden / Metallic Knobs)
+    glColor3fv(COLOR_FLOWER_YELLOW);
+    glPointSize(5.0f);
+    glBegin(GL_POINTS);
+        glVertex2f(dx + dw / 2.0f - 6.0f, dy + dh / 2.0f);
+        glVertex2f(dx + dw / 2.0f + 6.0f, dy + dh / 2.0f);
+    glEnd();
+
+    // 5. Door Frame Black Outline
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(dx, dy);
+        glVertex2f(dx + dw, dy);
+        glVertex2f(dx + dw, dy + dh);
+        glVertex2f(dx, dy + dh);
+    glEnd();
+}
 void drawClock() { }
 void drawFlagPole() { }
 void drawBangladeshFlag() { }
