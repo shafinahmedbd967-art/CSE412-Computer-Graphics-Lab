@@ -509,6 +509,14 @@ void drawButterfly() { }
 // Position: Base at X = 800, Y = 60.
 // ============================================================================
 void drawAirplane() {
+    // Update offset to move the airplane continuously across the screen
+    airplaneOffsetX += 1.5f; // Speed of the airplane
+
+    // Reset position when it flies off the right side of the screen
+    if (airplaneOffsetX > 900.0f) {
+        airplaneOffsetX = -900.0f;
+    }
+
     glPushMatrix();
     glTranslatef(airplaneOffsetX, 0.0f, 0.0f); // Animation translation
 
@@ -757,9 +765,11 @@ void drawDoor() {
         glVertex2f(807.0f, 510.0f);
     glEnd();
 }
+#include <ctime>
+
 // ============================================================================
 // FUNCTION: drawClock
-// Description: Renders a circular wall clock inside the triangular roof gable.
+// Description: Renders a circular wall clock synced with current local time.
 // Position: Center at (X = 800, Y = 195), Radius = 18.
 // ============================================================================
 void drawClock() {
@@ -788,19 +798,42 @@ void drawClock() {
         }
     glEnd();
 
-    // 3. Clock Hands (Hour & Minute)
-    glLineWidth(2.0f);
-    glBegin(GL_LINES);
-        // Hour hand (pointing to 10)
-        glVertex2f(cx, cy);
-        glVertex2f(cx - 8.0f, cy - 5.0f);
+    // 3. Fetch Current Local Time
+    time_t rawTime = time(NULL);
+    struct tm* timeInfo = localtime(&rawTime);
 
-        // Minute hand (pointing to 2)
+    int hours = timeInfo->tm_hour % 12;
+    int minutes = timeInfo->tm_min;
+    int seconds = timeInfo->tm_sec;
+
+    // Calculate angles in radians (0 radians points UP at 12 o'clock)
+    float minuteAngle = (minutes + seconds / 60.0f) * (2.0f * 3.14159f / 60.0f);
+    float hourAngle = (hours + minutes / 60.0f) * (2.0f * 3.14159f / 12.0f);
+
+    // Hand lengths
+    float hourHandLen = 9.0f;
+    float minuteHandLen = 13.0f;
+
+    // Note: Y-axis points downward in your coordinate system, so sin is added to Y
+    float hourX = cx + hourHandLen * sin(hourAngle);
+    float hourY = cy - hourHandLen * cos(hourAngle);
+
+    float minX = cx + minuteHandLen * sin(minuteAngle);
+    float minY = cy - minuteHandLen * cos(minuteAngle);
+
+    // 4. Render Clock Hands
+    glColor3fv(COLOR_BLACK);
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        // Hour hand
         glVertex2f(cx, cy);
-        glVertex2f(cx + 10.0f, cy - 10.0f);
+        glVertex2f(hourX, hourY);
+
+        // Minute hand
+        glVertex2f(cx, cy);
+        glVertex2f(minX, minY);
     glEnd();
 }
-
 // ============================================================================
 // FUNCTION: drawFlagPole
 // Description: Renders the flag pole standing on the ground, right next to the main entrance.
@@ -832,6 +865,7 @@ void drawFlagPole() {
     glEnd();
 }
 
+
 // ============================================================================
 // FUNCTION: drawBangladeshFlag
 // Description: Renders the national flag waving near the main door center.
@@ -841,6 +875,10 @@ void drawBangladeshFlag() {
     float topY = 280.0f;
     float flagW = 75.0f;
     float flagH = 45.0f;
+
+    // Calculate dynamic wave movement using time
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f; // Speed of waving
+    flagWaveOffset = sin(time) * 6.0f;               // Waving amplitude
 
     // 1. Green Flag Body
     glColor3fv(COLOR_FLAG_GREEN);
@@ -1757,6 +1795,7 @@ void drawDecorativeTree() {
 // Description: Fills the lower half with green grass, parade grounds, and pathways.
 // ============================================================================
 void drawAssemblyGround() {
+    /*
     // ---------------------------------------------------------
     // 1. Main Green Campus Field (Y: 550 to 900)
     // ---------------------------------------------------------
@@ -1852,6 +1891,7 @@ void drawAssemblyGround() {
         glVertex2f(1520.0f, 650.0f);
         glVertex2f(1280.0f, 650.0f);
     glEnd();
+    */
 }
 
 /* ---- Playground ---- */
