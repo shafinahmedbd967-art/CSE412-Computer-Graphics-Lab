@@ -400,12 +400,6 @@ void drawSky() {
 }
 #include <cmath> // Required for cos() and sin() trigonometric calculations
 
-
-// ============================================================================
-// FUNCTION: drawSun
-// Description: Renders a smooth filled circle representing the sun in the upper-right sky.
-// Position: Center at (X = 1350, Y = 130), Radius = 55.
-// ============================================================================
 // ============================================================================
 // FUNCTION: drawSun
 // Description: Renders a smooth filled circle representing the sun in the upper-right sky.
@@ -429,8 +423,8 @@ void drawSun() {
         }
     glEnd();
 }
-// Helper function to draw a single cloud using overlapping circles
-void drawSingleCloud(float startX, float startY) {
+// Helper function to draw a single cloud using overlapping circles with scaling support
+void drawSingleCloud(float startX, float startY, float scale) {
     int segments = 40;
 
     // Cloud components relative to base point (offset, radius)
@@ -444,12 +438,16 @@ void drawSingleCloud(float startX, float startY) {
         {40.0f,  10.0f, 30.0f}
     };
 
+    glPushMatrix();
+    glTranslatef(startX, startY, 0.0f);
+    glScalef(scale, scale, 1.0f); // Adjust cloud size without changing shape
+
     glColor3fv(COLOR_CLOUD_WHITE);
 
     for (int c = 0; c < 5; c++) {
-        float cx = startX + circles[c].offsetX;
-        float cy = startY + circles[c].offsetY;
-        float r = circles[c].radius;
+        float cx = circles[c].offsetX;
+        float cy = circles[c].offsetY;
+        float r  = circles[c].radius;
 
         glBegin(GL_TRIANGLE_FAN);
             glVertex2f(cx, cy);
@@ -461,21 +459,33 @@ void drawSingleCloud(float startX, float startY) {
             }
         glEnd();
     }
+
+    glPopMatrix();
 }
 
 // ============================================================================
 // FUNCTION: drawCloud
-// Description: Renders three drifting clouds across the sky layer.
+// Description: Renders three drifting clouds across the sky layer with movement.
 // ============================================================================
 void drawCloud() {
-    // Cloud 1 - Left Sky
-    drawSingleCloud(200.0f + cloud1OffsetX, 120.0f);
+    // 1. Update movement offsets (Clouds move at slightly different speeds)
+    cloud1OffsetX += 0.4f; // Small cloud speed
+    cloud2OffsetX += 0.6f; // Medium cloud speed
+    cloud3OffsetX += 0.5f; // Large cloud speed
 
-    // Cloud 2 - Center Sky
-    drawSingleCloud(650.0f + cloud2OffsetX, 90.0f);
+    // 2. Loop clouds back when they leave the right side of the screen
+    if (cloud1OffsetX > 1600.0f) cloud1OffsetX = -300.0f;
+    if (cloud2OffsetX > 1600.0f) cloud2OffsetX = -700.0f;
+    if (cloud3OffsetX > 1600.0f) cloud3OffsetX = -1100.0f;
 
-    // Cloud 3 - Right Sky
-    drawSingleCloud(1050.0f + cloud3OffsetX, 140.0f);
+    // Cloud 1 - Left Sky (Small Size: 0.75x)
+    drawSingleCloud(200.0f + cloud1OffsetX, 120.0f, 0.75f);
+
+    // Cloud 2 - Center Sky (Medium Size: 1.0x)
+    drawSingleCloud(650.0f + cloud2OffsetX, 90.0f, 1.0f);
+
+    // Cloud 3 - Right Sky (Large Size: 1.25x)
+    drawSingleCloud(1050.0f + cloud3OffsetX, 140.0f, 1.25f);
 }
 // Helper function to draw a single V-shaped bird
 void drawSingleBird(float x, float y, float size) {
@@ -491,74 +501,228 @@ void drawSingleBird(float x, float y, float size) {
     glEnd();
 }
 
+// Helper function to draw a single V-shaped bird with wing flapping animation
+void drawSingleBird(float x, float y, float size, float flapAngle) {
+    glColor3fv(COLOR_BLACK);
+    glLineWidth(2.0f);
+
+    // Calculate vertical offset for wing movement
+    float wingY = sin(flapAngle) * (size * 0.4f);
+
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(x - size, y - (size * 0.3f) + wingY); // Left wing tip (Flapping)
+        glVertex2f(x - (size * 0.3f), y - (size * 0.8f)); // Left wing bend
+        glVertex2f(x, y);                                 // Center body
+        glVertex2f(x + (size * 0.3f), y - (size * 0.8f)); // Right wing bend
+        glVertex2f(x + size, y - (size * 0.3f) + wingY); // Right wing tip (Flapping)
+    glEnd();
+}
+
 // ============================================================================
 // FUNCTION: drawBird
-// Description: Renders a small flock of birds flying across the sky.
+// Description: Renders a small flock of birds flying across the sky with flapping wings.
 // ============================================================================
 void drawBird() {
-    // Flock of birds with slight position offsets
-    drawSingleBird(350.0f + birdOffsetX, 80.0f, 12.0f);
-    drawSingleBird(380.0f + birdOffsetX, 100.0f, 15.0f);
-    drawSingleBird(420.0f + birdOffsetX, 75.0f, 11.0f);
-    drawSingleBird(450.0f + birdOffsetX, 95.0f, 14.0f);
-}
-void drawButterfly() { }
-// ============================================================================
-// FUNCTION: drawAirplane
-// Description: Renders an airplane soaring high across the sky layer.
-// Position: Base at X = 800, Y = 60.
-// ============================================================================
-void drawAirplane() {
-    // Update offset to move the airplane continuously across the screen
-    airplaneOffsetX += 1.5f; // Speed of the airplane
+    // 1. Move birds from Right to Left across the screen
+    birdOffsetX -= 1.8f; // Speed of bird flight
 
-    // Reset position when it flies off the right side of the screen
-    if (airplaneOffsetX > 900.0f) {
-        airplaneOffsetX = -900.0f;
+    // Reset position when flock flies off the left side
+    if (birdOffsetX < -600.0f) {
+        birdOffsetX = 1200.0f;
     }
 
+    // 2. Wing Flapping Animation Clock
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.008f;
+
+    // Flock of birds with position offsets and wing flapping effect
+    drawSingleBird(350.0f + birdOffsetX, 80.0f,  12.0f, time);
+    drawSingleBird(380.0f + birdOffsetX, 100.0f, 15.0f, time + 0.5f);
+    drawSingleBird(420.0f + birdOffsetX, 75.0f,  11.0f, time + 1.0f);
+    drawSingleBird(450.0f + birdOffsetX, 95.0f,  14.0f, time + 1.5f);
+}
+// Helper function to draw a single small butterfly
+void drawSingleButterfly(float x, float y, float scale, float wingAngle, float r, float g, float b) {
     glPushMatrix();
-    glTranslatef(airplaneOffsetX, 0.0f, 0.0f); // Animation translation
+    glTranslatef(x, y, 0.0f);
+    glScalef(scale, scale, 1.0f);
 
-    float baseX = 800.0f;
-    float baseY = 60.0f;
-
-    // 1. Fuselage (Body)
-    glColor3f(0.90f, 0.90f, 0.95f); // Light grayish white
-    glBegin(GL_POLYGON);
-        glVertex2f(baseX - 40.0f, baseY);
-        glVertex2f(baseX + 30.0f, baseY - 5.0f);
-        glVertex2f(baseX + 45.0f, baseY);
-        glVertex2f(baseX + 30.0f, baseY + 5.0f);
+    // 1. Butterfly Body
+    glColor3f(0.1f, 0.1f, 0.1f); // Dark body
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, -6.0f);
+        glVertex2f(0.0f, 6.0f);
     glEnd();
 
-    // Nose Cone
-    glColor3f(0.80f, 0.10f, 0.10f); // Red Nose
-    glBegin(GL_TRIANGLES);
-        glVertex2f(baseX - 40.0f, baseY);
-        glVertex2f(baseX - 50.0f, baseY);
-        glVertex2f(baseX - 40.0f, baseY + 3.0f);
+    // Head
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, 6.0f);
+        for (int i = 0; i <= 10; i++) {
+            float angle = i * 2.0f * 3.14159f / 10;
+            glVertex2f(0.0f + 1.2f * cos(angle), 6.0f + 1.2f * sin(angle));
+        }
     glEnd();
 
-    // 2. Wings (Main Sweep Wing)
-    glColor3f(0.70f, 0.75f, 0.85f);
-    glBegin(GL_TRIANGLES);
-        glVertex2f(baseX - 5.0f, baseY - 2.0f);
-        glVertex2f(baseX + 10.0f, baseY - 22.0f);
-        glVertex2f(baseX + 15.0f, baseY - 2.0f);
+    // Antennae
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, 6.0f);
+        glVertex2f(-2.5f, 10.0f);
+        glVertex2f(0.0f, 6.0f);
+        glVertex2f(2.5f, 10.0f);
     glEnd();
 
-    // 3. Tail Fin (Vertical Stabilizer)
-    glColor3f(0.80f, 0.10f, 0.10f); // Red Tail
-    glBegin(GL_TRIANGLES);
-        glVertex2f(baseX + 30.0f, baseY - 3.0f);
-        glVertex2f(baseX + 42.0f, baseY - 18.0f);
-        glVertex2f(baseX + 40.0f, baseY - 3.0f);
+    // 2. Left Wings (Flapping with scale transformation)
+    glPushMatrix();
+    glScalef(cos(wingAngle), 1.0f, 1.0f); // Flapping effect
+    glColor3f(r, g, b); // Wing color
+
+    // Upper Left Wing
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, 1.0f);
+        glVertex2f(-8.0f, 7.0f);
+        glVertex2f(-12.0f, 3.0f);
+        glVertex2f(-6.0f, -2.0f);
     glEnd();
+
+    // Lower Left Wing
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, -1.0f);
+        glVertex2f(-7.0f, -2.0f);
+        glVertex2f(-9.0f, -7.0f);
+        glVertex2f(-3.0f, -6.0f);
+    glEnd();
+    glPopMatrix();
+
+    // 3. Right Wings (Flapping with scale transformation)
+    glPushMatrix();
+    glScalef(cos(wingAngle), 1.0f, 1.0f); // Flapping effect
+    glColor3f(r, g, b); // Wing color
+
+    // Upper Right Wing
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, 1.0f);
+        glVertex2f(8.0f, 7.0f);
+        glVertex2f(12.0f, 3.0f);
+        glVertex2f(6.0f, -2.0f);
+    glEnd();
+
+    // Lower Right Wing
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, -1.0f);
+        glVertex2f(7.0f, -2.0f);
+        glVertex2f(9.0f, -7.0f);
+        glVertex2f(3.0f, -6.0f);
+    glEnd();
+    glPopMatrix();
 
     glPopMatrix();
 }
 
+// ============================================================================
+// FUNCTION: drawButterflies
+// Description: Renders multiple animated butterflies fluttering near garden areas.
+// Screen Resolution Target: 1600 x 900
+// ============================================================================
+void drawButterfly() {
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f; // Animation clock
+
+    // Dynamic wing flap angle
+    float wingFlap = time * 3.0f; // Speed of flapping
+
+    // Butterfly 1: Yellow - Near Left Flower Tub (Around X=450, Y=610)
+    float b1X = 450.0f + sin(time * 0.8f) * 20.0f;
+    float b1Y = 610.0f + cos(time * 1.2f) * 10.0f;
+    drawSingleButterfly(b1X, b1Y, 0.7f, wingFlap, 1.0f, 0.85f, 0.0f);
+
+    // Butterfly 2: Pink/Red - Center Gate Area (Around X=760, Y=600)
+    float b2X = 760.0f + cos(time * 0.9f) * 25.0f;
+    float b2Y = 600.0f + sin(time * 1.1f) * 12.0f;
+    drawSingleButterfly(b2X, b2Y, 0.6f, wingFlap + 1.0f, 1.0f, 0.2f, 0.5f);
+
+    // Butterfly 3: Cyan/Blue - Near Right Flower Tub (Around X=1100, Y=615)
+    float b3X = 1100.0f + sin(time * 1.1f) * 18.0f;
+    float b3Y = 615.0f + cos(time * 0.7f) * 15.0f;
+    drawSingleButterfly(b3X, b3Y, 0.65f, wingFlap + 2.0f, 0.1f, 0.7f, 1.0f);
+
+    // Butterfly 4: Orange - Near Left Trees (Around X=320, Y=580)
+    float b4X = 320.0f + cos(time * 0.7f) * 30.0f;
+    float b4Y = 580.0f + sin(time * 1.3f) * 8.0f;
+    drawSingleButterfly(b4X, b4Y, 0.55f, wingFlap + 1.5f, 1.0f, 0.5f, 0.0f);
+}
+// ============================================================================
+// FUNCTION: drawAirplane
+// Description: Renders an airplane flying naturally facing LEFT to RIGHT or RIGHT to LEFT.
+// Position: Base at X = 800, Y = 60.
+// ============================================================================
+void drawAirplane() {
+    // Move from Right to Left (towards the direction nose is pointing)
+    airplaneOffsetX -= 1.5f;
+
+    // Reset position when it exits the left edge
+    if (airplaneOffsetX < -900.0f) {
+        airplaneOffsetX = 900.0f;
+    }
+
+    glPushMatrix();
+    glTranslatef(airplaneOffsetX, 0.0f, 0.0f);
+
+    float baseX = 800.0f;
+    float baseY = 60.0f;
+
+    // 1. Main Body (Fuselage facing LEFT)
+    glColor3f(0.95f, 0.95f, 0.98f); // Bright clean white
+    glBegin(GL_POLYGON);
+        glVertex2f(baseX - 45.0f, baseY);        // Nose tip
+        glVertex2f(baseX - 35.0f, baseY - 4.0f); // Top curve
+        glVertex2f(baseX + 35.0f, baseY - 4.0f); // Tail top
+        glVertex2f(baseX + 45.0f, baseY);        // Tail tip
+        glVertex2f(baseX + 35.0f, baseY + 4.0f); // Tail bottom
+        glVertex2f(baseX - 35.0f, baseY + 4.0f); // Bottom curve
+    glEnd();
+
+    // 2. Cockpit Window (Facing LEFT)
+    glColor3f(0.2f, 0.4f, 0.6f); // Glass blue
+    glBegin(GL_TRIANGLES);
+        glVertex2f(baseX - 25.0f, baseY - 2.0f);
+        glVertex2f(baseX - 15.0f, baseY - 4.0f);
+        glVertex2f(baseX - 20.0f, baseY);
+    glEnd();
+
+    // 3. Nose Cone (Red tip at the FRONT/LEFT)
+    glColor3f(0.85f, 0.15f, 0.15f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(baseX - 45.0f, baseY);
+        glVertex2f(baseX - 55.0f, baseY + 1.0f);
+        glVertex2f(baseX - 45.0f, baseY + 3.0f);
+    glEnd();
+
+    // 4. Main Swept-back Wings (Slanted towards tail/RIGHT)
+    glColor3f(0.75f, 0.80f, 0.90f);
+    glBegin(GL_QUADS);
+        glVertex2f(baseX - 5.0f, baseY);
+        glVertex2f(baseX + 10.0f, baseY);
+        glVertex2f(baseX + 20.0f, baseY - 28.0f); // Swept back right
+        glVertex2f(baseX + 5.0f, baseY - 28.0f);
+    glEnd();
+
+    // 5. Tail Fin (At the REAR/RIGHT)
+    glColor3f(0.85f, 0.15f, 0.15f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(baseX + 30.0f, baseY - 4.0f);
+        glVertex2f(baseX + 42.0f, baseY - 16.0f);
+        glVertex2f(baseX + 44.0f, baseY - 4.0f);
+    glEnd();
+
+    // 6. Horizontal Stabilizers (At the REAR/RIGHT)
+    glColor3f(0.80f, 0.85f, 0.92f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(baseX + 35.0f, baseY);
+        glVertex2f(baseX + 45.0f, baseY - 8.0f);
+        glVertex2f(baseX + 46.0f, baseY);
+    glEnd();
+
+    glPopMatrix();
+}
 /* ---- School Building Layer ---- */
 // ============================================================================
 // FUNCTION: drawSchool
