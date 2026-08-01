@@ -31,6 +31,7 @@
 #include <GL/glut.h>
 #include <cmath>
 #include <cstdlib>
+#define _USE_MATH_DEFINES
 
 /* ==========================================================
    WINDOW CONSTANTS
@@ -680,15 +681,117 @@ void drawRectOutline(int x1, int y1, int x2, int y2, GLfloat color[3])
    ========================================================== */
 
 /* ---- Sky Layer ---- */
-void drawSky() { }
-void drawSun() { }
-void drawCloud() { }
+/*
+ * Function: drawSky
+ * Description: Renders the sky background covering the entire 1600x900 canvas.
+ * Blueprint Section: 1 (Sky Layer)
+ */
+void drawSky() {
+    // Fill the entire canvas with sky blue color
+    fillRect(0.0f, 0.0f, 1600.0f, 900.0f, COLOR_SKY_BLUE);
+}
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <GL/glut.h>
+
+// Colors definition based on Blueprint
+const float COLOR_SUN[3] = { 1.0f, 0.84f, 0.0f }; // Gold / Bright Yellow
+
+/*
+ * Function: drawCircle
+ * Description: Helper function to draw a filled circle.
+ * Parameters:
+ *   cx, cy - Center coordinates of the circle
+ *   r      - Radius of the circle
+ *   color  - RGB color array
+ */
+void drawCircle(float cx, float cy, float r, const float color[3]) {
+    int segments = 100; // Number of triangles to create a smooth circle
+    glColor3fv(color);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(cx, cy); // Center point
+    for (int i = 0; i <= segments; ++i) {
+        float angle = i * 2.0f * M_PI / segments;
+        float x = cx + r * cosf(angle);
+        float y = cy + r * sinf(angle);
+        glVertex2f(x, y);
+    }
+    glEnd();
+}
+
+/*
+ * Function: drawSun
+ * Description: Renders the Sun on the sky layer based on the Master Blueprint.
+ * Blueprint Section: 2 (Sun Layer)
+ * Coordinates: Center (1400, 150), Radius = 60
+ */
+void drawSun() {
+    // Draw filled circle for Sun at (1400, 150) with radius 60
+    drawCircle(1400.0f, 150.0f, 60.0f, COLOR_SUN);
+}
+// Colors definition
+//const float COLOR_CLOUD_WHITE[3] = { 1.0f, 1.0f, 1.0f }; // Pure White
+
+/*
+ * Function: drawSingleCloud
+ * Description: Helper function to build a cloud out of three overlapping circles.
+ * Parameters:
+ *   centerX, centerY - Anchor position for the main center circle
+ *   rLeft, rCenter, rRight - Radii for left, center, and right circles
+ */
+void drawSingleCloud(float centerX, float centerY, float rLeft, float rCenter, float rRight) {
+    // Left circle offset
+    drawCircle(centerX - rCenter * 0.7f, centerY, rLeft, COLOR_CLOUD_WHITE);
+    // Center circle
+    drawCircle(centerX, centerY - rCenter * 0.2f, rCenter, COLOR_CLOUD_WHITE);
+    // Right circle offset
+    drawCircle(centerX + rCenter * 0.7f, centerY, rRight, COLOR_CLOUD_WHITE);
+}
+
+/*
+ * Function: drawCloud
+ * Description: Renders all clouds on the sky layer based on Master Blueprint.
+ * Blueprint Section: 3 (Clouds Layer)
+ */
+void drawCloud() {
+    // Cloud 1 at position (250, 150)
+    drawSingleCloud(250.0f, 150.0f, 45.0f, 55.0f, 45.0f);
+
+    // Cloud 2 at position (600, 120)
+    drawSingleCloud(600.0f, 120.0f, 40.0f, 50.0f, 40.0f);
+}
+// Colors definition
+//const float COLOR_GRASS_GREEN[3] = { 0.13f, 0.55f, 0.13f }; // Forest/Grass Green
+
+/*
+ * Function: fillRect
+ * Description: Helper function to draw a filled rectangle using OpenGL Quads.
+ */
+void fillRect(float x, float y, float width, float height, const float color[3]) {
+    glColor3fv(color);
+    glBegin(GL_QUADS);
+        glVertex2f(x, y);                 // Top-Left
+        glVertex2f(x + width, y);         // Top-Right
+        glVertex2f(x + width, y + height); // Bottom-Right
+        glVertex2f(x, y + height);        // Bottom-Left
+    glEnd();
+}
+
 void drawBird() { }
 void drawButterfly() { }
 void drawAirplane() { }
 
 /* ---- Ground ---- */
-void drawGround() { }
+/*
+ * Function: drawGround
+ * Description: Renders the ground layer starting from Y=500 to the bottom of the canvas.
+ * Blueprint Section: 4 (Ground Layer)
+ */
+// Function to draw the ground using pixel coordinates
+void drawGround() {
+    // Ground rect starts at X=0, Y=500, with width=1600 and height=400 (covers down to Y=900)
+    fillRect(0.0f, 600.0f, 1600.0f, 500.0f, COLOR_GRASS_GREEN);
+}
 void drawGrass() { }
 
 /* ---- Building Layer ---- */
