@@ -420,56 +420,82 @@ void drawSky()
 
     glEnd();
 }
-#include <cmath> // Required for cos() and sin() trigonometric calculations
-
 // ============================================================================
 // FUNCTION: drawSun
-// Description: Renders a smooth filled circle representing the sun in the upper-right sky.
-// Position: Center at (X = 1350, Y = 130), Radius = 55.
+// Description: Renders a realistic 11 AM sun with a bright core and soft radial glow effect.
+// Position: Center at (X = 1350, Y = 130), Base Radius = 38 (Reduced size).
 // ============================================================================
 void drawSun()
 {
-    glColor3fv(COLOR_SUN_YELLOW);
-
     float centerX = 1350.0f;
     float centerY = 130.0f;
-    float radius = 55.0f;
+    float coreRadius = 38.0f;      // Slightly reduced size for realism
+    float glowRadius = 55.0f;      // Soft outer glow border
     int segments = 60;
 
+    // ---------------------------------------------------------
+    // 1. Soft Outer Sunlight Glow (Gradient Triangle Fan)
+    // ---------------------------------------------------------
     glBegin(GL_TRIANGLE_FAN);
+    // Glow Center Color (Warm bright yellow)
+    glColor4f(1.0f, 0.95f, 0.6f, 0.6f);
     glVertex2f(centerX, centerY);
+
+    // Glow Edge Color (Fades smoothly into sky)
+    glColor4f(1.0f, 0.92f, 0.5f, 0.0f);
     for (int i = 0; i <= segments; i++)
     {
         float angle = i * 2.0f * 3.14159f / segments;
-        float x = centerX + (radius * cos(angle));
-        float y = centerY + (radius * sin(angle));
+        float x = centerX + (glowRadius * cos(angle));
+        float y = centerY + (glowRadius * sin(angle));
+        glVertex2f(x, y);
+    }
+    glEnd();
+
+    // ---------------------------------------------------------
+    // 2. Bright Inner Sun Core (Radiant Center)
+    // ---------------------------------------------------------
+    glBegin(GL_TRIANGLE_FAN);
+    // Core Center Color (Very bright white-yellow for intense 11 AM sun)
+    glColor3f(1.0f, 0.98f, 0.85f);
+    glVertex2f(centerX, centerY);
+
+    // Core Edge Color (Golden Sun Yellow)
+    glColor3f(1.0f, 0.88f, 0.25f);
+    for (int i = 0; i <= segments; i++)
+    {
+        float angle = i * 2.0f * 3.14159f / segments;
+        float x = centerX + (coreRadius * cos(angle));
+        float y = centerY + (coreRadius * sin(angle));
         glVertex2f(x, y);
     }
     glEnd();
 }
-// Helper function to draw a single cloud using overlapping circles with scaling support
+// ============================================================================
+// FUNCTION: drawSingleCloud
+// Description: Keeps the clean original shape, but trims the lower bulge to make
+//              it look light, flat-bottomed, and realistic with soft 11 AM highlights.
+// ============================================================================
 void drawSingleCloud(float startX, float startY, float scale)
 {
-    int segments = 40;
+    int segments = 50;
 
-    // Cloud components relative to base point (offset, radius)
+    // Original clean arrangement with trimmed lower offsets (offsetX, offsetY, radius)
     struct CloudCircle
     {
         float offsetX, offsetY, radius;
     } circles[] =
     {
-        {0.0f,   0.0f,  30.0f},
-        {25.0f, -15.0f, 38.0f},
-        {55.0f, -10.0f, 32.0f},
-        {80.0f,  0.0f,  28.0f},
-        {40.0f,  10.0f, 30.0f}
+        {  0.0f,   0.0f, 26.0f }, // Left Base
+        { 22.0f,  12.0f, 32.0f }, // Middle-Left Main Top
+        { 50.0f,  10.0f, 28.0f }, // Middle-Right Top
+        { 72.0f,   2.0f, 24.0f }, // Right Base
+        { 35.0f,  -2.0f, 25.0f }  // Bottom Center Flattened Base (Trimmed to avoid bulge)
     };
 
     glPushMatrix();
     glTranslatef(startX, startY, 0.0f);
-    glScalef(scale, scale, 1.0f); // Adjust cloud size without changing shape
-
-    glColor3fv(COLOR_CLOUD_WHITE);
+    glScalef(scale, scale, 1.0f);
 
     for (int c = 0; c < 5; c++)
     {
@@ -478,13 +504,28 @@ void drawSingleCloud(float startX, float startY, float scale)
         float r  = circles[c].radius;
 
         glBegin(GL_TRIANGLE_FAN);
+
+        // Center Color: Top gets pure white sunlight, bottom gets soft depth
+        if (cy > 0.0f) {
+            glColor3f(1.0f, 1.0f, 1.0f);        // Bright White Highlight
+        } else {
+            glColor3f(0.92f, 0.95f, 0.98f);     // Soft Subtle Base
+        }
         glVertex2f(cx, cy);
+
+        // Edge Colors (Smooth Gradient)
         for (int i = 0; i <= segments; i++)
         {
             float angle = i * 2.0f * 3.14159f / segments;
-            float x = cx + (r * cos(angle));
-            float y = cy + (r * sin(angle));
-            glVertex2f(x, y);
+            float px = cx + (r * cos(angle));
+            float py = cy + (r * sin(angle));
+
+            if (py > cy) {
+                glColor3f(1.0f, 1.0f, 1.0f);    // Sunlight top edge
+            } else {
+                glColor3f(0.88f, 0.92f, 0.96f); // Soft lower edge
+            }
+            glVertex2f(px, py);
         }
         glEnd();
     }
@@ -494,42 +535,47 @@ void drawSingleCloud(float startX, float startY, float scale)
 
 // ============================================================================
 // FUNCTION: drawCloud
-// Description: Renders three drifting clouds across the sky layer with movement.
+// Description: Renders five realistic drifting clouds across the sky with unique speeds.
 // ============================================================================
+
+// Extra global movement offsets for the 2 new clouds (Define these globally in your code)
+ float cloud4OffsetX = 0.0f;
+ float cloud5OffsetX = 0.0f;
+
 void drawCloud()
 {
-    // 1. Update movement offsets (Clouds move at slightly different speeds)
-    cloud1OffsetX += 0.4f; // Small cloud speed
-    cloud2OffsetX += 0.6f; // Medium cloud speed
-    cloud3OffsetX += 0.5f; // Large cloud speed
+    // 1. Update movement offsets (5 clouds with slightly varying speeds)
+    cloud1OffsetX += 0.35f; // Small cloud 1 speed
+    cloud2OffsetX += 0.55f; // Medium cloud 2 speed
+    cloud3OffsetX += 0.45f; // Large cloud 3 speed
+    cloud4OffsetX += 0.60f; // Fast small cloud 4 speed
+    cloud5OffsetX += 0.40f; // Medium-high cloud 5 speed
 
-    // 2. Loop clouds back when they leave the right side of the screen
+    // 2. Loop clouds smoothly back when they leave the right side (X = 1600)
     if (cloud1OffsetX > 1600.0f) cloud1OffsetX = -300.0f;
     if (cloud2OffsetX > 1600.0f) cloud2OffsetX = -700.0f;
     if (cloud3OffsetX > 1600.0f) cloud3OffsetX = -1100.0f;
+    if (cloud4OffsetX > 1600.0f) cloud4OffsetX = -500.0f;
+    if (cloud5OffsetX > 1600.0f) cloud5OffsetX = -1300.0f;
 
-    // Cloud 1 - Left Sky (Small Size: 0.75x)
-    drawSingleCloud(200.0f + cloud1OffsetX, 120.0f, 0.75f);
+    // ---------------------------------------------------------
+    // Render 5 Clouds across different Y positions and scales
+    // ---------------------------------------------------------
 
-    // Cloud 2 - Center Sky (Medium Size: 1.0x)
-    drawSingleCloud(650.0f + cloud2OffsetX, 90.0f, 1.0f);
+    // Cloud 1 - Far Left Sky (Small Size: 0.70x)
+    drawSingleCloud(150.0f + cloud1OffsetX, 110.0f, 0.70f);
 
-    // Cloud 3 - Right Sky (Large Size: 1.25x)
-    drawSingleCloud(1050.0f + cloud3OffsetX, 140.0f, 1.25f);
-}
-// Helper function to draw a single V-shaped bird
-void drawSingleBird(float x, float y, float size)
-{
-    glColor3fv(COLOR_BLACK);
-    glLineWidth(2.0f);
+    // Cloud 2 - Mid Left Sky (Fast & Tiny: 0.55x) -> NEW CLOUD 4
+    drawSingleCloud(450.0f + cloud4OffsetX, 60.0f, 0.55f);
 
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(x - size, y - (size * 0.5f)); // Left wing tip
-    glVertex2f(x - (size * 0.3f), y - size); // Left wing bend
-    glVertex2f(x, y);                        // Center body
-    glVertex2f(x + (size * 0.3f), y - size); // Right wing bend
-    glVertex2f(x + size, y - (size * 0.5f)); // Right wing tip
-    glEnd();
+    // Cloud 3 - Center Sky (Medium Size: 0.95x)
+    drawSingleCloud(750.0f + cloud2OffsetX, 95.0f, 0.95f);
+
+    // Cloud 4 - Mid Right Sky (Higher up, Medium: 0.80x) -> NEW CLOUD 5
+    drawSingleCloud(1050.0f + cloud5OffsetX, 50.0f, 0.80f);
+
+    // Cloud 5 - Far Right Sky (Large Size: 1.15x)
+    drawSingleCloud(1350.0f + cloud3OffsetX, 130.0f, 1.15f);
 }
 
 // Helper function to draw a single V-shaped bird with wing flapping animation
