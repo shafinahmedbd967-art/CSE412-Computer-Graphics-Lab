@@ -26,7 +26,7 @@
    ========================================================== */
 const int WINDOW_WIDTH  = 1600;
 const int WINDOW_HEIGHT = 900;
-const char* WINDOW_TITLE = "Modern Government Primary School in Bangladesh";
+const char* WINDOW_TITLE = "Government Primary School in Bangladesh";
 
 /* ==========================================================
    COLOR CONSTANTS
