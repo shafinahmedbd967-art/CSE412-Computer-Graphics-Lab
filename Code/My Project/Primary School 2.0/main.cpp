@@ -1106,12 +1106,12 @@ void drawBalconyDoor(float x, float y, float width, float height)
 
 // ============================================================================
 // FUNCTION: drawWindow
-// Layout: Door -> Window -> Door -> Window on balcony floors for realism
+// Description: Lifted ground floor windows MUCH HIGHER (Y value decreased in OpenGL)
 // ============================================================================
 void drawWindow()
 {
     float itemWidth = 24.0f;
-    float windowHeight = 32.0f;
+    float windowHeight = 22.0f;
     float doorHeight = 40.0f;
 
     // Floor Y-Positions
@@ -1119,18 +1119,25 @@ void drawWindow()
     float floor2Y = 342.0f;
     float floor1Y = 428.0f;
 
-    // --- 1ST FLOOR (Ground Floor: Regular Windows Only) ---
+    // Window Y Offset for upper balcony floors
+    float windowYOffset = 6.0f;
+
+    // Ground floor window Y position: Significantly decreased (moved UP towards roof)
+    // Door is at Y = 415 to 480. We put windows at Y = 425 to 447.
+    float groundWinY = 425.0f;
+
+    // --- 1ST FLOOR (Ground Floor: Lifted UP properly away from ground) ---
     // Left Block
     for (float x = 490.0f; x <= 630.0f; x += 44.0f)
-        drawSingleWindow(x, floor1Y, itemWidth, windowHeight);
+        drawSingleWindow(x, groundWinY, itemWidth, windowHeight);
 
     // Middle Block (Flanking the Main Entrance Door)
-    drawSingleWindow(730.0f, floor1Y, itemWidth, windowHeight);
-    drawSingleWindow(842.0f, floor1Y, itemWidth, windowHeight);
+    drawSingleWindow(730.0f, groundWinY, itemWidth, windowHeight);
+    drawSingleWindow(842.0f, groundWinY, itemWidth, windowHeight);
 
     // Right Block
     for (float x = 955.0f; x <= 1090.0f; x += 44.0f)
-        drawSingleWindow(x, floor1Y, itemWidth, windowHeight);
+        drawSingleWindow(x, groundWinY, itemWidth, windowHeight);
 
 
     // --- 2ND & 3RD FLOORS (Balcony Floors: Door - Window - Door - Window) ---
@@ -1139,23 +1146,24 @@ void drawWindow()
     for (int f = 0; f < 2; f++)
     {
         float currentY = upperFloorsY[f];
+        float winY = currentY + windowYOffset;
 
-        // Left Section (Alternate: Door, Window, Door, Window)
+        // Left Section
         drawBalconyDoor(490.0f, currentY, itemWidth, doorHeight);
-        drawSingleWindow(534.0f, currentY, itemWidth, windowHeight);
+        drawSingleWindow(534.0f, winY, itemWidth, windowHeight);
         drawBalconyDoor(578.0f, currentY, itemWidth, doorHeight);
-        drawSingleWindow(622.0f, currentY, itemWidth, windowHeight);
+        drawSingleWindow(622.0f, winY, itemWidth, windowHeight);
 
-        // Middle Section (Alternate: Door, Window, Door)
+        // Middle Section
         drawBalconyDoor(725.0f, currentY, itemWidth, doorHeight);
-        drawSingleWindow(786.0f, currentY, itemWidth, windowHeight);
+        drawSingleWindow(786.0f, winY, itemWidth, windowHeight);
         drawBalconyDoor(847.0f, currentY, itemWidth, doorHeight);
 
-        // Right Section (Alternate: Door, Window, Door, Window)
+        // Right Section
         drawBalconyDoor(955.0f, currentY, itemWidth, doorHeight);
-        drawSingleWindow(999.0f, currentY, itemWidth, windowHeight);
+        drawSingleWindow(999.0f, winY, itemWidth, windowHeight);
         drawBalconyDoor(1043.0f, currentY, itemWidth, doorHeight);
-        drawSingleWindow(1087.0f, currentY, itemWidth, windowHeight);
+        drawSingleWindow(1087.0f, winY, itemWidth, windowHeight);
     }
 
     // --- BALCONIES ---
