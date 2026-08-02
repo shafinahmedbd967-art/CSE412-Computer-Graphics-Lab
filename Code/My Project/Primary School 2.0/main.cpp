@@ -875,20 +875,26 @@ void backBoundaryWall() {
     glLineWidth(1.0f); // Reset line width
 }
 /* ---- School Building Layer ---- */
+
+#include <GL/glut.h>
+#include <cmath>
+#include <ctime>
+
+
 // ============================================================================
 // FUNCTION: drawSchool
-// Description: Renders the primary multi-story school building structure.
-// Position: Centered on canvas (X = 350 to 1250, Y = 180 to 480).
+// Description: Moved UP & Resized School (Y = 250 to 480).
+// Opens up a large assembly & road area in front.
 // ============================================================================
 void drawSchool()
 {
     // 1. Main Base Building Walls (Cream Base)
     glColor3fv(COLOR_BUILDING_CREAM);
     glBegin(GL_QUADS);
-    glVertex2f(350.0f, 250.0f);   // Top-Left
-    glVertex2f(1250.0f, 250.0f);  // Top-Right
-    glVertex2f(1250.0f, 550.0f);  // Bottom-Right
-    glVertex2f(350.0f, 550.0f);   // Bottom-Left
+    glVertex2f(450.0f, 250.0f);   // Top-Left
+    glVertex2f(1150.0f, 250.0f);  // Top-Right
+    glVertex2f(1150.0f, 480.0f);  // Bottom-Right
+    glVertex2f(450.0f, 480.0f);   // Bottom-Left
     glEnd();
 
     // 2. Red Structural Accent Pillars
@@ -896,99 +902,104 @@ void drawSchool()
 
     // Left Pillar
     glBegin(GL_QUADS);
-    glVertex2f(350.0f, 250.0f);
-    glVertex2f(380.0f, 250.0f);
-    glVertex2f(380.0f, 550.0f);
-    glVertex2f(350.0f, 550.0f);
+    glVertex2f(450.0f, 250.0f);
+    glVertex2f(475.0f, 250.0f);
+    glVertex2f(475.0f, 480.0f);
+    glVertex2f(450.0f, 480.0f);
     glEnd();
 
     // Center-Left Support Column
     glBegin(GL_QUADS);
-    glVertex2f(630.0f, 250.0f);
-    glVertex2f(650.0f, 250.0f);
-    glVertex2f(650.0f, 550.0f);
-    glVertex2f(630.0f, 550.0f);
+    glVertex2f(665.0f, 250.0f);
+    glVertex2f(682.0f, 250.0f);
+    glVertex2f(682.0f, 480.0f);
+    glVertex2f(665.0f, 480.0f);
     glEnd();
 
     // Center-Right Support Column
     glBegin(GL_QUADS);
-    glVertex2f(950.0f, 250.0f);
-    glVertex2f(970.0f, 250.0f);
-    glVertex2f(970.0f, 550.0f);
-    glVertex2f(950.0f, 550.0f);
+    glVertex2f(918.0f, 250.0f);
+    glVertex2f(935.0f, 250.0f);
+    glVertex2f(935.0f, 480.0f);
+    glVertex2f(918.0f, 480.0f);
     glEnd();
 
     // Right Pillar
     glBegin(GL_QUADS);
-    glVertex2f(1220.0f, 250.0f);
-    glVertex2f(1250.0f, 250.0f);
-    glVertex2f(1250.0f, 550.0f);
-    glVertex2f(1220.0f, 550.0f);
+    glVertex2f(1125.0f, 250.0f);
+    glVertex2f(1150.0f, 250.0f);
+    glVertex2f(1150.0f, 480.0f);
+    glVertex2f(1125.0f, 480.0f);
     glEnd();
 
     // Horizontal Floor Dividers
-    glLineWidth(3.0f);
+    glLineWidth(2.5f);
     glColor3f(0.50f, 0.10f, 0.10f);
     glBegin(GL_LINES);
     // Floor 1 & 2 Divider
-    glVertex2f(350.0f, 350.0f);
-    glVertex2f(1250.0f, 350.0f);
+    glVertex2f(450.0f, 326.0f);
+    glVertex2f(1150.0f, 326.0f);
 
     // Floor 2 & 3 Divider
-    glVertex2f(350.0f, 450.0f);
-    glVertex2f(1250.0f, 450.0f);
+    glVertex2f(450.0f, 403.0f);
+    glVertex2f(1150.0f, 403.0f);
     glEnd();
 }
+
+// ============================================================================
+// FUNCTION: drawRoof
+// ============================================================================
 void drawRoof()
 {
-    // 1. Main Horizontal Roof Slab (Sits perfectly on top of the school at Y = 235 to 250)
+    // 1. Main Horizontal Roof Slab (Y = 237 to 250)
     glColor3fv(COLOR_ROOF_GRAY);
     glBegin(GL_QUADS);
-    glVertex2f(330.0f, 235.0f);   // Top-Left
-    glVertex2f(1270.0f, 235.0f);  // Top-Right
-    glVertex2f(1270.0f, 250.0f);  // Bottom-Right
-    glVertex2f(330.0f, 250.0f);   // Bottom-Left
+    glVertex2f(435.0f, 237.0f);   // Top-Left
+    glVertex2f(1165.0f, 237.0f);  // Top-Right
+    glVertex2f(1165.0f, 250.0f);  // Bottom-Right
+    glVertex2f(435.0f, 250.0f);   // Bottom-Left
     glEnd();
 
-    // 2. Parapet Safety Wall (Red Accent above the gray roof slab)
+    // 2. Parapet Safety Wall
     glColor3fv(COLOR_BUILDING_RED);
     glBegin(GL_QUADS);
-    glVertex2f(350.0f, 220.0f);
-    glVertex2f(1250.0f, 220.0f);
-    glVertex2f(1250.0f, 235.0f);
-    glVertex2f(350.0f, 235.0f);
+    glVertex2f(450.0f, 224.0f);
+    glVertex2f(1150.0f, 224.0f);
+    glVertex2f(1150.0f, 237.0f);
+    glVertex2f(450.0f, 237.0f);
     glEnd();
 
     // 3. Central Gable Roof (Triangular Peak)
     glColor3fv(COLOR_BUILDING_RED);
     glBegin(GL_TRIANGLES);
-    glVertex2f(800.0f, 160.0f);
-    glVertex2f(720.0f, 220.0f);
-    glVertex2f(880.0f, 220.0f);
+    glVertex2f(800.0f, 172.0f);
+    glVertex2f(735.0f, 224.0f);
+    glVertex2f(865.0f, 224.0f);
     glEnd();
 
     // Triangular Gable Inner Border
     glColor3fv(COLOR_BUILDING_CREAM);
-    glLineWidth(3.0f);
+    glLineWidth(2.5f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(800.0f, 168.0f);
-    glVertex2f(730.0f, 217.0f);
-    glVertex2f(870.0f, 217.0f);
+    glVertex2f(800.0f, 178.0f);
+    glVertex2f(743.0f, 221.0f);
+    glVertex2f(857.0f, 221.0f);
     glEnd();
 }
-// Helper function to draw a single double-pane window with dark border
+
+// Helper function to draw a single double-pane window
 void drawSingleWindow(float x, float y, float width, float height)
 {
-    // 1. Dark Frame / Border
-    glColor3f(0.15f, 0.15f, 0.20f); // Dark Slate Border
+    // 1. Dark Frame
+    glColor3f(0.15f, 0.15f, 0.20f);
     glBegin(GL_QUADS);
-    glVertex2f(x - 2.0f, y - 2.0f);
-    glVertex2f(x + width + 2.0f, y - 2.0f);
-    glVertex2f(x + width + 2.0f, y + height + 2.0f);
-    glVertex2f(x - 2.0f, y + height + 2.0f);
+    glVertex2f(x - 1.5f, y - 1.5f);
+    glVertex2f(x + width + 1.5f, y - 1.5f);
+    glVertex2f(x + width + 1.5f, y + height + 1.5f);
+    glVertex2f(x - 1.5f, y + height + 1.5f);
     glEnd();
 
-    // 2. Glass Panes (Blue Tint using exact palette variable)
+    // 2. Glass Panes
     glColor3fv(COLOR_WINDOW_BLUE);
     glBegin(GL_QUADS);
     glVertex2f(x, y);
@@ -997,113 +1008,179 @@ void drawSingleWindow(float x, float y, float width, float height)
     glVertex2f(x, y + height);
     glEnd();
 
-    // 3. Middle Window Pane Divider (Vertical Split)
+    // 3. Middle Window Divider
     glColor3f(0.20f, 0.20f, 0.25f);
-    glLineWidth(2.0f);
+    glLineWidth(1.5f);
     glBegin(GL_LINES);
     glVertex2f(x + (width / 2.0f), y);
     glVertex2f(x + (width / 2.0f), y + height);
     glEnd();
 }
 
+// Helper function to draw realistic balcony with 3D floor projection
+void drawRealisticBalcony(float startX, float endX, float balconyY)
+{
+    // 1. Under-Balcony Shadow
+    glColor3f(0.35f, 0.35f, 0.30f);
+    glBegin(GL_QUADS);
+    glVertex2f(startX - 1.5f, balconyY + 5.0f);
+    glVertex2f(endX + 1.5f, balconyY + 5.0f);
+    glVertex2f(endX + 1.5f, balconyY + 9.0f);
+    glVertex2f(startX - 1.5f, balconyY + 9.0f);
+    glEnd();
+
+    // 2. Main Concrete Balcony Base Extension
+    glColor3f(0.78f, 0.78f, 0.80f);
+    glBegin(GL_QUADS);
+    glVertex2f(startX - 5.0f, balconyY);
+    glVertex2f(endX + 5.0f, balconyY);
+    glVertex2f(endX + 5.0f, balconyY + 5.0f);
+    glVertex2f(startX - 5.0f, balconyY + 5.0f);
+    glEnd();
+
+    // 3. Concrete Slab Edge Highlight
+    glColor3f(0.55f, 0.55f, 0.58f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+    glVertex2f(startX - 5.0f, balconyY + 5.0f);
+    glVertex2f(endX + 5.0f, balconyY + 5.0f);
+    glEnd();
+
+    // 4. Balcony Railings - Vertical Steel Grill Bars
+    glColor3f(0.20f, 0.20f, 0.25f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+    for (float x = startX - 2.0f; x <= endX + 2.0f; x += 8.0f)
+    {
+        glVertex2f(x, balconyY - 15.0f);
+        glVertex2f(x, balconyY);
+    }
+    glEnd();
+
+    // 5. Top Handrail
+    glColor3f(0.10f, 0.10f, 0.15f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+    glVertex2f(startX - 5.0f, balconyY - 15.0f);
+    glVertex2f(endX + 5.0f, balconyY - 15.0f);
+    glEnd();
+}
+
 // ============================================================================
 // FUNCTION: drawWindow
-// Description: Renders glass windows across all 3 floors of the school building.
+// Description: Fixed window alignment & restored missing window near main door.
 // ============================================================================
 void drawWindow()
 {
-    float windowWidth = 35.0f;
-    float windowHeight = 45.0f;
+    float windowWidth = 28.0f;
+    float windowHeight = 32.0f;
+    float balconyDoorHeight = 40.0f;
 
-    // Floor Y-Positions for Windows
-    float floor3Y = 280.0f; // Top Floor
-    float floor2Y = 380.0f; // Middle Floor
-    float floor1Y = 480.0f; // Ground Floor
+    // Floor Y-Positions
+    float floor3Y = 265.0f;
+    float floor2Y = 342.0f;
+    float floor1Y = 428.0f;
 
-    // Section A: Left Block
-    for (float x = 405.0f; x <= 580.0f; x += 55.0f)
+    // --- Section A: Left Block (4 Windows per floor) ---
+    for (float x = 492.0f; x <= 630.0f; x += 44.0f)
     {
-        drawSingleWindow(x, floor3Y, windowWidth, windowHeight);
-        drawSingleWindow(x, floor2Y, windowWidth, windowHeight);
+        drawSingleWindow(x, floor3Y, windowWidth, balconyDoorHeight);
+        drawSingleWindow(x, floor2Y, windowWidth, balconyDoorHeight);
         drawSingleWindow(x, floor1Y, windowWidth, windowHeight);
     }
 
-    // Section B: Middle Block
-    for (float x = 680.0f; x <= 900.0f; x += 55.0f)
-    {
-        drawSingleWindow(x, floor3Y, windowWidth, windowHeight);
-        drawSingleWindow(x, floor2Y, windowWidth, windowHeight);
+    // --- Section B: Middle Block (3 Centered Windows per floor) ---
+    // Floating X points evenly spaced across the middle column (X = 730, 786, 842)
+    float midX[] = {730.0f, 786.0f, 842.0f};
 
-        // Remove windows completely around the center door on Ground Floor
-        if (x < 720.0f || x > 870.0f)
-        {
-            drawSingleWindow(x, floor1Y, windowWidth, windowHeight);
-        }
+    // 3rd & 2nd Floor (All 3 Windows/Balcony Doors)
+    for (int i = 0; i < 3; i++)
+    {
+        drawSingleWindow(midX[i], floor3Y, windowWidth, balconyDoorHeight);
+        drawSingleWindow(midX[i], floor2Y, windowWidth, balconyDoorHeight);
     }
 
-    // Section C: Right Block
-    for (float x = 995.0f; x <= 1170.0f; x += 55.0f)
+    // 1st Floor (2 Windows flanking the main door: Left at 730, Right at 842)
+    drawSingleWindow(midX[0], floor1Y, windowWidth, windowHeight); // Left Window
+    drawSingleWindow(midX[2], floor1Y, windowWidth, windowHeight); // Right Window (FIXED MISSING WINDOW)
+
+
+    // --- Section C: Right Block (4 Windows per floor) ---
+    for (float x = 955.0f; x <= 1090.0f; x += 44.0f)
     {
-        drawSingleWindow(x, floor3Y, windowWidth, windowHeight);
-        drawSingleWindow(x, floor2Y, windowWidth, windowHeight);
+        drawSingleWindow(x, floor3Y, windowWidth, balconyDoorHeight);
+        drawSingleWindow(x, floor2Y, windowWidth, balconyDoorHeight);
         drawSingleWindow(x, floor1Y, windowWidth, windowHeight);
     }
+
+    // --- BALCONIES ---
+    float balconyY_Floor3 = floor3Y + balconyDoorHeight; // Y = 305.0
+    float balconyY_Floor2 = floor2Y + balconyDoorHeight; // Y = 382.0
+
+    // Section A
+    drawRealisticBalcony(482.0f, 655.0f, balconyY_Floor3);
+    drawRealisticBalcony(482.0f, 655.0f, balconyY_Floor2);
+
+    // Section B (Adjusted Balcony span to cover all 3 centered windows)
+    drawRealisticBalcony(715.0f, 885.0f, balconyY_Floor3);
+    drawRealisticBalcony(715.0f, 885.0f, balconyY_Floor2);
+
+    // Section C
+    drawRealisticBalcony(945.0f, 1118.0f, balconyY_Floor3);
+    drawRealisticBalcony(945.0f, 1118.0f, balconyY_Floor2);
 }
 // ============================================================================
 // FUNCTION: drawDoor
-// Description: Renders the double-door main entrance at ground floor center.
-// Position: Centered at X = 770 to 830, Y = 460 to 550.
+// Position: Centered at X = 775 to 825, Y = 415 to 480.
 // ============================================================================
 void drawDoor()
 {
     // 1. Dark Wooden Door Base
     glColor3fv(COLOR_DOOR_BROWN);
     glBegin(GL_QUADS);
-    glVertex2f(770.0f, 460.0f);
-    glVertex2f(830.0f, 460.0f);
-    glVertex2f(830.0f, 550.0f);
-    glVertex2f(770.0f, 550.0f);
+    glVertex2f(775.0f, 415.0f);
+    glVertex2f(825.0f, 415.0f);
+    glVertex2f(825.0f, 480.0f);
+    glVertex2f(775.0f, 480.0f);
     glEnd();
 
     // 2. Door Frame Border
     glColor3f(0.20f, 0.10f, 0.05f);
-    glLineWidth(3.0f);
+    glLineWidth(2.5f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(770.0f, 460.0f);
-    glVertex2f(830.0f, 460.0f);
-    glVertex2f(830.0f, 550.0f);
-    glVertex2f(770.0f, 550.0f);
+    glVertex2f(775.0f, 415.0f);
+    glVertex2f(825.0f, 415.0f);
+    glVertex2f(825.0f, 480.0f);
+    glVertex2f(775.0f, 480.0f);
     glEnd();
 
-    // 3. Center Split Line (Double Door)
+    // 3. Center Split Line
     glBegin(GL_LINES);
-    glVertex2f(800.0f, 460.0f);
-    glVertex2f(800.0f, 550.0f);
+    glVertex2f(800.0f, 415.0f);
+    glVertex2f(800.0f, 480.0f);
     glEnd();
 
-    // 4. Metallic Door Handles
+    // 4. Handles
     glColor3fv(COLOR_SUN_YELLOW);
-    glPointSize(5.0f);
+    glPointSize(4.0f);
     glBegin(GL_POINTS);
-    glVertex2f(793.0f, 510.0f);
-    glVertex2f(807.0f, 510.0f);
+    glVertex2f(794.0f, 450.0f);
+    glVertex2f(806.0f, 450.0f);
     glEnd();
 }
-#include <ctime>
 
 // ============================================================================
 // FUNCTION: drawClock
-// Description: Renders a circular wall clock synced with current local time.
-// Position: Center at (X = 800, Y = 195), Radius = 18.
+// Position: Center at (X = 800, Y = 200), Radius = 13.
 // ============================================================================
 void drawClock()
 {
     float cx = 800.0f;
-    float cy = 195.0f;
-    float r = 18.0f;
+    float cy = 200.0f;
+    float r = 13.0f;
     int segments = 40;
 
-    // 1. White Clock Face
+    // 1. Clock Face
     glColor3fv(COLOR_WHITE);
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(cx, cy);
@@ -1114,7 +1191,7 @@ void drawClock()
     }
     glEnd();
 
-    // 2. Clock Outer Rim (Dark Border)
+    // 2. Outer Rim
     glColor3fv(COLOR_BLACK);
     glLineWidth(2.0f);
     glBegin(GL_LINE_LOOP);
@@ -1125,7 +1202,7 @@ void drawClock()
     }
     glEnd();
 
-    // 3. Fetch Current Local Time
+    // 3. Time calculation
     time_t rawTime = time(NULL);
     struct tm* timeInfo = localtime(&rawTime);
 
@@ -1133,83 +1210,75 @@ void drawClock()
     int minutes = timeInfo->tm_min;
     int seconds = timeInfo->tm_sec;
 
-    // Calculate angles in radians (0 radians points UP at 12 o'clock)
     float minuteAngle = (minutes + seconds / 60.0f) * (2.0f * 3.14159f / 60.0f);
     float hourAngle = (hours + minutes / 60.0f) * (2.0f * 3.14159f / 12.0f);
 
-    // Hand lengths
-    float hourHandLen = 9.0f;
-    float minuteHandLen = 13.0f;
+    float hourHandLen = 6.0f;
+    float minuteHandLen = 9.0f;
 
-    // Note: Y-axis points downward in your coordinate system, so sin is added to Y
     float hourX = cx + hourHandLen * sin(hourAngle);
     float hourY = cy - hourHandLen * cos(hourAngle);
 
     float minX = cx + minuteHandLen * sin(minuteAngle);
     float minY = cy - minuteHandLen * cos(minuteAngle);
 
-    // 4. Render Clock Hands
+    // 4. Render Hands
     glColor3fv(COLOR_BLACK);
-    glLineWidth(2.5f);
+    glLineWidth(2.0f);
     glBegin(GL_LINES);
-    // Hour hand
     glVertex2f(cx, cy);
     glVertex2f(hourX, hourY);
 
-    // Minute hand
     glVertex2f(cx, cy);
     glVertex2f(minX, minY);
     glEnd();
 }
+
 // ============================================================================
 // FUNCTION: drawFlagPole
-// Description: Renders the flag pole standing on the ground, right next to the main entrance.
-// Position: Base at (X = 730, Y = 550), Top at (X = 730, Y = 280).
+// Position: Base at (X = 745, Y = 480), Top at (X = 745, Y = 275).
 // ============================================================================
 void drawFlagPole()
 {
-    // Concrete Base Pedestal at Ground near Main Door
+    // Pedestal
     glColor3fv(COLOR_ROOF_GRAY);
     glBegin(GL_QUADS);
-    glVertex2f(715.0f, 540.0f);
-    glVertex2f(745.0f, 540.0f);
-    glVertex2f(745.0f, 550.0f);
-    glVertex2f(715.0f, 550.0f);
+    glVertex2f(733.0f, 472.0f);
+    glVertex2f(757.0f, 472.0f);
+    glVertex2f(757.0f, 480.0f);
+    glVertex2f(733.0f, 480.0f);
     glEnd();
 
-    // Metallic Flag Pole
+    // Metallic Pole
     glColor3fv(COLOR_POLE_GRAY);
-    glLineWidth(4.0f);
+    glLineWidth(3.0f);
     glBegin(GL_LINES);
-    glVertex2f(730.0f, 540.0f); // Base on ground
-    glVertex2f(730.0f, 280.0f); // Top of pole
+    glVertex2f(745.0f, 472.0f);
+    glVertex2f(745.0f, 275.0f);
     glEnd();
 
-    // Golden Knob at Top
+    // Golden Knob
     glColor3fv(COLOR_SUN_YELLOW);
-    glPointSize(8.0f);
+    glPointSize(5.0f);
     glBegin(GL_POINTS);
-    glVertex2f(730.0f, 278.0f);
+    glVertex2f(745.0f, 273.0f);
     glEnd();
 }
 
-
 // ============================================================================
 // FUNCTION: drawBangladeshFlag
-// Description: Renders the national flag waving near the main door center.
 // ============================================================================
 void drawBangladeshFlag()
 {
-    float poleX = 730.0f;
-    float topY = 280.0f;
-    float flagW = 75.0f;
-    float flagH = 45.0f;
+    float poleX = 745.0f;
+    float topY = 275.0f;
+    float flagW = 55.0f;
+    float flagH = 33.0f;
 
-    // Calculate dynamic wave movement using time
-    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f; // Speed of waving
-    flagWaveOffset = sin(time) * 6.0f;               // Waving amplitude
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f;
+    flagWaveOffset = sin(time) * 4.5f;
 
-    // 1. Green Flag Body
+    // Green Flag Body
     glColor3fv(COLOR_FLAG_GREEN);
     glBegin(GL_QUADS);
     glVertex2f(poleX, topY);
@@ -1218,11 +1287,11 @@ void drawBangladeshFlag()
     glVertex2f(poleX, topY + flagH);
     glEnd();
 
-    // 2. Red Disc
+    // Red Disc
     glColor3fv(COLOR_FLAG_RED);
     float cx = poleX + (flagW * 0.45f) + (flagWaveOffset * 0.5f);
     float cy = topY + (flagH * 0.5f);
-    float r = 14.0f;
+    float r = 10.0f;
     int segments = 30;
 
     glBegin(GL_TRIANGLE_FAN);
@@ -1234,31 +1303,33 @@ void drawBangladeshFlag()
     }
     glEnd();
 }
+
 // ============================================================================
 // FUNCTION: drawRoofBanner
-// Description: Renders the school name sign board below the clock.
+// Position: Centered below clock (X = 680 to 920, Y = 228 to 244).
 // ============================================================================
 void drawRoofBanner()
 {
     // Banner Background Board
     glColor3fv(COLOR_WHITE);
     glBegin(GL_QUADS);
-    glVertex2f(650.0f, 225.0f);
-    glVertex2f(950.0f, 225.0f);
-    glVertex2f(950.0f, 245.0f);
-    glVertex2f(650.0f, 245.0f);
+    glVertex2f(680.0f, 228.0f);
+    glVertex2f(920.0f, 228.0f);
+    glVertex2f(920.0f, 244.0f);
+    glVertex2f(680.0f, 244.0f);
     glEnd();
 
-    // Green Border Frame around Banner
+    // Green Border
     glColor3fv(COLOR_FLAG_GREEN);
     glLineWidth(2.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(650.0f, 225.0f);
-    glVertex2f(950.0f, 225.0f);
-    glVertex2f(950.0f, 245.0f);
-    glVertex2f(650.0f, 245.0f);
+    glVertex2f(680.0f, 228.0f);
+    glVertex2f(920.0f, 228.0f);
+    glVertex2f(920.0f, 244.0f);
+    glVertex2f(680.0f, 244.0f);
     glEnd();
 }
+
 /* ---- Campus / Garden Layer ---- */
 // ============================================================================
 // FUNCTION: drawShaheedMinar
