@@ -110,6 +110,10 @@ void drawBird();
 void drawButterfly();
 void drawAirplane();
 
+// Function Declarations / Prototypes
+void drawDistantSkyline();
+void backBoundaryWall();
+void drawGround();
 
 /* ==========================================================
    FUNCTION PROTOTYPES - SCHOOL BUILDING LAYER
@@ -122,10 +126,6 @@ void drawClock();
 void drawFlagPole();
 void drawBangladeshFlag();
 void drawRoofBanner();
-
-// Function Declarations / Prototypes
-void backBoundaryWall();
-void drawGround();
 
 /* ==========================================================
    FUNCTION PROTOTYPES - CAMPUS / GARDEN LAYER
@@ -239,6 +239,7 @@ void display()
     drawAirplane();
 
     // 2. BACKGROUND GROUND & WALL (NEW ADDITION)
+    drawDistantSkyline();
     backBoundaryWall();
     drawGround();
     /* ---- School Building Layer ---- */
@@ -749,7 +750,70 @@ void drawAirplane()
 
     glPopMatrix();
 }
+// Draw distant light buildings and soft green tree horizon (Daytime Silhouettes)
+void drawDistantSkyline() {
+    // 1. DISTANT LIGHT BUILDINGS (Soft atmospheric haze effect for daytime)
+    // Soft light grayish-blue tone
+    glColor3f(0.60f, 0.68f, 0.75f);
 
+    glBegin(GL_QUADS);
+        // Distant Building 1 (Left far)
+        glVertex2i(50, 240);  glVertex2i(130, 240);
+        glVertex2i(130, 330); glVertex2i(50, 330);
+
+        // Distant Building 2 (Tall slender building)
+        glVertex2i(180, 210);  glVertex2i(240, 210);
+        glVertex2i(240, 330);  glVertex2i(180, 330);
+
+        // Distant Building 3 (Medium)
+        glVertex2i(260, 250);  glVertex2i(320, 250);
+        glVertex2i(320, 330);  glVertex2i(260, 330);
+
+        // Distant Building 4 (Behind School - Left side)
+        glVertex2i(500, 220);  glVertex2i(590, 220);
+        glVertex2i(590, 330);  glVertex2i(500, 330);
+
+        // Distant Building 5 (Behind School - Right side)
+        glVertex2i(1000, 200); glVertex2i(1080, 200);
+        glVertex2i(1080, 330); glVertex2i(1000, 330);
+
+        // Distant Building 6 (Far Right)
+        glVertex2i(1380, 230); glVertex2i(1460, 230);
+        glVertex2i(1460, 330); glVertex2i(1380, 330);
+
+        // Distant Building 7 (Edge Right)
+        glVertex2i(1500, 210); glVertex2i(1570, 210);
+        glVertex2i(1570, 330); glVertex2i(1500, 330);
+    glEnd();
+
+    // Windows on Distant Buildings (Light Sky Blue tint reflecting sunlight)
+    glColor3f(0.80f, 0.90f, 0.98f);
+    glBegin(GL_QUADS);
+        // Windows for Building 2
+        glVertex2i(195, 225); glVertex2i(205, 225); glVertex2i(205, 240); glVertex2i(195, 240);
+        glVertex2i(215, 225); glVertex2i(225, 225); glVertex2i(225, 240); glVertex2i(215, 240);
+
+        // Windows for Building 5
+        glVertex2i(1020, 220); glVertex2i(1035, 220); glVertex2i(1035, 235); glVertex2i(1020, 235);
+        glVertex2i(1045, 220); glVertex2i(1060, 220); glVertex2i(1060, 235); glVertex2i(1045, 235);
+    glEnd();
+
+    // 2. DISTANT SMALL TREES & GREENERY SILHOUETTE
+    // Light Soft Sage Green / Misty Green for daytime distant trees
+    glColor3f(0.38f, 0.58f, 0.38f);
+
+    // Continuous distant tree line using overlapping small circles/polygons
+    for (int x = 0; x <= 1600; x += 35) {
+        // Draw small tree foliage bumps along the distant horizon
+        glBegin(GL_POLYGON);
+            glVertex2i(x - 20, 330);
+            glVertex2i(x - 15, 305);
+            glVertex2i(x, 290);
+            glVertex2i(x + 15, 305);
+            glVertex2i(x + 20, 330);
+        glEnd();
+    }
+}
 // Draw the main grass ground layer across the canvas
 void drawGround() {
     // Main grass base (starts below sky at Y = 350 down to bottom Y = 900)
