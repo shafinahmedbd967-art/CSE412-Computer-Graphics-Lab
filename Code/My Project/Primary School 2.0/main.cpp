@@ -1066,68 +1066,111 @@ void drawRealisticBalcony(float startX, float endX, float balconyY)
     glEnd();
 }
 
+// Helper function to draw classroom entry doors for balconies
+void drawBalconyDoor(float x, float y, float width, float height)
+{
+    // Door frame
+    glColor3f(0.18f, 0.10f, 0.05f);
+    glBegin(GL_QUADS);
+    glVertex2f(x - 1.0f, y - 1.0f);
+    glVertex2f(x + width + 1.0f, y - 1.0f);
+    glVertex2f(x + width + 1.0f, y + height + 1.0f);
+    glVertex2f(x - 1.0f, y + height + 1.0f);
+    glEnd();
+
+    // Wooden Panel Body
+    glColor3fv(COLOR_DOOR_BROWN);
+    glBegin(GL_QUADS);
+    glVertex2f(x, y);
+    glVertex2f(x + width, y);
+    glVertex2f(x + width, y + height);
+    glVertex2f(x, y + height);
+    glEnd();
+
+    // Top Glass Vision Panel on door
+    glColor3fv(COLOR_WINDOW_BLUE);
+    glBegin(GL_QUADS);
+    glVertex2f(x + 3.0f, y + 5.0f);
+    glVertex2f(x + width - 3.0f, y + 5.0f);
+    glVertex2f(x + width - 3.0f, y + 18.0f);
+    glVertex2f(x + 3.0f, y + 18.0f);
+    glEnd();
+
+    // Door Handle
+    glColor3fv(COLOR_SUN_YELLOW);
+    glPointSize(3.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(x + width - 4.0f, y + 25.0f);
+    glEnd();
+}
+
 // ============================================================================
 // FUNCTION: drawWindow
-// Description: Fixed window alignment & restored missing window near main door.
+// Layout: Door -> Window -> Door -> Window on balcony floors for realism
 // ============================================================================
 void drawWindow()
 {
-    float windowWidth = 28.0f;
+    float itemWidth = 24.0f;
     float windowHeight = 32.0f;
-    float balconyDoorHeight = 40.0f;
+    float doorHeight = 40.0f;
 
     // Floor Y-Positions
     float floor3Y = 265.0f;
     float floor2Y = 342.0f;
     float floor1Y = 428.0f;
 
-    // --- Section A: Left Block (4 Windows per floor) ---
-    for (float x = 492.0f; x <= 630.0f; x += 44.0f)
-    {
-        drawSingleWindow(x, floor3Y, windowWidth, balconyDoorHeight);
-        drawSingleWindow(x, floor2Y, windowWidth, balconyDoorHeight);
-        drawSingleWindow(x, floor1Y, windowWidth, windowHeight);
-    }
+    // --- 1ST FLOOR (Ground Floor: Regular Windows Only) ---
+    // Left Block
+    for (float x = 490.0f; x <= 630.0f; x += 44.0f)
+        drawSingleWindow(x, floor1Y, itemWidth, windowHeight);
 
-    // --- Section B: Middle Block (3 Centered Windows per floor) ---
-    // Floating X points evenly spaced across the middle column (X = 730, 786, 842)
-    float midX[] = {730.0f, 786.0f, 842.0f};
+    // Middle Block (Flanking the Main Entrance Door)
+    drawSingleWindow(730.0f, floor1Y, itemWidth, windowHeight);
+    drawSingleWindow(842.0f, floor1Y, itemWidth, windowHeight);
 
-    // 3rd & 2nd Floor (All 3 Windows/Balcony Doors)
-    for (int i = 0; i < 3; i++)
-    {
-        drawSingleWindow(midX[i], floor3Y, windowWidth, balconyDoorHeight);
-        drawSingleWindow(midX[i], floor2Y, windowWidth, balconyDoorHeight);
-    }
-
-    // 1st Floor (2 Windows flanking the main door: Left at 730, Right at 842)
-    drawSingleWindow(midX[0], floor1Y, windowWidth, windowHeight); // Left Window
-    drawSingleWindow(midX[2], floor1Y, windowWidth, windowHeight); // Right Window (FIXED MISSING WINDOW)
-
-
-    // --- Section C: Right Block (4 Windows per floor) ---
+    // Right Block
     for (float x = 955.0f; x <= 1090.0f; x += 44.0f)
+        drawSingleWindow(x, floor1Y, itemWidth, windowHeight);
+
+
+    // --- 2ND & 3RD FLOORS (Balcony Floors: Door - Window - Door - Window) ---
+    float upperFloorsY[] = {floor2Y, floor3Y};
+
+    for (int f = 0; f < 2; f++)
     {
-        drawSingleWindow(x, floor3Y, windowWidth, balconyDoorHeight);
-        drawSingleWindow(x, floor2Y, windowWidth, balconyDoorHeight);
-        drawSingleWindow(x, floor1Y, windowWidth, windowHeight);
+        float currentY = upperFloorsY[f];
+
+        // Left Section (Alternate: Door, Window, Door, Window)
+        drawBalconyDoor(490.0f, currentY, itemWidth, doorHeight);
+        drawSingleWindow(534.0f, currentY, itemWidth, windowHeight);
+        drawBalconyDoor(578.0f, currentY, itemWidth, doorHeight);
+        drawSingleWindow(622.0f, currentY, itemWidth, windowHeight);
+
+        // Middle Section (Alternate: Door, Window, Door)
+        drawBalconyDoor(725.0f, currentY, itemWidth, doorHeight);
+        drawSingleWindow(786.0f, currentY, itemWidth, windowHeight);
+        drawBalconyDoor(847.0f, currentY, itemWidth, doorHeight);
+
+        // Right Section (Alternate: Door, Window, Door, Window)
+        drawBalconyDoor(955.0f, currentY, itemWidth, doorHeight);
+        drawSingleWindow(999.0f, currentY, itemWidth, windowHeight);
+        drawBalconyDoor(1043.0f, currentY, itemWidth, doorHeight);
+        drawSingleWindow(1087.0f, currentY, itemWidth, windowHeight);
     }
 
     // --- BALCONIES ---
-    float balconyY_Floor3 = floor3Y + balconyDoorHeight; // Y = 305.0
-    float balconyY_Floor2 = floor2Y + balconyDoorHeight; // Y = 382.0
+    float balconyY_Floor3 = floor3Y + doorHeight; // Y = 305.0
+    float balconyY_Floor2 = floor2Y + doorHeight; // Y = 382.0
 
-    // Section A
-    drawRealisticBalcony(482.0f, 655.0f, balconyY_Floor3);
-    drawRealisticBalcony(482.0f, 655.0f, balconyY_Floor2);
+    // Drawing continuous balconies in front of upper doors & windows
+    drawRealisticBalcony(480.0f, 655.0f, balconyY_Floor3);
+    drawRealisticBalcony(480.0f, 655.0f, balconyY_Floor2);
 
-    // Section B (Adjusted Balcony span to cover all 3 centered windows)
     drawRealisticBalcony(715.0f, 885.0f, balconyY_Floor3);
     drawRealisticBalcony(715.0f, 885.0f, balconyY_Floor2);
 
-    // Section C
-    drawRealisticBalcony(945.0f, 1118.0f, balconyY_Floor3);
-    drawRealisticBalcony(945.0f, 1118.0f, balconyY_Floor2);
+    drawRealisticBalcony(945.0f, 1120.0f, balconyY_Floor3);
+    drawRealisticBalcony(945.0f, 1120.0f, balconyY_Floor2);
 }
 // ============================================================================
 // FUNCTION: drawDoor
