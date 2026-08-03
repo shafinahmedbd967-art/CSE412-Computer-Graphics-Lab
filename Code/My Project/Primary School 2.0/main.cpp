@@ -113,6 +113,7 @@ void drawAirplane();
 // Function Declarations / Prototypes
 void drawDistantSkyline();
 void backBoundaryWall();
+void drawMetroRailTrack();
 void drawGround();
 
 /* ==========================================================
@@ -241,7 +242,8 @@ void display()
 
     // 2. BACKGROUND GROUND & WALL (NEW ADDITION)
     drawDistantSkyline();
-    backBoundaryWall();
+    //backBoundaryWall();
+    drawMetroRailTrack();
     drawGround();
     /* ---- School Building Layer ---- */
     drawSchool();
@@ -957,285 +959,333 @@ void drawAirplane()
 
     glPopMatrix();
 }
+#include <GL/glut.h>
+#include <math.h>
+
 // ============================================================================
 // FUNCTION: drawDistantSkyline
-// Description: Renders a multi-layered, realistic daytime distant skyline
-//              with atmospheric haze, architectural details, and natural foliage.
-// Screen Resolution Target: 1600 x 900
+// Description: Renders a multi-layered distant skyline brought closer to the
+//              school to eliminate awkward empty background space.
+// Target Horizon Line: Y = 420 (Shifted forward for realism)
 // ============================================================================
 void drawDistantSkyline() {
     // ------------------------------------------------------------------------
     // 1. LAYER 1: VERY DISTANT BUILDINGS (Ultra-Soft Hazy Hues)
     // ------------------------------------------------------------------------
-    // Soft atmospheric haze tone for far distance
     glColor3f(0.72f, 0.78f, 0.84f);
 
     glBegin(GL_QUADS);
-        // Far Building A (Stepped Roof Line)
-        glVertex2i(100, 260); glVertex2i(160, 260);
-        glVertex2i(160, 330); glVertex2i(100, 330);
+        // Far Building A
+        glVertex2i(100, 320); glVertex2i(160, 320);
+        glVertex2i(160, 420); glVertex2i(100, 420);
 
-        // Far Building B (Tall Wide Block)
-        glVertex2i(300, 190); glVertex2i(380, 190);
-        glVertex2i(380, 330); glVertex2i(300, 330);
+        // Far Building B
+        glVertex2i(300, 260); glVertex2i(380, 260);
+        glVertex2i(380, 420); glVertex2i(300, 420);
 
-        // Far Building C (Mid-Right Skyline)
-        glVertex2i(850, 210); glVertex2i(940, 210);
-        glVertex2i(940, 330); glVertex2i(850, 330);
+        // Far Building C
+        glVertex2i(850, 280); glVertex2i(940, 280);
+        glVertex2i(940, 420); glVertex2i(850, 420);
 
-        // Far Building D (Far Right Edge)
-        glVertex2i(1420, 180); glVertex2i(1520, 180);
-        glVertex2i(1520, 330); glVertex2i(1420, 330);
+        // Far Building D
+        glVertex2i(1420, 240); glVertex2i(1520, 240);
+        glVertex2i(1520, 420); glVertex2i(1420, 420);
     glEnd();
 
     // ------------------------------------------------------------------------
     // 2. LAYER 2: MID-DISTANCE BUILDINGS (Sharper Silhouettes)
     // ------------------------------------------------------------------------
-    glColor3f(0.58f, 0.66f, 0.74f); // Slightly darker/closer tone
+    glColor3f(0.58f, 0.66f, 0.74f);
 
     glBegin(GL_QUADS);
         // Building 1 (Left Tower)
-        glVertex2i(40,  220); glVertex2i(110, 220);
-        glVertex2i(110, 330); glVertex2i(40,  330);
+        glVertex2i(40,  290); glVertex2i(110, 290);
+        glVertex2i(110, 420); glVertex2i(40,  420);
 
-        // Building 2 (Slanted Roof Center-Left)
-        glVertex2i(180, 200); glVertex2i(250, 200);
-        glVertex2i(250, 330); glVertex2i(180, 330);
+        // Building 2 (Center-Left)
+        glVertex2i(180, 270); glVertex2i(250, 270);
+        glVertex2i(250, 420); glVertex2i(180, 420);
 
         // Building 3 (Behind School - Left)
-        glVertex2i(480, 210); glVertex2i(570, 210);
-        glVertex2i(570, 330); glVertex2i(480, 330);
+        glVertex2i(480, 280); glVertex2i(570, 280);
+        glVertex2i(570, 420); glVertex2i(480, 420);
 
-        // Building 4 (Behind School - Right, High-rise)
-        glVertex2i(990, 170); glVertex2i(1070, 170);
-        glVertex2i(1070, 330); glVertex2i(990, 330);
+        // Building 4 (Behind School - Right)
+        glVertex2i(990, 240); glVertex2i(1070, 240);
+        glVertex2i(1070, 420); glVertex2i(990, 420);
 
-        // Building 5 (Far Right Mid-layer)
-        glVertex2i(1350, 220); glVertex2i(1430, 220);
-        glVertex2i(1430, 330); glVertex2i(1350, 330);
+        // Building 5 (Far Right)
+        glVertex2i(1350, 290); glVertex2i(1430, 290);
+        glVertex2i(1430, 420); glVertex2i(1350, 420);
     glEnd();
 
-    // Architectural Roof Details (Spire / Antennas / Stepped Tops)
+    // Spire / Antennas
     glColor3f(0.50f, 0.58f, 0.65f);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
-        // Antenna on Tall Building 4
-        glVertex2i(1030, 170); glVertex2i(1030, 140);
-        // Spire on Building 2
-        glVertex2i(215, 200);  glVertex2i(215, 175);
+        glVertex2i(1030, 240); glVertex2i(1030, 210);
+        glVertex2i(215,  270); glVertex2i(215,  245);
     glEnd();
 
-    // Distant Reflective Windows (Soft Sunlight Reflection)
+    // Reflective Windows
     glColor3f(0.85f, 0.92f, 0.98f);
     glBegin(GL_QUADS);
-        // Vertical window strips on High-rise (Building 4)
-        for (int wy = 185; wy < 310; wy += 25) {
+        for (int wy = 255; wy < 400; wy += 25) {
             glVertex2i(1010, wy); glVertex2i(1025, wy); glVertex2i(1025, wy + 12); glVertex2i(1010, wy + 12);
             glVertex2i(1035, wy); glVertex2i(1050, wy); glVertex2i(1050, wy + 12); glVertex2i(1035, wy + 12);
         }
-        // Grid windows on Left Tower (Building 1)
-        for (int wy = 235; wy < 310; wy += 20) {
+        for (int wy = 305; wy < 400; wy += 20) {
             glVertex2i(55, wy); glVertex2i(70, wy); glVertex2i(70, wy + 10); glVertex2i(55, wy + 10);
             glVertex2i(80, wy); glVertex2i(95, wy); glVertex2i(95, wy + 10); glVertex2i(80, wy + 10);
         }
     glEnd();
 
     // ------------------------------------------------------------------------
-    // 3. DISTANT NATURAL TREE HORIZON (Layered Organic Foliage)
+    // 3. DISTANT NATURAL TREE HORIZON (Organic Foliage Brought Forward)
     // ------------------------------------------------------------------------
-
-    // Back Tree Line (Slightly lighter, hazy green)
+    // Back Tree Line
     glColor3f(0.42f, 0.58f, 0.42f);
     for (int x = -10; x <= 1610; x += 30) {
-        float treeHeight = 280.0f + sin(x * 0.03f) * 12.0f; // Organic height variation
+        float treeHeight = 370.0f + sin(x * 0.03f) * 12.0f;
         glBegin(GL_POLYGON);
-            glVertex2i(x - 25, 330);
+            glVertex2i(x - 25, 420);
             glVertex2f(x - 15, treeHeight + 12.0f);
             glVertex2f(x,       treeHeight);
             glVertex2f(x + 15, treeHeight + 12.0f);
-            glVertex2i(x + 25, 330);
+            glVertex2i(x + 25, 420);
         glEnd();
     }
 
-    // Front Tree Line (Slightly darker, overlapping for depth)
+    // Front Tree Line
     glColor3f(0.32f, 0.50f, 0.32f);
     for (int x = 5; x <= 1610; x += 38) {
-        float treeHeight = 290.0f + cos(x * 0.025f) * 10.0f;
+        float treeHeight = 380.0f + cos(x * 0.025f) * 10.0f;
         glBegin(GL_POLYGON);
-            glVertex2i(x - 22, 330);
+            glVertex2i(x - 22, 420);
             glVertex2f(x - 12, treeHeight + 10.0f);
             glVertex2f(x,       treeHeight);
             glVertex2f(x + 12, treeHeight + 10.0f);
-            glVertex2i(x + 22, 330);
+            glVertex2i(x + 22, 420);
         glEnd();
     }
 }
+
 // ============================================================================
 // FUNCTION: drawGround
-// Description: Renders a realistic multi-shaded grass lawn with natural depth
-//              gradient and organic grass blade texture details.
-// Screen Resolution Target: 1600 x 900
+// Description: Renders grass starting closer (Y = 420) so school isn't isolated.
 // ============================================================================
 void drawGround() {
-    // 1. MAIN GRASS GRADIENT (3-Layer Depth Gradient)
-
-    // Horizon to Mid-ground Layer
+    // 1. MAIN GRASS GRADIENT
     glBegin(GL_QUADS);
         glColor3f(0.42f, 0.78f, 0.30f); // Light Horizon Green
-        glVertex2i(0, 330);
-        glVertex2i(1600, 330);
+        glVertex2i(0, 420);
+        glVertex2i(1600, 420);
 
         glColor3f(0.28f, 0.62f, 0.20f); // Mid-Field Green
-        glVertex2i(1600, 600);
-        glVertex2i(0, 600);
+        glVertex2i(1600, 650);
+        glVertex2i(0, 650);
     glEnd();
 
-    // Mid-ground to Deep Foreground Layer
     glBegin(GL_QUADS);
-        glColor3f(0.28f, 0.62f, 0.20f); // Mid-Field Green
-        glVertex2i(0, 600);
-        glVertex2i(1600, 600);
+        glColor3f(0.28f, 0.62f, 0.20f);
+        glVertex2i(0, 650);
+        glVertex2i(1600, 650);
 
-        glColor3f(0.12f, 0.42f, 0.10f); // Rich Deep Foreground Green
+        glColor3f(0.12f, 0.42f, 0.10f); // Dark Foreground Green
         glVertex2i(1600, 900);
         glVertex2i(0, 900);
     glEnd();
 
-    // 2. REALISTIC GRASS BLADE TEXTURES (Scattered Organic Strands)
-    // Denser and larger strands near foreground, subtle near horizon
-
-    // Foreground Detailed Grass Blades (Y = 600 to 900)
+    // 2. GRASS BLADES
     glLineWidth(1.5f);
     glBegin(GL_LINES);
     for (int x = 5; x < 1600; x += 15) {
-        for (int y = 620; y < 890; y += 45) {
-            float xOffset = (x % 3 == 0) ? 4.0f : -3.0f; // Random tilt
-
-            // Alternating bright/dark grass blades for realism
-            if ((x + y) % 2 == 0) {
-                glColor3f(0.35f, 0.70f, 0.25f); // Bright blade tip
-            } else {
-                glColor3f(0.18f, 0.48f, 0.12f); // Shadowed blade
-            }
+        for (int y = 660; y < 890; y += 45) {
+            float xOffset = (x % 3 == 0) ? 4.0f : -3.0f;
+            if ((x + y) % 2 == 0) glColor3f(0.35f, 0.70f, 0.25f);
+            else glColor3f(0.18f, 0.48f, 0.12f);
 
             glVertex2i(x, y);
-            glVertex2f(x + xOffset, y - 10.0f); // Slight upward angle
+            glVertex2f(x + xOffset, y - 10.0f);
         }
     }
     glEnd();
-    glLineWidth(1.0f); // Reset line width
-
-    // Subtle Horizon Mist Blend (Smooth Sky-Ground Boundary)
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBegin(GL_QUADS);
-        glColor4f(0.70f, 0.85f, 0.95f, 0.25f); // Hazy Horizon Fog
-        glVertex2i(0, 325);
-        glVertex2i(1600, 325);
-
-        glColor4f(0.42f, 0.78f, 0.30f, 0.0f);  // Fades out into grass
-        glVertex2i(1600, 350);
-        glVertex2i(0, 350);
-    glEnd();
-    glDisable(GL_BLEND);
+    glLineWidth(1.0f);
 }
 
 // ============================================================================
-// FUNCTION: backBoundaryWall
-// Description: Renders a textured concrete brick boundary wall with 3D
-//              pillars, cap shadows, and realistic mortar lines.
-// Screen Resolution Target: 1600 x 900
+// FUNCTION: drawMetroRailTrack
+// Description: Replaces the concrete boundary wall with an elevated Metro Rail
+//              viaduct line, pillars, tracks, and the Dhaka Metro Rail train.
+// Coordinates: Y = 400 to 450
 // ============================================================================
-void backBoundaryWall() {
-    int wallTop = 320;
-    int wallBottom = 380;
+void drawMetroRailTrack() {
+    int trackBottom = 430;
+    int trackTop = 410;
 
-    // 1. MAIN CONCRETE WALL BASE (Subtle Vertical Lighting Gradient)
+    // ------------------------------------------------------------------------
+    // 1. ELEVATED METRO PILLARS (Concrete Support Structures)
+    // ------------------------------------------------------------------------
+    for (int x = 50; x <= 1600; x += 150) {
+        // Main Pillar Stem
+        glBegin(GL_QUADS);
+            glColor3f(0.70f, 0.72f, 0.75f); // Light concrete face
+            glVertex2i(x - 12, trackBottom);
+            glVertex2i(x + 2, trackBottom);
+            glVertex2i(x + 2, trackBottom + 45);
+            glVertex2i(x - 12, trackBottom + 45);
+
+            glColor3f(0.55f, 0.57f, 0.60f); // Shadow side
+            glVertex2i(x + 2, trackBottom);
+            glVertex2i(x + 12, trackBottom);
+            glVertex2i(x + 12, trackBottom + 45);
+            glVertex2i(x + 2, trackBottom + 45);
+        glEnd();
+
+        // Pillar Top Cap (T-Bar Beam)
+        glBegin(GL_QUADS);
+            glColor3f(0.80f, 0.82f, 0.85f);
+            glVertex2i(x - 20, trackBottom - 5);
+            glVertex2i(x + 20, trackBottom - 5);
+            glVertex2i(x + 20, trackBottom);
+            glVertex2i(x - 20, trackBottom);
+        glEnd();
+    }
+
+    // ------------------------------------------------------------------------
+    // 2. CONCRETE VIADUCT DECK (The Elevated Track Bed)
+    // ------------------------------------------------------------------------
     glBegin(GL_QUADS);
-        glColor3f(0.85f, 0.84f, 0.80f); // Highlighted Top Wall
-        glVertex2i(0, wallTop);
-        glVertex2i(1600, wallTop);
+        glColor3f(0.85f, 0.87f, 0.90f); // Top Concrete Deck
+        glVertex2i(0, trackTop);
+        glVertex2i(1600, trackTop);
 
-        glColor3f(0.68f, 0.67f, 0.64f); // Slightly Shadowed Bottom Wall
-        glVertex2i(1600, wallBottom);
-        glVertex2i(0, wallBottom);
+        glColor3f(0.60f, 0.62f, 0.65f); // Bottom Shadowed Deck
+        glVertex2i(1600, trackBottom);
+        glVertex2i(0, trackBottom);
     glEnd();
 
-    // 2. REALISTIC BRICK TEXTURE (Mortar Lines & Staggered Bricks)
-    glColor3f(0.60f, 0.59f, 0.56f); // Darker Mortar/Grout Line Color
+    // Steel Safety Railing / Noise Barrier on Deck Edge
+    glColor3f(0.45f, 0.50f, 0.55f);
+    glBegin(GL_QUADS);
+        glVertex2i(0, trackTop - 6);
+        glVertex2i(1600, trackTop - 6);
+        glVertex2i(1600, trackTop);
+        glVertex2i(0, trackTop);
+    glEnd();
+
+    // Steel Track Lines
+    glColor3f(0.25f, 0.25f, 0.28f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2i(0, trackTop - 2); glVertex2i(1600, trackTop - 2);
+        glVertex2i(0, trackTop - 4); glVertex2i(1600, trackTop - 4);
+    glEnd();
     glLineWidth(1.0f);
 
-    // Horizontal Mortar Lines
-    glBegin(GL_LINES);
-    for (int y = wallTop + 12; y < wallBottom; y += 12) {
-        glVertex2i(0, y);
-        glVertex2i(1600, y);
-    }
+    // ------------------------------------------------------------------------
+    // 3. DHAKA METRO RAIL TRAIN (Authentic Green & Red Design)
+    // Position: X = 200 to 1100 (Passes across the track above the school)
+    // ------------------------------------------------------------------------
+    int trainLeft = 150;
+    int trainRight = 1150;
+    int trainTop = 365;
+    int trainBottom = 408;
+
+    // Train Main White Body
+    glBegin(GL_QUADS);
+        glColor3f(0.95f, 0.95f, 0.96f);
+        glVertex2i(trainLeft, trainTop);
+        glVertex2i(trainRight, trainTop);
+        glVertex2i(trainRight, trainBottom);
+        glVertex2i(trainLeft, trainBottom);
     glEnd();
 
-    // Vertical Brick Joints (Staggered Pattern)
-    glBegin(GL_LINES);
-    int row = 0;
-    for (int y = wallTop; y < wallBottom; y += 12) {
-        int xOffset = (row % 2 == 0) ? 0 : 20; // Stagger every alternate row
-        for (int x = xOffset; x < 1600; x += 40) {
-            glVertex2i(x, y);
-            glVertex2i(x, y + 12);
+    // Metro Green Stripe (Top & Upper Front)
+    glBegin(GL_QUADS);
+        glColor3f(0.0f, 0.52f, 0.32f); // Official Metro Green
+        glVertex2i(trainLeft, trainTop);
+        glVertex2i(trainRight, trainTop);
+        glVertex2i(trainRight, trainTop + 10);
+        glVertex2i(trainLeft, trainTop + 10);
+    glEnd();
+
+    // Metro Red Accent Stripe (Bottom)
+    glBegin(GL_QUADS);
+        glColor3f(0.85f, 0.12f, 0.15f); // Official Metro Red
+        glVertex2i(trainLeft, trainBottom - 5);
+        glVertex2i(trainRight, trainBottom - 5);
+        glVertex2i(trainRight, trainBottom);
+        glVertex2i(trainLeft, trainBottom);
+    glEnd();
+
+    // Front Aerodynamic Engine Head (Right Side Nose)
+    glBegin(GL_TRIANGLES);
+        glColor3f(0.0f, 0.52f, 0.32f);
+        glVertex2i(trainRight, trainTop);
+        glVertex2i(trainRight + 40, trainTop + 20);
+        glVertex2i(trainRight, trainTop + 20);
+
+        glColor3f(0.95f, 0.95f, 0.96f);
+        glVertex2i(trainRight, trainTop + 20);
+        glVertex2i(trainRight + 40, trainTop + 20);
+        glVertex2i(trainRight, trainBottom);
+    glEnd();
+
+    // Front Windshield (Black Glass on Head)
+    glBegin(GL_QUADS);
+        glColor3f(0.10f, 0.12f, 0.15f);
+        glVertex2i(trainRight + 5, trainTop + 8);
+        glVertex2i(trainRight + 30, trainTop + 18);
+        glVertex2i(trainRight + 20, trainTop + 28);
+        glVertex2i(trainRight + 5, trainTop + 28);
+    glEnd();
+
+    // Red Round Circle (Bangladesh Flag Emblem on Front)
+    glColor3f(0.85f, 0.12f, 0.15f);
+    glBegin(GL_POLYGON);
+        for (int i = 0; i < 360; i += 20) {
+            float rad = i * 3.14159f / 180.0f;
+            glVertex2f(trainRight + 12 + cos(rad) * 6, trainTop + 33 + sin(rad) * 6);
         }
-        row++;
-    }
     glEnd();
 
-    // 3. TOP COPING CAP WITH 3D SHADOW
-    // Top Cap Base
+    // Passenger Windows (Tinted Blue-Grey Glass along coaches)
+    glColor3f(0.20f, 0.30f, 0.38f);
     glBegin(GL_QUADS);
-        glColor3f(0.75f, 0.74f, 0.70f); // Light Cap Surface
-        glVertex2i(0, wallTop - 8);
-        glVertex2i(1600, wallTop - 8);
+        for (int wx = trainLeft + 30; wx < trainRight - 40; wx += 45) {
+            // Skip space where doors are placed
+            if ((wx - trainLeft) % 180 == 0) continue;
 
-        glColor3f(0.62f, 0.61f, 0.58f); // Shadowed Bottom Edge
-        glVertex2i(1600, wallTop);
-        glVertex2i(0, wallTop);
+            glVertex2i(wx, trainTop + 16);
+            glVertex2i(wx + 28, trainTop + 16);
+            glVertex2i(wx + 28, trainTop + 30);
+            glVertex2i(wx, trainTop + 30);
+        }
     glEnd();
 
-    // Cast Shadow under Cap Line
-    glBegin(GL_QUADS);
-        glColor3f(0.45f, 0.44f, 0.42f); // Dark Ambient Shadow
-        glVertex2i(0, wallTop);
-        glVertex2i(1600, wallTop);
-
-        glColor3f(0.75f, 0.74f, 0.70f); // Fades into wall
-        glVertex2i(1600, wallTop + 4);
-        glVertex2i(0, wallTop + 4);
-    glEnd();
-
-    // 4. 3D PILLARS / SUPPORT COLUMNS (Spaced every 100 pixels)
-    for (int x = 0; x <= 1600; x += 100) {
-        // Pillar Main Face
+    // Automatic Sliding Doors (Dark Metal Framing)
+    glColor3f(0.35f, 0.38f, 0.42f);
+    for (int dx = trainLeft + 160; dx < trainRight - 50; dx += 180) {
         glBegin(GL_QUADS);
-            glColor3f(0.88f, 0.87f, 0.83f); // Highlight Side
-            glVertex2i(x - 8, wallTop - 10);
-            glVertex2i(x + 2, wallTop - 10);
-            glVertex2i(x + 2, wallBottom);
-            glVertex2i(x - 8, wallBottom);
-
-            glColor3f(0.72f, 0.71f, 0.67f); // Shadowed Side
-            glVertex2i(x + 2, wallTop - 10);
-            glVertex2i(x + 8, wallTop - 10);
-            glVertex2i(x + 8, wallBottom);
-            glVertex2i(x + 2, wallBottom);
+            glVertex2i(dx, trainTop + 12);
+            glVertex2i(dx + 22, trainTop + 12);
+            glVertex2i(dx + 22, trainBottom - 5);
+            glVertex2i(dx, trainBottom - 5);
         glEnd();
 
-        // Pillar Top Cap
-        glBegin(GL_QUADS);
-            glColor3f(0.92f, 0.91f, 0.88f);
-            glVertex2i(x - 10, wallTop - 14);
-            glVertex2i(x + 10, wallTop - 14);
-            glVertex2i(x + 10, wallTop - 10);
-            glVertex2i(x - 10, wallTop - 10);
+        // Center Split Line for Door
+        glColor3f(0.15f, 0.15f, 0.15f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            glVertex2i(dx + 11, trainTop + 12);
+            glVertex2i(dx + 11, trainBottom - 5);
         glEnd();
+        glLineWidth(1.0f);
+        glColor3f(0.35f, 0.38f, 0.42f); // Reset
     }
 }
+
 /* ---- School Building Layer ---- */
 
 #include <GL/glut.h>
