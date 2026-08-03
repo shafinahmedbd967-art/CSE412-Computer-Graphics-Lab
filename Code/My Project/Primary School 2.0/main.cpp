@@ -260,7 +260,7 @@ void display()
     drawTree();
     drawPalmTree();
     drawMangoTree();
-    drawBananaTree();
+    //drawBananaTree();
     drawDecorativeTree();
     drawAssemblyGround();
 
@@ -2277,52 +2277,56 @@ void drawGarden()
         drawFlower(fx, plantY, 3.5f, col);
     }
 }
+#include <GL/glut.h>
+#include <cmath>
+
 // ============================================================================
-// ALL TREE FUNCTIONS (MODULAR & PLACED ON THE RIGHT SIDE BACKGROUND GAP)
+// BACKGROUND TREES (MOVED FAR BACK & DEEP COLOR TONE)
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// 1. LEAFY TREE (সাধারণ পাতাওয়ালা গাছ)
+// 1. IMPROVED NORMAL LEAFY TREE
 // ----------------------------------------------------------------------------
 void drawSingleTree(float x, float y, float scale)
 {
-    float trunkHeight = 90.0f * scale;
+    float trunkHeight = 85.0f * scale;
     float topY = y - trunkHeight;
 
-    // Trunk
-    glColor3fv(COLOR_TREE_TRUNK);
+    // Dark Bark Trunk
+    glColor3f(0.25f, 0.14f, 0.06f);
     glBegin(GL_POLYGON);
-        glVertex2f(x - (10.0f * scale), y);
-        glVertex2f(x + (10.0f * scale), y);
-        glVertex2f(x + (7.0f  * scale), topY);
-        glVertex2f(x - (7.0f  * scale), topY);
+        glVertex2f(x - (9.0f * scale), y);
+        glVertex2f(x + (9.0f * scale), y);
+        glVertex2f(x + (6.0f * scale), topY);
+        glVertex2f(x - (6.0f * scale), topY);
     glEnd();
 
-    // Bark Texture
-    glColor3f(0.22f, 0.12f, 0.05f);
+    // Trunk Bark Lines
+    glColor3f(0.15f, 0.08f, 0.03f);
     glLineWidth(1.5f);
     glBegin(GL_LINES);
-        glVertex2f(x - (3.0f * scale), y - (15.0f * scale));
-        glVertex2f(x - (2.0f * scale), y - (60.0f * scale));
-        glVertex2f(x + (3.0f * scale), y - (25.0f * scale));
-        glVertex2f(x + (2.0f * scale), y - (70.0f * scale));
+        glVertex2f(x - (3.0f * scale), y - (10.0f * scale));
+        glVertex2f(x - (2.0f * scale), y - (50.0f * scale));
+        glVertex2f(x + (3.0f * scale), y - (20.0f * scale));
+        glVertex2f(x + (2.0f * scale), y - (60.0f * scale));
     glEnd();
     glLineWidth(1.0f);
 
-    // Leaves Canopy
+    // Multilayered Leaf Clusters for Better Visual Depth
     int segments = 25;
-    float clusters[5][3] =
+    float clusters[6][3] =
     {
-        {x - (22.0f * scale), topY - (10.0f * scale), 26.0f * scale},
-        {x + (22.0f * scale), topY - (10.0f * scale), 26.0f * scale},
-        {x - (15.0f * scale), topY - (30.0f * scale), 30.0f * scale},
-        {x + (15.0f * scale), topY - (30.0f * scale), 30.0f * scale},
-        {x,                   topY - (48.0f * scale), 34.0f * scale}
+        {x - (24.0f * scale), topY - (8.0f * scale),  26.0f * scale},
+        {x + (24.0f * scale), topY - (8.0f * scale),  26.0f * scale},
+        {x - (16.0f * scale), topY - (28.0f * scale), 30.0f * scale},
+        {x + (16.0f * scale), topY - (28.0f * scale), 30.0f * scale},
+        {x,                   topY - (48.0f * scale), 36.0f * scale},
+        {x,                   topY - (20.0f * scale), 32.0f * scale}
     };
 
-    // Dark Base
-    glColor3f(0.10f, 0.38f, 0.12f);
-    for (int c = 0; c < 5; c++)
+    // Layer 1: Deep Shadow Base
+    glColor3f(0.03f, 0.22f, 0.06f);
+    for (int c = 0; c < 6; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
             glVertex2f(clusters[c][0], clusters[c][1]);
@@ -2335,9 +2339,9 @@ void drawSingleTree(float x, float y, float scale)
         glEnd();
     }
 
-    // Light Highlights
-    glColor3fv(COLOR_TREE_LEAVES);
-    for (int c = 0; c < 5; c++)
+    // Layer 2: Deeper Forest Green Highlight
+    glColor3f(0.07f, 0.35f, 0.10f);
+    for (int c = 0; c < 6; c++)
     {
         float cx = clusters[c][0];
         float cy = clusters[c][1] + (2.0f * scale);
@@ -2356,17 +2360,17 @@ void drawSingleTree(float x, float y, float scale)
 
 void drawTree()
 {
-    // Right side background placement
-    drawSingleTree(1240.0f, 470.0f, 0.75f);
-    drawSingleTree(1420.0f, 475.0f, 0.85f);
+    // Placed far back behind the wall/fence level
+    drawSingleTree(1220.0f, 405.0f, 0.85f);
+    drawSingleTree(1650.0f, 410.0f, 0.90f);
 }
 
 // ----------------------------------------------------------------------------
-// 2. PALM / COCONUT TREE (নারকেল/খেজুরে গাছ)
+// 2. PALM TREE
 // ----------------------------------------------------------------------------
 void drawSinglePalmTree(float startX, float startY, float height)
 {
-    glColor3f(0.45f, 0.30f, 0.18f);
+    glColor3f(0.35f, 0.22f, 0.12f);
     int segments = 8;
     float currentX = startX;
     float currentY = startY;
@@ -2376,8 +2380,8 @@ void drawSinglePalmTree(float startX, float startY, float height)
     {
         float nextX = currentX + (i * 0.8f);
         float nextY = currentY - segmentH;
-        float w1 = 12.0f - (i * 0.6f);
-        float w2 = 12.0f - ((i + 1) * 0.6f);
+        float w1 = 11.0f - (i * 0.5f);
+        float w2 = 11.0f - ((i + 1) * 0.5f);
 
         glBegin(GL_QUADS);
             glVertex2f(currentX - w1, currentY);
@@ -2386,14 +2390,14 @@ void drawSinglePalmTree(float startX, float startY, float height)
             glVertex2f(nextX - w2, nextY);
         glEnd();
 
-        glColor3f(0.30f, 0.20f, 0.10f);
+        glColor3f(0.22f, 0.12f, 0.06f);
         glLineWidth(1.5f);
         glBegin(GL_LINES);
             glVertex2f(currentX - w1, currentY);
             glVertex2f(currentX + w1, currentY);
         glEnd();
 
-        glColor3f(0.45f, 0.30f, 0.18f);
+        glColor3f(0.35f, 0.22f, 0.12f);
         currentX = nextX;
         currentY = nextY;
     }
@@ -2401,8 +2405,8 @@ void drawSinglePalmTree(float startX, float startY, float height)
     float topX = currentX;
     float topY = currentY;
 
-    // Coconuts
-    glColor3f(0.20f, 0.40f, 0.05f);
+    // Dark Coconuts
+    glColor3f(0.12f, 0.30f, 0.05f);
     int circleSegs = 15;
     float coconutCoords[3][2] = {
         {topX - 5.0f, topY + 4.0f},
@@ -2416,14 +2420,14 @@ void drawSinglePalmTree(float startX, float startY, float height)
             for (int i = 0; i <= circleSegs; i++)
             {
                 float angle = i * 2.0f * 3.14159f / circleSegs;
-                glVertex2f(coconutCoords[c][0] + (6.0f * cos(angle)),
-                           coconutCoords[c][1] + (6.0f * sin(angle)));
+                glVertex2f(coconutCoords[c][0] + (5.5f * cos(angle)),
+                           coconutCoords[c][1] + (5.5f * sin(angle)));
             }
         glEnd();
     }
 
-    // Fronds
-    glColor3f(0.12f, 0.55f, 0.15f);
+    // Palm Leaves (Darker Green Tone)
+    glColor3f(0.06f, 0.38f, 0.10f);
     glLineWidth(2.5f);
     float leafAngles[] = { -160.0f, -120.0f, -70.0f, -20.0f, 20.0f, 70.0f, 120.0f, 160.0f };
 
@@ -2448,9 +2452,9 @@ void drawSinglePalmTree(float startX, float startY, float height)
 
             glBegin(GL_LINES);
                 glVertex2f(lx, ly);
-                glVertex2f(lx - 8.0f, ly + 12.0f);
+                glVertex2f(lx - 7.0f, ly + 10.0f);
                 glVertex2f(lx, ly);
-                glVertex2f(lx + 8.0f, ly + 12.0f);
+                glVertex2f(lx + 7.0f, ly + 10.0f);
             glEnd();
         }
     }
@@ -2459,36 +2463,36 @@ void drawSinglePalmTree(float startX, float startY, float height)
 
 void drawPalmTree()
 {
-    // Rightmost boundary Palm Tree
-    drawSinglePalmTree(1540.0f, 480.0f, 140.0f);
+    // Placed at the far right corner gap
+    drawSinglePalmTree(1730.0f, 410.0f, 145.0f);
 }
 
 // ----------------------------------------------------------------------------
-// 3. MANGO TREE (আম গাছ)
+// 3. MANGO TREE
 // ----------------------------------------------------------------------------
 void drawSingleMangoTree(float x, float y, float scale)
 {
     // Trunk
-    glColor3f(0.38f, 0.24f, 0.12f);
+    glColor3f(0.28f, 0.16f, 0.08f);
     glBegin(GL_POLYGON);
-        glVertex2f(x - (12.0f * scale), y);
-        glVertex2f(x + (12.0f * scale), y);
-        glVertex2f(x + (8.0f * scale), y - (110.0f * scale));
-        glVertex2f(x - (8.0f * scale), y - (110.0f * scale));
+        glVertex2f(x - (10.0f * scale), y);
+        glVertex2f(x + (10.0f * scale), y);
+        glVertex2f(x + (7.0f * scale), y - (95.0f * scale));
+        glVertex2f(x - (7.0f * scale), y - (95.0f * scale));
     glEnd();
 
-    float topY = y - (110.0f * scale);
+    float topY = y - (95.0f * scale);
     int segments = 25;
 
     float clusters[4][3] = {
-        {x - (25.0f * scale), topY - (10.0f * scale), 35.0f * scale},
-        {x + (25.0f * scale), topY - (10.0f * scale), 35.0f * scale},
-        {x,                   topY - (40.0f * scale), 42.0f * scale},
-        {x,                   topY - (15.0f * scale), 38.0f * scale}
+        {x - (24.0f * scale), topY - (10.0f * scale), 34.0f * scale},
+        {x + (24.0f * scale), topY - (10.0f * scale), 34.0f * scale},
+        {x,                   topY - (38.0f * scale), 40.0f * scale},
+        {x,                   topY - (15.0f * scale), 36.0f * scale}
     };
 
     // Dark Canopy
-    glColor3f(0.08f, 0.35f, 0.10f);
+    glColor3f(0.02f, 0.20f, 0.05f);
     for (int c = 0; c < 4; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
@@ -2502,8 +2506,8 @@ void drawSingleMangoTree(float x, float y, float scale)
         glEnd();
     }
 
-    // Light Canopy
-    glColor3f(0.18f, 0.55f, 0.18f);
+    // Deeper Highlight
+    glColor3f(0.06f, 0.32f, 0.09f);
     for (int c = 0; c < 4; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
@@ -2518,25 +2522,24 @@ void drawSingleMangoTree(float x, float y, float scale)
     }
 
     // Mangoes
-    float mangoes[6][2] = {
-        {x - 20.0f * scale, topY - 5.0f * scale},
-        {x - 10.0f * scale, topY - 30.0f * scale},
-        {x + 15.0f * scale, topY - 15.0f * scale},
-        {x + 25.0f * scale, topY + 5.0f * scale},
-        {x - 30.0f * scale, topY + 10.0f * scale},
-        {x + 5.0f  * scale, topY - 45.0f * scale}
+    float mangoes[5][2] = {
+        {x - 18.0f * scale, topY - 5.0f * scale},
+        {x - 8.0f  * scale, topY - 28.0f * scale},
+        {x + 15.0f * scale, topY - 12.0f * scale},
+        {x + 22.0f * scale, topY + 5.0f * scale},
+        {x + 4.0f  * scale, topY - 38.0f * scale}
     };
 
-    for (int m = 0; m < 6; m++)
+    for (int m = 0; m < 5; m++)
     {
-        glColor3f(0.85f, 0.75f, 0.10f);
+        glColor3f(0.78f, 0.62f, 0.08f);
         glBegin(GL_TRIANGLE_FAN);
             glVertex2f(mangoes[m][0], mangoes[m][1]);
             for (int i = 0; i <= segments; i++)
             {
                 float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(mangoes[m][0] + (4.0f * scale * cos(angle)),
-                           mangoes[m][1] + (6.0f * scale * sin(angle)));
+                glVertex2f(mangoes[m][0] + (3.5f * scale * cos(angle)),
+                           mangoes[m][1] + (5.0f * scale * sin(angle)));
             }
         glEnd();
     }
@@ -2544,90 +2547,8 @@ void drawSingleMangoTree(float x, float y, float scale)
 
 void drawMangoTree()
 {
-    // Right background placement near school
-    drawSingleMangoTree(1330.0f, 470.0f, 0.80f);
-}
-
-// ----------------------------------------------------------------------------
-// 4. BEAUTIFUL BANANA TREE (সুন্দর কলাগাছ)
-// ----------------------------------------------------------------------------
-void drawSingleBananaTree(float x, float y, float scale)
-{
-    // Stem
-    glColor3f(0.40f, 0.65f, 0.20f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - (7.0f * scale), y);
-        glVertex2f(x + (7.0f * scale), y);
-        glVertex2f(x + (4.0f * scale), y - (75.0f * scale));
-        glVertex2f(x - (4.0f * scale), y - (75.0f * scale));
-    glEnd();
-
-    // Texture
-    glColor3f(0.28f, 0.50f, 0.12f);
-    glLineWidth(1.5f);
-    glBegin(GL_LINES);
-        glVertex2f(x - (5.0f * scale), y - (20.0f * scale));
-        glVertex2f(x + (4.0f * scale), y - (40.0f * scale));
-        glVertex2f(x - (4.0f * scale), y - (55.0f * scale));
-        glVertex2f(x + (3.0f * scale), y - (70.0f * scale));
-    glEnd();
-
-    float topY = y - (75.0f * scale);
-    float angles[] = { -155.0f, -115.0f, -55.0f, 55.0f, 115.0f, 155.0f };
-
-    // Curved Leaves
-    for (int i = 0; i < 6; i++)
-    {
-        float rad = angles[i] * 3.14159f / 180.0f;
-        float leafLen = 60.0f * scale;
-        float endX = x + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)angles[i]) * 0.12f * scale);
-
-        float midX = (x + endX) / 2.0f;
-        float midY = (topY + endY) / 2.0f - (8.0f * scale);
-
-        glColor3f(0.22f, 0.75f, 0.18f);
-        glBegin(GL_POLYGON);
-            glVertex2f(x, topY);
-            glVertex2f(midX - (12.0f * scale * sin(rad)), midY + (12.0f * scale * cos(rad)));
-            glVertex2f(endX, endY);
-            glVertex2f(midX + (12.0f * scale * sin(rad)), midY - (12.0f * scale * cos(rad)));
-        glEnd();
-
-        // Rib Line
-        glColor3f(0.12f, 0.48f, 0.10f);
-        glLineWidth(2.0f);
-        glBegin(GL_LINES);
-            glVertex2f(x, topY);
-            glVertex2f(endX, endY);
-        glEnd();
-    }
-
-    // Bananas (Chori)
-    glColor3f(0.65f, 0.82f, 0.20f);
-    glLineWidth(3.0f);
-    glBegin(GL_LINES);
-        glVertex2f(x - (4.0f * scale), topY + (12.0f * scale));
-        glVertex2f(x + (4.0f * scale), topY + (14.0f * scale));
-        glVertex2f(x - (3.0f * scale), topY + (18.0f * scale));
-        glVertex2f(x + (3.0f * scale), topY + (20.0f * scale));
-    glEnd();
-
-    // Flower (Mocha)
-    glColor3f(0.48f, 0.08f, 0.18f);
-    glBegin(GL_TRIANGLES);
-        glVertex2f(x - (5.0f * scale), topY + (22.0f * scale));
-        glVertex2f(x + (5.0f * scale), topY + (22.0f * scale));
-        glVertex2f(x, topY + (36.0f * scale));
-    glEnd();
-
-    glLineWidth(1.0f);
-}
-
-void drawBananaTree()
-{
-    // Right background placement
-    drawSingleBananaTree(1480.0f, 475.0f, 0.85f);
+    // Placed in the background gap between school and Minar
+    drawSingleMangoTree(1320.0f, 405.0f, 0.90f);
 }
 // Helper for Cypress / Cone Shaped Ornamental Tree
 void drawSingleDecorativeTree(float x, float y, float scale)
