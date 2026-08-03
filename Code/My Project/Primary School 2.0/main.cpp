@@ -138,6 +138,7 @@ void drawTree();
 void drawPalmTree();
 void drawMangoTree();
 void drawBananaTree();
+void drawRightSideForest();
 void drawDecorativeTree();
 void drawAssemblyGround();
 
@@ -257,10 +258,11 @@ void display()
     drawGarden();
     //drawFlower();
     //drawBush();
-    drawTree();
-    drawPalmTree();
-    drawMangoTree();
+    //drawTree();
+    //drawPalmTree();
+    //drawMangoTree();
     //drawBananaTree();
+    drawRightSideForest();
     drawDecorativeTree();
     drawAssemblyGround();
 
@@ -2281,7 +2283,7 @@ void drawGarden()
 #include <cmath>
 
 // ============================================================================
-// BACKGROUND TREES (MOVED FAR BACK & DEEP COLOR TONE)
+// HIGH-DETAIL REALISTIC TREE MODELS (Adjusted for School Boundary)
 // ============================================================================
 
 // ----------------------------------------------------------------------------
@@ -2289,44 +2291,30 @@ void drawGarden()
 // ----------------------------------------------------------------------------
 void drawSingleTree(float x, float y, float scale)
 {
-    float trunkHeight = 85.0f * scale;
-    float topY = y - trunkHeight;
+    float trunkH = 80.0f * scale;
+    float topY = y - trunkH;
 
-    // Dark Bark Trunk
-    glColor3f(0.25f, 0.14f, 0.06f);
+    // Organic Branching Trunk
+    glColor3f(0.35f, 0.20f, 0.10f);
     glBegin(GL_POLYGON);
-        glVertex2f(x - (9.0f * scale), y);
-        glVertex2f(x + (9.0f * scale), y);
-        glVertex2f(x + (6.0f * scale), topY);
-        glVertex2f(x - (6.0f * scale), topY);
+        glVertex2f(x - (8.0f * scale), y);
+        glVertex2f(x + (8.0f * scale), y);
+        glVertex2f(x + (5.0f * scale), topY);
+        glVertex2f(x - (5.0f * scale), topY);
     glEnd();
 
-    // Trunk Bark Lines
-    glColor3f(0.15f, 0.08f, 0.03f);
-    glLineWidth(1.5f);
-    glBegin(GL_LINES);
-        glVertex2f(x - (3.0f * scale), y - (10.0f * scale));
-        glVertex2f(x - (2.0f * scale), y - (50.0f * scale));
-        glVertex2f(x + (3.0f * scale), y - (20.0f * scale));
-        glVertex2f(x + (2.0f * scale), y - (60.0f * scale));
-    glEnd();
-    glLineWidth(1.0f);
-
-    // Multilayered Leaf Clusters for Better Visual Depth
-    int segments = 25;
-    float clusters[6][3] =
-    {
-        {x - (24.0f * scale), topY - (8.0f * scale),  26.0f * scale},
-        {x + (24.0f * scale), topY - (8.0f * scale),  26.0f * scale},
-        {x - (16.0f * scale), topY - (28.0f * scale), 30.0f * scale},
-        {x + (16.0f * scale), topY - (28.0f * scale), 30.0f * scale},
-        {x,                   topY - (48.0f * scale), 36.0f * scale},
-        {x,                   topY - (20.0f * scale), 32.0f * scale}
+    int segments = 20;
+    float clusters[5][3] = {
+        {x - (20.0f * scale), topY - (5.0f * scale),  24.0f * scale},
+        {x + (20.0f * scale), topY - (5.0f * scale),  24.0f * scale},
+        {x - (12.0f * scale), topY - (22.0f * scale), 28.0f * scale},
+        {x + (12.0f * scale), topY - (22.0f * scale), 28.0f * scale},
+        {x,                   topY - (42.0f * scale), 32.0f * scale}
     };
 
-    // Layer 1: Deep Shadow Base
-    glColor3f(0.03f, 0.22f, 0.06f);
-    for (int c = 0; c < 6; c++)
+    // Deep Shadow Underlayer
+    glColor3f(0.08f, 0.38f, 0.10f);
+    for (int c = 0; c < 5; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
             glVertex2f(clusters[c][0], clusters[c][1]);
@@ -2339,200 +2327,87 @@ void drawSingleTree(float x, float y, float scale)
         glEnd();
     }
 
-    // Layer 2: Deeper Forest Green Highlight
-    glColor3f(0.07f, 0.35f, 0.10f);
-    for (int c = 0; c < 6; c++)
-    {
-        float cx = clusters[c][0];
-        float cy = clusters[c][1] + (2.0f * scale);
-        float r  = clusters[c][2] - (3.0f * scale);
-
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(cx, cy);
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(cx + (r * cos(angle)), cy + (r * sin(angle)));
-            }
-        glEnd();
-    }
-}
-
-void drawTree()
-{
-    // Placed far back behind the wall/fence level
-    drawSingleTree(1220.0f, 405.0f, 0.85f);
-    drawSingleTree(1650.0f, 410.0f, 0.90f);
-}
-
-// ----------------------------------------------------------------------------
-// 2. PALM TREE
-// ----------------------------------------------------------------------------
-void drawSinglePalmTree(float startX, float startY, float height)
-{
-    glColor3f(0.35f, 0.22f, 0.12f);
-    int segments = 8;
-    float currentX = startX;
-    float currentY = startY;
-    float segmentH = height / segments;
-
-    for (int i = 0; i < segments; i++)
-    {
-        float nextX = currentX + (i * 0.8f);
-        float nextY = currentY - segmentH;
-        float w1 = 11.0f - (i * 0.5f);
-        float w2 = 11.0f - ((i + 1) * 0.5f);
-
-        glBegin(GL_QUADS);
-            glVertex2f(currentX - w1, currentY);
-            glVertex2f(currentX + w1, currentY);
-            glVertex2f(nextX + w2, nextY);
-            glVertex2f(nextX - w2, nextY);
-        glEnd();
-
-        glColor3f(0.22f, 0.12f, 0.06f);
-        glLineWidth(1.5f);
-        glBegin(GL_LINES);
-            glVertex2f(currentX - w1, currentY);
-            glVertex2f(currentX + w1, currentY);
-        glEnd();
-
-        glColor3f(0.35f, 0.22f, 0.12f);
-        currentX = nextX;
-        currentY = nextY;
-    }
-
-    float topX = currentX;
-    float topY = currentY;
-
-    // Dark Coconuts
-    glColor3f(0.12f, 0.30f, 0.05f);
-    int circleSegs = 15;
-    float coconutCoords[3][2] = {
-        {topX - 5.0f, topY + 4.0f},
-        {topX + 5.0f, topY + 4.0f},
-        {topX,        topY + 8.0f}
-    };
-    for (int c = 0; c < 3; c++)
+    // Leaf Sunlight Highlight
+    glColor3f(0.22f, 0.62f, 0.18f);
+    for (int c = 0; c < 5; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(coconutCoords[c][0], coconutCoords[c][1]);
-            for (int i = 0; i <= circleSegs; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / circleSegs;
-                glVertex2f(coconutCoords[c][0] + (5.5f * cos(angle)),
-                           coconutCoords[c][1] + (5.5f * sin(angle)));
-            }
-        glEnd();
-    }
-
-    // Palm Leaves (Darker Green Tone)
-    glColor3f(0.06f, 0.38f, 0.10f);
-    glLineWidth(2.5f);
-    float leafAngles[] = { -160.0f, -120.0f, -70.0f, -20.0f, 20.0f, 70.0f, 120.0f, 160.0f };
-
-    for (int f = 0; f < 8; f++)
-    {
-        float rad = leafAngles[f] * 3.14159f / 180.0f;
-        float leafLen = 65.0f;
-        float endX = topX + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.15f);
-
-        glBegin(GL_LINES);
-            glVertex2f(topX, topY);
-            glVertex2f(endX, endY);
-        glEnd();
-
-        int leaflets = 10;
-        for (int j = 1; j <= leaflets; j++)
-        {
-            float t = (float)j / leaflets;
-            float lx = topX + (endX - topX) * t;
-            float ly = topY + (endY - topY) * t;
-
-            glBegin(GL_LINES);
-                glVertex2f(lx, ly);
-                glVertex2f(lx - 7.0f, ly + 10.0f);
-                glVertex2f(lx, ly);
-                glVertex2f(lx + 7.0f, ly + 10.0f);
-            glEnd();
-        }
-    }
-    glLineWidth(1.0f);
-}
-
-void drawPalmTree()
-{
-    // Placed at the far right corner gap
-    drawSinglePalmTree(1730.0f, 410.0f, 145.0f);
-}
-
-// ----------------------------------------------------------------------------
-// 3. MANGO TREE
-// ----------------------------------------------------------------------------
-void drawSingleMangoTree(float x, float y, float scale)
-{
-    // Trunk
-    glColor3f(0.28f, 0.16f, 0.08f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - (10.0f * scale), y);
-        glVertex2f(x + (10.0f * scale), y);
-        glVertex2f(x + (7.0f * scale), y - (95.0f * scale));
-        glVertex2f(x - (7.0f * scale), y - (95.0f * scale));
-    glEnd();
-
-    float topY = y - (95.0f * scale);
-    int segments = 25;
-
-    float clusters[4][3] = {
-        {x - (24.0f * scale), topY - (10.0f * scale), 34.0f * scale},
-        {x + (24.0f * scale), topY - (10.0f * scale), 34.0f * scale},
-        {x,                   topY - (38.0f * scale), 40.0f * scale},
-        {x,                   topY - (15.0f * scale), 36.0f * scale}
-    };
-
-    // Dark Canopy
-    glColor3f(0.02f, 0.20f, 0.05f);
-    for (int c = 0; c < 4; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1]);
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
-                           clusters[c][1] + (clusters[c][2] * sin(angle)));
-            }
-        glEnd();
-    }
-
-    // Deeper Highlight
-    glColor3f(0.06f, 0.32f, 0.09f);
-    for (int c = 0; c < 4; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1] - (3.0f * scale));
+            glVertex2f(clusters[c][0], clusters[c][1] + (3.0f * scale));
             for (int i = 0; i <= segments; i++)
             {
                 float angle = i * 2.0f * 3.14159f / segments;
                 glVertex2f(clusters[c][0] + ((clusters[c][2] - 4.0f) * cos(angle)),
-                           clusters[c][1] - (3.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
+                           clusters[c][1] + (3.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
+            }
+        glEnd();
+    }
+}
+
+// ----------------------------------------------------------------------------
+// 2. MANGO TREE (Dense Canopy & Ripe Yellow Mangoes)
+// ----------------------------------------------------------------------------
+void drawSingleMangoTree(float x, float y, float scale)
+{
+    glColor3f(0.32f, 0.18f, 0.08f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x - (10.0f * scale), y);
+        glVertex2f(x + (10.0f * scale), y);
+        glVertex2f(x + (6.0f * scale), y - (85.0f * scale));
+        glVertex2f(x - (6.0f * scale), y - (85.0f * scale));
+    glEnd();
+
+    float topY = y - (85.0f * scale);
+    int segments = 20;
+
+    float clusters[4][3] = {
+        {x - (22.0f * scale), topY - (8.0f * scale),  32.0f * scale},
+        {x + (22.0f * scale), topY - (8.0f * scale),  32.0f * scale},
+        {x,                   topY - (36.0f * scale), 36.0f * scale},
+        {x,                   topY - (12.0f * scale), 32.0f * scale}
+    };
+
+    // Dark Dense Canopy Base
+    glColor3f(0.06f, 0.32f, 0.08f);
+    for (int c = 0; c < 4; c++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(clusters[c][0], clusters[c][1]);
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
+                           clusters[c][1] + (clusters[c][2] * sin(angle)));
             }
         glEnd();
     }
 
-    // Mangoes
+    // Top Light Layer
+    glColor3f(0.15f, 0.52f, 0.12f);
+    for (int c = 0; c < 4; c++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(clusters[c][0], clusters[c][1] + (2.0f * scale));
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + ((clusters[c][2] - 4.0f) * cos(angle)),
+                           clusters[c][1] + (2.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
+            }
+        glEnd();
+    }
+
+    // Yellow Mangoes
     float mangoes[5][2] = {
-        {x - 18.0f * scale, topY - 5.0f * scale},
-        {x - 8.0f  * scale, topY - 28.0f * scale},
-        {x + 15.0f * scale, topY - 12.0f * scale},
-        {x + 22.0f * scale, topY + 5.0f * scale},
-        {x + 4.0f  * scale, topY - 38.0f * scale}
+        {x - 16.0f * scale, topY - 2.0f * scale},
+        {x - 6.0f  * scale, topY - 25.0f * scale},
+        {x + 14.0f * scale, topY - 10.0f * scale},
+        {x + 20.0f * scale, topY + 6.0f * scale},
+        {x + 2.0f  * scale, topY - 32.0f * scale}
     };
 
     for (int m = 0; m < 5; m++)
     {
-        glColor3f(0.78f, 0.62f, 0.08f);
+        glColor3f(0.95f, 0.82f, 0.05f);
         glBegin(GL_TRIANGLE_FAN);
             glVertex2f(mangoes[m][0], mangoes[m][1]);
             for (int i = 0; i <= segments; i++)
@@ -2545,10 +2420,347 @@ void drawSingleMangoTree(float x, float y, float scale)
     }
 }
 
-void drawMangoTree()
+// ----------------------------------------------------------------------------
+// 3. COCONUT TREE (Curved Trunk, Green Coconuts & Feathery Fronds)
+// ----------------------------------------------------------------------------
+void drawSingleCoconutTree(float startX, float startY, float height)
 {
-    // Placed in the background gap between school and Minar
-    drawSingleMangoTree(1320.0f, 405.0f, 0.90f);
+    glColor3f(0.42f, 0.28f, 0.14f);
+    int segments = 10;
+    float currentX = startX;
+    float currentY = startY;
+    float segmentH = height / segments;
+
+    for (int i = 0; i < segments; i++)
+    {
+        float nextX = currentX + (i * 0.8f);
+        float nextY = currentY - segmentH;
+        float w1 = 9.0f - (i * 0.4f);
+        float w2 = 9.0f - ((i + 1) * 0.4f);
+
+        glBegin(GL_QUADS);
+            glVertex2f(currentX - w1, currentY);
+            glVertex2f(currentX + w1, currentY);
+            glVertex2f(nextX + w2, nextY);
+            glVertex2f(nextX - w2, nextY);
+        glEnd();
+
+        // Trunk Ring Details
+        glColor3f(0.28f, 0.16f, 0.08f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            glVertex2f(currentX - w1, currentY);
+            glVertex2f(currentX + w1, currentY);
+        glEnd();
+
+        glColor3f(0.42f, 0.28f, 0.14f);
+        currentX = nextX;
+        currentY = nextY;
+    }
+
+    float topX = currentX;
+    float topY = currentY;
+
+    // Green Coconuts
+    glColor3f(0.18f, 0.45f, 0.08f);
+    int circleSegs = 12;
+    float coconutCoords[3][2] = {
+        {topX - 4.0f, topY + 3.0f},
+        {topX + 4.0f, topY + 3.0f},
+        {topX,        topY + 6.0f}
+    };
+    for (int c = 0; c < 3; c++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(coconutCoords[c][0], coconutCoords[c][1]);
+            for (int i = 0; i <= circleSegs; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / circleSegs;
+                glVertex2f(coconutCoords[c][0] + (5.0f * cos(angle)),
+                           coconutCoords[c][1] + (5.0f * sin(angle)));
+            }
+        glEnd();
+    }
+
+    // Feathery Leaves
+    glColor3f(0.10f, 0.55f, 0.12f);
+    glLineWidth(2.0f);
+    float leafAngles[] = { -160.0f, -120.0f, -70.0f, -20.0f, 20.0f, 70.0f, 120.0f, 160.0f };
+
+    for (int f = 0; f < 8; f++)
+    {
+        float rad = leafAngles[f] * 3.14159f / 180.0f;
+        float leafLen = 60.0f;
+        float endX = topX + (leafLen * cos(rad));
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.15f);
+
+        glBegin(GL_LINES);
+            glVertex2f(topX, topY);
+            glVertex2f(endX, endY);
+        glEnd();
+
+        int leaflets = 12;
+        for (int j = 1; j <= leaflets; j++)
+        {
+            float t = (float)j / leaflets;
+            float lx = topX + (endX - topX) * t;
+            float ly = topY + (endY - topY) * t;
+
+            glBegin(GL_LINES);
+                glVertex2f(lx, ly);
+                glVertex2f(lx - 5.0f, ly + 9.0f);
+                glVertex2f(lx, ly);
+                glVertex2f(lx + 5.0f, ly + 9.0f);
+            glEnd();
+        }
+    }
+    glLineWidth(1.0f);
+}
+
+// ----------------------------------------------------------------------------
+// 4. PALMYRA PALM TREE (Tal Gach - Tall Straight Trunk & Fan Fronds)
+// ----------------------------------------------------------------------------
+void drawSinglePalmTree(float x, float y, float height)
+{
+    float topY = y - height;
+
+    // Dark Straight Trunk
+    glColor3f(0.20f, 0.15f, 0.10f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x - 7.0f, y);
+        glVertex2f(x + 7.0f, y);
+        glVertex2f(x + 4.5f, topY);
+        glVertex2f(x - 4.5f, topY);
+    glEnd();
+
+    // Trunk Rings
+    glColor3f(0.10f, 0.08f, 0.05f);
+    glLineWidth(1.5f);
+    for (float r = y - 10.0f; r > topY; r -= 12.0f)
+    {
+        glBegin(GL_LINES);
+            glVertex2f(x - 6.0f, r);
+            glVertex2f(x + 6.0f, r);
+        glEnd();
+    }
+
+    // Black Palm Fruits (Tal)
+    glColor3f(0.08f, 0.08f, 0.08f);
+    int segs = 10;
+    float fruits[3][2] = {{x - 5.0f, topY + 4.0f}, {x + 5.0f, topY + 4.0f}, {x, topY + 8.0f}};
+    for (int k = 0; k < 3; k++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(fruits[k][0], fruits[k][1]);
+            for (int i = 0; i <= segs; i++)
+            {
+                float a = i * 2.0f * 3.14159f / segs;
+                glVertex2f(fruits[k][0] + (4.0f * cos(a)), fruits[k][1] + (4.0f * sin(a)));
+            }
+        glEnd();
+    }
+
+    // Fan-shaped Leaf Crown
+    glColor3f(0.05f, 0.40f, 0.10f);
+    glLineWidth(2.0f);
+    int numFronds = 14;
+    for (int i = 0; i < numFronds; i++)
+    {
+        float angle = (-170.0f + (i * 26.0f)) * 3.14159f / 180.0f;
+        float len = 42.0f;
+        float ex = x + (len * cos(angle));
+        float ey = topY - (len * sin(angle));
+
+        glBegin(GL_TRIANGLES);
+            glVertex2f(x, topY);
+            glVertex2f(ex - 6.0f * sin(angle), ey + 6.0f * cos(angle));
+            glVertex2f(ex + 6.0f * sin(angle), ey - 6.0f * cos(angle));
+        glEnd();
+    }
+    glLineWidth(1.0f);
+}
+
+// ----------------------------------------------------------------------------
+// 5. BANANA TREE (Arching Drooping Leaves & Kolar Mocha)
+// ----------------------------------------------------------------------------
+void drawSingleBananaTree(float x, float y, float scale)
+{
+    // Green Soft Stem
+    glColor3f(0.40f, 0.68f, 0.18f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x - (5.0f * scale), y);
+        glVertex2f(x + (5.0f * scale), y);
+        glVertex2f(x + (3.0f * scale), y - (55.0f * scale));
+        glVertex2f(x - (3.0f * scale), y - (55.0f * scale));
+    glEnd();
+
+    float topY = y - (55.0f * scale);
+    float leafAngles[] = { -145.0f, -100.0f, -40.0f, 40.0f, 100.0f, 145.0f };
+
+    // Curved Drooping Broad Leaves
+    for (int i = 0; i < 6; i++)
+    {
+        float rad = leafAngles[i] * 3.14159f / 180.0f;
+        float leafLen = 45.0f * scale;
+
+        float endX = x + (leafLen * cos(rad));
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[i]) * 0.12f * scale);
+
+        float midX = (x + endX) / 2.0f;
+        float midY = (topY + endY) / 2.0f - (8.0f * scale);
+
+        glColor3f(0.30f, 0.72f, 0.15f);
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(x, topY);
+            glVertex2f(midX - (10.0f * scale * sin(rad)), midY + (10.0f * scale * cos(rad)));
+            glVertex2f(endX, endY);
+            glVertex2f(midX + (10.0f * scale * sin(rad)), midY - (10.0f * scale * cos(rad)));
+        glEnd();
+
+        // Rib
+        glColor3f(0.18f, 0.48f, 0.08f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINES);
+            glVertex2f(x, topY);
+            glVertex2f(endX, endY);
+        glEnd();
+    }
+
+    // Hanging Yellow Bananas Stalk
+    glColor3f(0.70f, 0.82f, 0.10f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        glVertex2f(x, topY);
+        glVertex2f(x, topY + (16.0f * scale));
+    glEnd();
+
+    for (int b = 0; b < 3; b++)
+    {
+        glBegin(GL_LINES);
+            glVertex2f(x - (4.0f * scale), topY + ((5.0f + b * 3.5f) * scale));
+            glVertex2f(x + (4.0f * scale), topY + ((5.0f + b * 3.5f) * scale));
+        glEnd();
+    }
+
+    // Banana Flower Bud (Kolar Mocha)
+    glColor3f(0.48f, 0.05f, 0.15f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(x - (4.0f * scale), topY + (16.0f * scale));
+        glVertex2f(x + (4.0f * scale), topY + (16.0f * scale));
+        glVertex2f(x, topY + (28.0f * scale));
+    glEnd();
+
+    glLineWidth(1.0f);
+}
+
+// ----------------------------------------------------------------------------
+// 6. KRISHNACHURA TREE (Red Canopy)
+// ----------------------------------------------------------------------------
+void drawSingleKrishnachuraTree(float x, float y, float scale)
+{
+    glColor3f(0.35f, 0.20f, 0.10f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x - (11.0f * scale), y);
+        glVertex2f(x + (11.0f * scale), y);
+        glVertex2f(x + (6.0f * scale), y - (75.0f * scale));
+        glVertex2f(x - (6.0f * scale), y - (75.0f * scale));
+    glEnd();
+
+    float topY = y - (75.0f * scale);
+
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        glVertex2f(x - 4.0f * scale, topY);
+        glVertex2f(x - 30.0f * scale, topY - 20.0f * scale);
+
+        glVertex2f(x + 4.0f * scale, topY);
+        glVertex2f(x + 30.0f * scale, topY - 20.0f * scale);
+    glEnd();
+
+    float clusters[5][3] = {
+        {x - (35.0f * scale), topY - (18.0f * scale), 22.0f * scale},
+        {x + (35.0f * scale), topY - (18.0f * scale), 22.0f * scale},
+        {x - (18.0f * scale), topY - (30.0f * scale), 26.0f * scale},
+        {x + (18.0f * scale), topY - (30.0f * scale), 26.0f * scale},
+        {x,                   topY - (40.0f * scale), 30.0f * scale}
+    };
+
+    int segments = 16;
+
+    // Green Foliage Underlayer
+    glColor3f(0.10f, 0.40f, 0.10f);
+    for (int c = 0; c < 5; c++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(clusters[c][0], clusters[c][1]);
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
+                           clusters[c][1] + (clusters[c][2] * sin(angle)));
+            }
+        glEnd();
+    }
+
+    // Vibrant Red Petals
+    glColor3f(0.92f, 0.12f, 0.05f);
+    for (int c = 0; c < 5; c++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(clusters[c][0], clusters[c][1] - (2.0f * scale));
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + ((clusters[c][2] - 3.0f) * cos(angle)),
+                           clusters[c][1] - (2.0f * scale) + ((clusters[c][2] - 3.0f) * sin(angle)));
+            }
+        glEnd();
+    }
+
+    // Orange Highlights
+    glColor3f(1.00f, 0.42f, 0.00f);
+    for (int c = 0; c < 5; c++)
+    {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(clusters[c][0], clusters[c][1] - (4.0f * scale));
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + ((clusters[c][2] - 9.0f) * cos(angle)),
+                           clusters[c][1] - (4.0f * scale) + ((clusters[c][2] - 9.0f) * sin(angle)));
+            }
+        glEnd();
+    }
+
+    glLineWidth(1.0f);
+}
+
+// ============================================================================
+// FUNCTION: drawRightSideForest
+// Description: Places ALL trees strictly on the RIGHT SIDE (X: 1160 to 1800)
+// Behind and around Shaheed Minar to cover the back boundary wall cleanly.
+// ============================================================================
+void drawRightSideForest()
+{
+    // --- LAYER 1: Background Layer (Taller Trees right behind boundary wall) ---
+    // Ground Y = 460 (Matches the base of boundary wall)
+
+    drawSinglePalmTree(1200.0f, 460.0f, 130.0f);         // Tal Gach 1
+    drawSingleCoconutTree(1280.0f, 460.0f, 135.0f);      // Narkel Gach 1
+    drawSingleKrishnachuraTree(1370.0f, 460.0f, 0.95f);  // Krishnachura
+    drawSingleMangoTree(1470.0f, 460.0f, 0.90f);         // Mango Tree 1
+    drawSingleCoconutTree(1560.0f, 460.0f, 140.0f);      // Narkel Gach 2
+    drawSinglePalmTree(1650.0f, 460.0f, 130.0f);         // Tal Gach 2
+    drawSingleMangoTree(1730.0f, 460.0f, 0.88f);         // Mango Tree 2
+
+
+    // --- LAYER 2: Midground Layer (Filling spaces between Shaheed Minar & Wall) ---
+
+    drawSingleMangoTree(1230.0f, 465.0f, 0.82f);         // Mango Tree 3 (Multiple Mangoes)
+    drawSingleBananaTree(1320.0f, 468.0f, 0.85f);        // Kala Gach 1
+    drawSingleTree(1420.0f, 465.0f, 0.80f);              // Normal Leafy Tree 1
+    drawSingleBananaTree(1520.0f, 468.0f, 0.80f);        // Kala Gach 2
+    drawSingleTree(1610.0f, 465.0f, 0.82f);              // Normal Leafy Tree 2
 }
 // Helper for Cypress / Cone Shaped Ornamental Tree
 void drawSingleDecorativeTree(float x, float y, float scale)
