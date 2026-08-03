@@ -578,47 +578,75 @@ void drawCloud()
     drawSingleCloud(1350.0f + cloud3OffsetX, 130.0f, 1.15f);
 }
 
-// Helper function to draw a single V-shaped bird with wing flapping animation
+// ============================================================================
+// FUNCTION: drawSingleBird
+// Description: Renders a realistic, graceful bird silhouette (slender wings, smooth curve, no bat look).
+// ============================================================================
 void drawSingleBird(float x, float y, float size, float flapAngle)
 {
-    glColor3fv(COLOR_BLACK);
-    glLineWidth(2.0f);
+    // Deep Charcoal Color (Natural bird shadow in bright sky)
+    glColor3f(0.15f, 0.15f, 0.18f);
 
-    // Calculate vertical offset for wing movement
-    float wingY = sin(flapAngle) * (size * 0.4f);
+    // Natural smooth wing motion (up/down and slight arch)
+    float wingUp = sin(flapAngle) * (size * 0.6f);
+    float wingCurve = cos(flapAngle) * (size * 0.15f);
 
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(x - size, y - (size * 0.3f) + wingY); // Left wing tip (Flapping)
-    glVertex2f(x - (size * 0.3f), y - (size * 0.8f)); // Left wing bend
-    glVertex2f(x, y);                                 // Center body
-    glVertex2f(x + (size * 0.3f), y - (size * 0.8f)); // Right wing bend
-    glVertex2f(x + size, y - (size * 0.3f) + wingY); // Right wing tip (Flapping)
+    // ---------------------------------------------------------
+    // 1. Left Wing (Graceful Curved Feathered Shape)
+    // ---------------------------------------------------------
+    glBegin(GL_POLYGON);
+    glVertex2f(x, y - (size * 0.1f));                                 // Lower Body Center
+    glVertex2f(x, y + (size * 0.15f));                                // Upper Body Center
+    glVertex2f(x - (size * 0.5f), y + (size * 0.35f) + (wingUp * 0.5f));// Wing Elbow/Arch
+    glVertex2f(x - (size * 1.2f), y + (size * 0.1f) + wingUp);        // Sleek Wing Tip
+    glVertex2f(x - (size * 0.6f), y - (size * 0.05f) + wingCurve);    // Wing Inner Arch
+    glEnd();
+
+    // ---------------------------------------------------------
+    // 2. Right Wing (Graceful Curved Feathered Shape)
+    // ---------------------------------------------------------
+    glBegin(GL_POLYGON);
+    glVertex2f(x, y - (size * 0.1f));                                 // Lower Body Center
+    glVertex2f(x, y + (size * 0.15f));                                // Upper Body Center
+    glVertex2f(x + (size * 0.5f), y + (size * 0.35f) + (wingUp * 0.5f));// Wing Elbow/Arch
+    glVertex2f(x + (size * 1.2f), y + (size * 0.1f) + wingUp);        // Sleek Wing Tip
+    glVertex2f(x + (size * 0.6f), y - (size * 0.05f) + wingCurve);    // Wing Inner Arch
+    glEnd();
+
+    // ---------------------------------------------------------
+    // 3. Slender Tail Feathers
+    // ---------------------------------------------------------
+    glBegin(GL_TRIANGLES);
+    glVertex2f(x - (size * 0.12f), y - (size * 0.1f));
+    glVertex2f(x + (size * 0.12f), y - (size * 0.1f));
+    glVertex2f(x, y - (size * 0.45f));                                // Pointed Tail
     glEnd();
 }
 
 // ============================================================================
 // FUNCTION: drawBird
-// Description: Renders a small flock of birds flying across the sky with flapping wings.
+// Description: Renders a flock of 5 sleek birds with natural formation flying.
 // ============================================================================
 void drawBird()
 {
-    // 1. Move birds from Right to Left across the screen
-    birdOffsetX -= 1.8f; // Speed of bird flight
+    // 1. Move birds smoothly from Right to Left
+    birdOffsetX -= 1.5f;
 
-    // Reset position when flock flies off the left side
+    // Loop back smoothly
     if (birdOffsetX < -600.0f)
     {
         birdOffsetX = 1200.0f;
     }
 
-    // 2. Wing Flapping Animation Clock
-    float time = glutGet(GLUT_ELAPSED_TIME) * 0.008f;
+    // 2. Wing Flapping Speed
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.007f;
 
-    // Flock of birds with position offsets and wing flapping effect
-    drawSingleBird(350.0f + birdOffsetX, 80.0f,  12.0f, time);
-    drawSingleBird(380.0f + birdOffsetX, 100.0f, 15.0f, time + 0.5f);
-    drawSingleBird(420.0f + birdOffsetX, 75.0f,  11.0f, time + 1.0f);
-    drawSingleBird(450.0f + birdOffsetX, 95.0f,  14.0f, time + 1.5f);
+    // Flock of birds with staggered wing flap angles and positions
+    drawSingleBird(350.0f + birdOffsetX, 85.0f,  9.0f, time);
+    drawSingleBird(385.0f + birdOffsetX, 105.0f, 11.0f, time + 0.7f);
+    drawSingleBird(420.0f + birdOffsetX, 75.0f,  8.0f,  time + 1.4f);
+    drawSingleBird(455.0f + birdOffsetX, 95.0f,  10.0f, time + 2.1f);
+    drawSingleBird(490.0f + birdOffsetX, 115.0f, 7.5f,  time + 2.8f);
 }
 // Helper function to draw a single small butterfly
 void drawSingleButterfly(float x, float y, float scale, float wingAngle, float r, float g, float b)
@@ -701,48 +729,79 @@ void drawSingleButterfly(float x, float y, float scale, float wingAngle, float r
 }
 
 // ============================================================================
-// FUNCTION: drawButterflies
-// Description: Renders multiple animated butterflies fluttering near garden areas.
+// FUNCTION: drawButterfly
+// Description: Renders 6 dynamically animated butterflies positioned higher up
+//              in the sky/canopy area with slower speeds for Butterfly 1 & 2.
 // Screen Resolution Target: 1600 x 900
 // ============================================================================
 void drawButterfly()
 {
-    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f; // Animation clock
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f; // Base Animation clock
 
-    // Dynamic wing flap angle
-    float wingFlap = time * 3.0f; // Speed of flapping
+    // Dynamic wing flap speed clock (Default speed for others)
+    float wingFlap = time * 3.5f;
 
-    // Butterfly 1: Yellow - Near Left Flower Tub (Around X=450, Y=610)
-    float b1X = 450.0f + sin(time * 0.8f) * 20.0f;
-    float b1Y = 610.0f + cos(time * 1.2f) * 10.0f;
-    drawSingleButterfly(b1X, b1Y, 0.7f, wingFlap, 1.0f, 0.85f, 0.0f);
+    // ------------------------------------------------------------------------
+    // Butterfly 1: Golden-Yellow (Higher Up - Mid Sky)
+    // Speed: Reduced Movement & Flapping Speed (time * 0.4f & flap * 1.5f)
+    // ------------------------------------------------------------------------
+    float b1Flap = time * 1.5f; // Slower wing flapping speed
+    float b1X = 380.0f + sin(time * 0.4f) * 35.0f; // Slower movement
+    float b1Y = 320.0f + cos(time * 0.6f) * 15.0f; // Positioned high (Y = 320)
+    drawSingleButterfly(b1X, b1Y, 0.80f, b1Flap, 1.0f, 0.82f, 0.0f);
 
-    // Butterfly 2: Pink/Red - Center Gate Area (Around X=760, Y=600)
-    float b2X = 760.0f + cos(time * 0.9f) * 25.0f;
-    float b2Y = 600.0f + sin(time * 1.1f) * 12.0f;
-    drawSingleButterfly(b2X, b2Y, 0.6f, wingFlap + 1.0f, 1.0f, 0.2f, 0.5f);
+    // ------------------------------------------------------------------------
+    // Butterfly 2: Crimson Red (High Sky above Left Trees)
+    // Speed: Reduced Movement & Flapping Speed (time * 0.35f & flap * 1.6f)
+    // ------------------------------------------------------------------------
+    float b2Flap = time * 1.6f; // Slower wing flapping speed
+    float b2X = 220.0f + cos(time * 0.35f) * 45.0f; // Slower movement
+    float b2Y = 250.0f + sin(time * 0.5f) * 20.0f;  // Positioned very high (Y = 250)
+    drawSingleButterfly(b2X, b2Y, 0.60f, b2Flap + 1.2f, 0.95f, 0.15f, 0.25f);
 
-    // Butterfly 3: Cyan/Blue - Near Right Flower Tub (Around X=1100, Y=615)
-    float b3X = 1100.0f + sin(time * 1.1f) * 18.0f;
-    float b3Y = 615.0f + cos(time * 0.7f) * 15.0f;
-    drawSingleButterfly(b3X, b3Y, 0.65f, wingFlap + 2.0f, 0.1f, 0.7f, 1.0f);
+    // ------------------------------------------------------------------------
+    // Butterfly 3: Electric Cyan/Blue (Above Center Field / Mid-Sky)
+    // Position: Shifted higher (Y = 410)
+    // ------------------------------------------------------------------------
+    float b3X = 720.0f + sin(time * 1.2f) * 70.0f;
+    float b3Y = 410.0f + cos(time * 1.5f) * 15.0f;
+    drawSingleButterfly(b3X, b3Y, 0.85f, wingFlap + 2.1f, 0.1f, 0.78f, 1.0f);
 
-    // Butterfly 4: Orange - Near Left Trees (Around X=320, Y=580)
-    float b4X = 320.0f + cos(time * 0.7f) * 30.0f;
-    float b4Y = 580.0f + sin(time * 1.3f) * 8.0f;
-    drawSingleButterfly(b4X, b4Y, 0.55f, wingFlap + 1.5f, 1.0f, 0.5f, 0.0f);
+    // ------------------------------------------------------------------------
+    // Butterfly 4: Bright Orange (Upper Right Tree Canopy / Sky)
+    // Position: Shifted higher (Y = 350)
+    // ------------------------------------------------------------------------
+    float b4X = 1040.0f + cos(time * 1.0f) * 30.0f;
+    float b4Y = 350.0f + sin(time * 1.4f) * 20.0f;
+    drawSingleButterfly(b4X, b4Y, 0.70f, wingFlap + 0.8f, 1.0f, 0.48f, 0.0f);
+
+    // ---------------------------------------------------------
+    // Butterfly 5: Royal Magenta/Purple (High Sky near Shahid Minar Top)
+    // Position: Positioned very high (Y = 220)
+    // ---------------------------------------------------------
+    float b5X = 1280.0f + sin(time * 0.6f) * 45.0f;
+    float b5Y = 220.0f + cos(time * 0.8f) * 30.0f;
+    drawSingleButterfly(b5X, b5Y, 0.50f, wingFlap + 3.0f, 0.75f, 0.2f, 0.9f);
+
+    // ---------------------------------------------------------
+    // Butterfly 6: Soft Lime Green (Upper Center Sky)
+    // Position: Shifted higher (Y = 300)
+    // ---------------------------------------------------------
+    float b6X = 580.0f + sin(time * 1.0f) * 50.0f;
+    float b6Y = 300.0f + sin(time * 1.8f) * 20.0f;
+    drawSingleButterfly(b6X, b6Y, 0.65f, wingFlap + 1.7f, 0.45f, 0.95f, 0.2f);
 }
 // ============================================================================
 // FUNCTION: drawAirplane
-// Description: Renders an airplane flying naturally facing LEFT to RIGHT or RIGHT to LEFT.
+// Description: Renders a highly realistic, shaded commercial airliner
+//              flying right-to-left with dual wings, jet engines,
+//              passenger windows, and atmospheric contrail (smoke trail).
 // Position: Base at X = 800, Y = 60.
 // ============================================================================
 void drawAirplane()
 {
-    // Move from Right to Left (towards the direction nose is pointing)
+    // Movement animation logic
     airplaneOffsetX -= 1.5f;
-
-    // Reset position when it exits the left edge
     if (airplaneOffsetX < -900.0f)
     {
         airplaneOffsetX = 900.0f;
@@ -754,183 +813,426 @@ void drawAirplane()
     float baseX = 800.0f;
     float baseY = 60.0f;
 
-    // 1. Main Body (Fuselage facing LEFT)
-    glColor3f(0.95f, 0.95f, 0.98f); // Bright clean white
-    glBegin(GL_POLYGON);
-    glVertex2f(baseX - 45.0f, baseY);        // Nose tip
-    glVertex2f(baseX - 35.0f, baseY - 4.0f); // Top curve
-    glVertex2f(baseX + 35.0f, baseY - 4.0f); // Tail top
-    glVertex2f(baseX + 45.0f, baseY);        // Tail tip
-    glVertex2f(baseX + 35.0f, baseY + 4.0f); // Tail bottom
-    glVertex2f(baseX - 35.0f, baseY + 4.0f); // Bottom curve
-    glEnd();
+    // ------------------------------------------------------------------------
+    // 1. CONDENSATION TRAIL / CONTRAIL (Soft Translucent Smoke Trail)
+    // ------------------------------------------------------------------------
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // 2. Cockpit Window (Facing LEFT)
-    glColor3f(0.2f, 0.4f, 0.6f); // Glass blue
-    glBegin(GL_TRIANGLES);
-    glVertex2f(baseX - 25.0f, baseY - 2.0f);
-    glVertex2f(baseX - 15.0f, baseY - 4.0f);
-    glVertex2f(baseX - 20.0f, baseY);
-    glEnd();
-
-    // 3. Nose Cone (Red tip at the FRONT/LEFT)
-    glColor3f(0.85f, 0.15f, 0.15f);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(baseX - 45.0f, baseY);
-    glVertex2f(baseX - 55.0f, baseY + 1.0f);
-    glVertex2f(baseX - 45.0f, baseY + 3.0f);
-    glEnd();
-
-    // 4. Main Swept-back Wings (Slanted towards tail/RIGHT)
-    glColor3f(0.75f, 0.80f, 0.90f);
     glBegin(GL_QUADS);
-    glVertex2f(baseX - 5.0f, baseY);
-    glVertex2f(baseX + 10.0f, baseY);
-    glVertex2f(baseX + 20.0f, baseY - 28.0f); // Swept back right
-    glVertex2f(baseX + 5.0f, baseY - 28.0f);
+        // Engine Trail 1
+        glColor4f(1.0f, 1.0f, 1.0f, 0.0f);   // Fades out far back
+        glVertex2f(baseX + 250.0f, baseY + 2.0f);
+        glVertex2f(baseX + 250.0f, baseY + 8.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, 0.45f);  // Dense near tail
+        glVertex2f(baseX + 45.0f, baseY + 5.0f);
+        glVertex2f(baseX + 45.0f, baseY + 3.0f);
     glEnd();
 
-    // 5. Tail Fin (At the REAR/RIGHT)
-    glColor3f(0.85f, 0.15f, 0.15f);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(baseX + 30.0f, baseY - 4.0f);
-    glVertex2f(baseX + 42.0f, baseY - 16.0f);
-    glVertex2f(baseX + 44.0f, baseY - 4.0f);
+    glDisable(GL_BLEND);
+
+    // ------------------------------------------------------------------------
+    // 2. FAR WING (Distant wing rendered behind the fuselage for depth)
+    // ------------------------------------------------------------------------
+    glColor3f(0.55f, 0.60f, 0.68f); // Darker shadow tone
+    glBegin(GL_POLYGON);
+        glVertex2f(baseX - 8.0f,  baseY - 2.0f);
+        glVertex2f(baseX + 10.0f, baseY - 2.0f);
+        glVertex2f(baseX + 32.0f, baseY - 22.0f); // Swept tip
+        glVertex2f(baseX + 22.0f, baseY - 22.0f);
     glEnd();
 
-    // 6. Horizontal Stabilizers (At the REAR/RIGHT)
-    glColor3f(0.80f, 0.85f, 0.92f);
+    // ------------------------------------------------------------------------
+    // 3. MAIN FUSELAGE (Curved, Aerodynamic Body with Top-to-Bottom Lighting)
+    // ------------------------------------------------------------------------
+    // Main Body Nose & Mid-section
+    glBegin(GL_POLYGON);
+        glColor3f(1.0f, 1.0f, 1.0f);        // Highlight Top
+        glVertex2f(baseX - 55.0f, baseY);          // Nose Tip
+        glVertex2f(baseX - 35.0f, baseY - 7.0f);   // Top Front Curve
+        glVertex2f(baseX + 35.0f, baseY - 6.0f);   // Top Rear Fuselage
+
+        glColor3f(0.78f, 0.82f, 0.88f);     // Shadow Bottom
+        glVertex2f(baseX + 48.0f, baseY + 1.0f);   // Tail Cone Base
+        glVertex2f(baseX + 35.0f, baseY + 7.0f);   // Bottom Rear
+        glVertex2f(baseX - 35.0f, baseY + 7.0f);   // Bottom Front Curve
+    glEnd();
+
+    // Nose Cone Soft Curve Shading
     glBegin(GL_TRIANGLES);
-    glVertex2f(baseX + 35.0f, baseY);
-    glVertex2f(baseX + 45.0f, baseY - 8.0f);
-    glVertex2f(baseX + 46.0f, baseY);
+        glColor3f(0.85f, 0.88f, 0.92f);
+        glVertex2f(baseX - 55.0f, baseY);
+        glColor3f(0.95f, 0.95f, 0.98f);
+        glVertex2f(baseX - 35.0f, baseY - 7.0f);
+        glColor3f(0.75f, 0.78f, 0.84f);
+        glVertex2f(baseX - 35.0f, baseY + 7.0f);
+    glEnd();
+
+    // Decorative Airline Livery Stripe along Fuselage
+    glColor3f(0.85f, 0.15f, 0.20f); // Vivid Red Stripe
+    glBegin(GL_QUADS);
+        glVertex2f(baseX - 48.0f, baseY + 1.0f);
+        glVertex2f(baseX + 42.0f, baseY + 1.0f);
+        glVertex2f(baseX + 42.0f, baseY + 3.0f);
+        glVertex2f(baseX - 42.0f, baseY + 3.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. COCKPIT WINDOW & PASSENGER WINDOWS
+    // ------------------------------------------------------------------------
+    // Cockpit Windshield (Glossy Glass Gradient)
+    glBegin(GL_QUADS);
+        glColor3f(0.15f, 0.35f, 0.55f);
+        glVertex2f(baseX - 46.0f, baseY - 1.0f);
+        glVertex2f(baseX - 36.0f, baseY - 5.0f);
+        glColor3f(0.65f, 0.85f, 1.0f); // Reflection highlight
+        glVertex2f(baseX - 32.0f, baseY - 5.0f);
+        glVertex2f(baseX - 40.0f, baseY - 1.0f);
+    glEnd();
+
+    // Row of Passenger Windows
+    glColor3f(0.20f, 0.25f, 0.35f);
+    for (float wx = baseX - 25.0f; wx <= baseX + 28.0f; wx += 6.5f)
+    {
+        glBegin(GL_QUADS);
+            glVertex2f(wx,        baseY - 2.5f);
+            glVertex2f(wx + 3.5f, baseY - 2.5f);
+            glVertex2f(wx + 3.5f, baseY - 0.5f);
+            glVertex2f(wx,        baseY - 0.5f);
+        glEnd();
+    }
+
+    // ------------------------------------------------------------------------
+    // 5. TAIL FIN & STABILIZERS (Vertical & Horizontal Tail)
+    // ------------------------------------------------------------------------
+    // Vertical Tail Fin
+    glBegin(GL_POLYGON);
+        glColor3f(0.85f, 0.15f, 0.20f); // Red Airline Livery Tail
+        glVertex2f(baseX + 28.0f, baseY - 5.0f);
+        glVertex2f(baseX + 42.0f, baseY - 24.0f);
+        glVertex2f(baseX + 48.0f, baseY - 24.0f);
+        glColor3f(0.65f, 0.10f, 0.12f);
+        glVertex2f(baseX + 44.0f, baseY - 2.0f);
+    glEnd();
+
+    // Horizontal Rear Stabilizer
+    glColor3f(0.72f, 0.78f, 0.85f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(baseX + 36.0f, baseY + 1.0f);
+        glVertex2f(baseX + 48.0f, baseY + 12.0f);
+        glVertex2f(baseX + 47.0f, baseY + 1.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 6. NEAR MAIN WING & JET ENGINE (Rendered in Front)
+    // ------------------------------------------------------------------------
+    // Jet Engine Pod under main wing
+    glColor3f(0.35f, 0.38f, 0.42f); // Dark Engine Metallic Gray
+    glBegin(GL_QUADS);
+        glVertex2f(baseX - 8.0f, baseY + 12.0f);
+        glVertex2f(baseX + 12.0f, baseY + 12.0f);
+        glVertex2f(baseX + 12.0f, baseY + 17.0f);
+        glVertex2f(baseX - 8.0f, baseY + 17.0f);
+    glEnd();
+    // Engine Intake Glow/Front
+    glColor3f(0.15f, 0.15f, 0.18f);
+    glBegin(GL_QUADS);
+        glVertex2f(baseX - 10.0f, baseY + 12.0f);
+        glVertex2f(baseX - 8.0f,  baseY + 12.0f);
+        glVertex2f(baseX - 8.0f,  baseY + 17.0f);
+        glVertex2f(baseX - 10.0f, baseY + 17.0f);
+    glEnd();
+
+    // Swept Main Wing (In front of body)
+    glBegin(GL_POLYGON);
+        glColor3f(0.88f, 0.92f, 0.96f); // Light edge
+        glVertex2f(baseX - 12.0f, baseY + 2.0f);
+        glVertex2f(baseX + 8.0f,  baseY + 2.0f);
+        glColor3f(0.68f, 0.72f, 0.80f); // Wingtip shadow
+        glVertex2f(baseX + 28.0f, baseY + 26.0f);
+        glVertex2f(baseX + 15.0f, baseY + 26.0f);
     glEnd();
 
     glPopMatrix();
 }
-// Draw distant light buildings and soft green tree horizon (Daytime Silhouettes)
+// ============================================================================
+// FUNCTION: drawDistantSkyline
+// Description: Renders a multi-layered, realistic daytime distant skyline
+//              with atmospheric haze, architectural details, and natural foliage.
+// Screen Resolution Target: 1600 x 900
+// ============================================================================
 void drawDistantSkyline() {
-    // 1. DISTANT LIGHT BUILDINGS (Soft atmospheric haze effect for daytime)
-    // Soft light grayish-blue tone
-    glColor3f(0.60f, 0.68f, 0.75f);
+    // ------------------------------------------------------------------------
+    // 1. LAYER 1: VERY DISTANT BUILDINGS (Ultra-Soft Hazy Hues)
+    // ------------------------------------------------------------------------
+    // Soft atmospheric haze tone for far distance
+    glColor3f(0.72f, 0.78f, 0.84f);
 
     glBegin(GL_QUADS);
-        // Distant Building 1 (Left far)
-        glVertex2i(50, 240);  glVertex2i(130, 240);
-        glVertex2i(130, 330); glVertex2i(50, 330);
+        // Far Building A (Stepped Roof Line)
+        glVertex2i(100, 260); glVertex2i(160, 260);
+        glVertex2i(160, 330); glVertex2i(100, 330);
 
-        // Distant Building 2 (Tall slender building)
-        glVertex2i(180, 210);  glVertex2i(240, 210);
-        glVertex2i(240, 330);  glVertex2i(180, 330);
+        // Far Building B (Tall Wide Block)
+        glVertex2i(300, 190); glVertex2i(380, 190);
+        glVertex2i(380, 330); glVertex2i(300, 330);
 
-        // Distant Building 3 (Medium)
-        glVertex2i(260, 250);  glVertex2i(320, 250);
-        glVertex2i(320, 330);  glVertex2i(260, 330);
+        // Far Building C (Mid-Right Skyline)
+        glVertex2i(850, 210); glVertex2i(940, 210);
+        glVertex2i(940, 330); glVertex2i(850, 330);
 
-        // Distant Building 4 (Behind School - Left side)
-        glVertex2i(500, 220);  glVertex2i(590, 220);
-        glVertex2i(590, 330);  glVertex2i(500, 330);
-
-        // Distant Building 5 (Behind School - Right side)
-        glVertex2i(1000, 200); glVertex2i(1080, 200);
-        glVertex2i(1080, 330); glVertex2i(1000, 330);
-
-        // Distant Building 6 (Far Right)
-        glVertex2i(1380, 230); glVertex2i(1460, 230);
-        glVertex2i(1460, 330); glVertex2i(1380, 330);
-
-        // Distant Building 7 (Edge Right)
-        glVertex2i(1500, 210); glVertex2i(1570, 210);
-        glVertex2i(1570, 330); glVertex2i(1500, 330);
+        // Far Building D (Far Right Edge)
+        glVertex2i(1420, 180); glVertex2i(1520, 180);
+        glVertex2i(1520, 330); glVertex2i(1420, 330);
     glEnd();
 
-    // Windows on Distant Buildings (Light Sky Blue tint reflecting sunlight)
-    glColor3f(0.80f, 0.90f, 0.98f);
+    // ------------------------------------------------------------------------
+    // 2. LAYER 2: MID-DISTANCE BUILDINGS (Sharper Silhouettes)
+    // ------------------------------------------------------------------------
+    glColor3f(0.58f, 0.66f, 0.74f); // Slightly darker/closer tone
+
     glBegin(GL_QUADS);
-        // Windows for Building 2
-        glVertex2i(195, 225); glVertex2i(205, 225); glVertex2i(205, 240); glVertex2i(195, 240);
-        glVertex2i(215, 225); glVertex2i(225, 225); glVertex2i(225, 240); glVertex2i(215, 240);
+        // Building 1 (Left Tower)
+        glVertex2i(40,  220); glVertex2i(110, 220);
+        glVertex2i(110, 330); glVertex2i(40,  330);
 
-        // Windows for Building 5
-        glVertex2i(1020, 220); glVertex2i(1035, 220); glVertex2i(1035, 235); glVertex2i(1020, 235);
-        glVertex2i(1045, 220); glVertex2i(1060, 220); glVertex2i(1060, 235); glVertex2i(1045, 235);
+        // Building 2 (Slanted Roof Center-Left)
+        glVertex2i(180, 200); glVertex2i(250, 200);
+        glVertex2i(250, 330); glVertex2i(180, 330);
+
+        // Building 3 (Behind School - Left)
+        glVertex2i(480, 210); glVertex2i(570, 210);
+        glVertex2i(570, 330); glVertex2i(480, 330);
+
+        // Building 4 (Behind School - Right, High-rise)
+        glVertex2i(990, 170); glVertex2i(1070, 170);
+        glVertex2i(1070, 330); glVertex2i(990, 330);
+
+        // Building 5 (Far Right Mid-layer)
+        glVertex2i(1350, 220); glVertex2i(1430, 220);
+        glVertex2i(1430, 330); glVertex2i(1350, 330);
     glEnd();
 
-    // 2. DISTANT SMALL TREES & GREENERY SILHOUETTE
-    // Light Soft Sage Green / Misty Green for daytime distant trees
-    glColor3f(0.38f, 0.58f, 0.38f);
+    // Architectural Roof Details (Spire / Antennas / Stepped Tops)
+    glColor3f(0.50f, 0.58f, 0.65f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        // Antenna on Tall Building 4
+        glVertex2i(1030, 170); glVertex2i(1030, 140);
+        // Spire on Building 2
+        glVertex2i(215, 200);  glVertex2i(215, 175);
+    glEnd();
 
-    // Continuous distant tree line using overlapping small circles/polygons
-    for (int x = 0; x <= 1600; x += 35) {
-        // Draw small tree foliage bumps along the distant horizon
+    // Distant Reflective Windows (Soft Sunlight Reflection)
+    glColor3f(0.85f, 0.92f, 0.98f);
+    glBegin(GL_QUADS);
+        // Vertical window strips on High-rise (Building 4)
+        for (int wy = 185; wy < 310; wy += 25) {
+            glVertex2i(1010, wy); glVertex2i(1025, wy); glVertex2i(1025, wy + 12); glVertex2i(1010, wy + 12);
+            glVertex2i(1035, wy); glVertex2i(1050, wy); glVertex2i(1050, wy + 12); glVertex2i(1035, wy + 12);
+        }
+        // Grid windows on Left Tower (Building 1)
+        for (int wy = 235; wy < 310; wy += 20) {
+            glVertex2i(55, wy); glVertex2i(70, wy); glVertex2i(70, wy + 10); glVertex2i(55, wy + 10);
+            glVertex2i(80, wy); glVertex2i(95, wy); glVertex2i(95, wy + 10); glVertex2i(80, wy + 10);
+        }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. DISTANT NATURAL TREE HORIZON (Layered Organic Foliage)
+    // ------------------------------------------------------------------------
+
+    // Back Tree Line (Slightly lighter, hazy green)
+    glColor3f(0.42f, 0.58f, 0.42f);
+    for (int x = -10; x <= 1610; x += 30) {
+        float treeHeight = 280.0f + sin(x * 0.03f) * 12.0f; // Organic height variation
         glBegin(GL_POLYGON);
-            glVertex2i(x - 20, 330);
-            glVertex2i(x - 15, 305);
-            glVertex2i(x, 290);
-            glVertex2i(x + 15, 305);
-            glVertex2i(x + 20, 330);
+            glVertex2i(x - 25, 330);
+            glVertex2f(x - 15, treeHeight + 12.0f);
+            glVertex2f(x,       treeHeight);
+            glVertex2f(x + 15, treeHeight + 12.0f);
+            glVertex2i(x + 25, 330);
+        glEnd();
+    }
+
+    // Front Tree Line (Slightly darker, overlapping for depth)
+    glColor3f(0.32f, 0.50f, 0.32f);
+    for (int x = 5; x <= 1610; x += 38) {
+        float treeHeight = 290.0f + cos(x * 0.025f) * 10.0f;
+        glBegin(GL_POLYGON);
+            glVertex2i(x - 22, 330);
+            glVertex2f(x - 12, treeHeight + 10.0f);
+            glVertex2f(x,       treeHeight);
+            glVertex2f(x + 12, treeHeight + 10.0f);
+            glVertex2i(x + 22, 330);
         glEnd();
     }
 }
-// Draw the main grass ground layer across the canvas
+// ============================================================================
+// FUNCTION: drawGround
+// Description: Renders a realistic multi-shaded grass lawn with natural depth
+//              gradient and organic grass blade texture details.
+// Screen Resolution Target: 1600 x 900
+// ============================================================================
 void drawGround() {
-    // Main grass base (starts below sky at Y = 350 down to bottom Y = 900)
-    glBegin(GL_QUADS);
-        // Gradient effect: lighter green near the horizon, deeper green at the bottom
-        glColor3f(0.35f, 0.75f, 0.25f); // Light Grass Green (Top)
-        glVertex2i(0, 350);
-        glVertex2i(1600, 350);
+    // 1. MAIN GRASS GRADIENT (3-Layer Depth Gradient)
 
-        glColor3f(0.20f, 0.55f, 0.15f); // Deep Grass Green (Bottom)
+    // Horizon to Mid-ground Layer
+    glBegin(GL_QUADS);
+        glColor3f(0.42f, 0.78f, 0.30f); // Light Horizon Green
+        glVertex2i(0, 330);
+        glVertex2i(1600, 330);
+
+        glColor3f(0.28f, 0.62f, 0.20f); // Mid-Field Green
+        glVertex2i(1600, 600);
+        glVertex2i(0, 600);
+    glEnd();
+
+    // Mid-ground to Deep Foreground Layer
+    glBegin(GL_QUADS);
+        glColor3f(0.28f, 0.62f, 0.20f); // Mid-Field Green
+        glVertex2i(0, 600);
+        glVertex2i(1600, 600);
+
+        glColor3f(0.12f, 0.42f, 0.10f); // Rich Deep Foreground Green
         glVertex2i(1600, 900);
         glVertex2i(0, 900);
     glEnd();
 
-    // Subtle horizon grass strip to smooth out sky-ground boundary
-    glBegin(GL_QUADS);
-        glColor3f(0.40f, 0.80f, 0.30f);
-        glVertex2i(0, 345);
-        glVertex2i(1600, 345);
-        glVertex2i(1600, 355);
-        glVertex2i(0, 355);
+    // 2. REALISTIC GRASS BLADE TEXTURES (Scattered Organic Strands)
+    // Denser and larger strands near foreground, subtle near horizon
+
+    // Foreground Detailed Grass Blades (Y = 600 to 900)
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+    for (int x = 5; x < 1600; x += 15) {
+        for (int y = 620; y < 890; y += 45) {
+            float xOffset = (x % 3 == 0) ? 4.0f : -3.0f; // Random tilt
+
+            // Alternating bright/dark grass blades for realism
+            if ((x + y) % 2 == 0) {
+                glColor3f(0.35f, 0.70f, 0.25f); // Bright blade tip
+            } else {
+                glColor3f(0.18f, 0.48f, 0.12f); // Shadowed blade
+            }
+
+            glVertex2i(x, y);
+            glVertex2f(x + xOffset, y - 10.0f); // Slight upward angle
+        }
+    }
     glEnd();
+    glLineWidth(1.0f); // Reset line width
+
+    // Subtle Horizon Mist Blend (Smooth Sky-Ground Boundary)
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBegin(GL_QUADS);
+        glColor4f(0.70f, 0.85f, 0.95f, 0.25f); // Hazy Horizon Fog
+        glVertex2i(0, 325);
+        glVertex2i(1600, 325);
+
+        glColor4f(0.42f, 0.78f, 0.30f, 0.0f);  // Fades out into grass
+        glVertex2i(1600, 350);
+        glVertex2i(0, 350);
+    glEnd();
+    glDisable(GL_BLEND);
 }
 
-// Draw the distant background boundary wall positioned behind the school building
+// ============================================================================
+// FUNCTION: backBoundaryWall
+// Description: Renders a textured concrete brick boundary wall with 3D
+//              pillars, cap shadows, and realistic mortar lines.
+// Screen Resolution Target: 1600 x 900
+// ============================================================================
 void backBoundaryWall() {
-    // Wall Base Coordinates:
-    // Placed in the background horizon (Y = 320 to Y = 380) covering full canvas width
     int wallTop = 320;
     int wallBottom = 380;
 
-    // 1. Main Concrete Wall Body
+    // 1. MAIN CONCRETE WALL BASE (Subtle Vertical Lighting Gradient)
     glBegin(GL_QUADS);
-        glColor3f(0.82f, 0.82f, 0.80f); // Light Gray Concrete
+        glColor3f(0.85f, 0.84f, 0.80f); // Highlighted Top Wall
         glVertex2i(0, wallTop);
         glVertex2i(1600, wallTop);
+
+        glColor3f(0.68f, 0.67f, 0.64f); // Slightly Shadowed Bottom Wall
         glVertex2i(1600, wallBottom);
         glVertex2i(0, wallBottom);
     glEnd();
 
-    // 2. Boundary Wall Top Cap (Coping)
+    // 2. REALISTIC BRICK TEXTURE (Mortar Lines & Staggered Bricks)
+    glColor3f(0.60f, 0.59f, 0.56f); // Darker Mortar/Grout Line Color
+    glLineWidth(1.0f);
+
+    // Horizontal Mortar Lines
+    glBegin(GL_LINES);
+    for (int y = wallTop + 12; y < wallBottom; y += 12) {
+        glVertex2i(0, y);
+        glVertex2i(1600, y);
+    }
+    glEnd();
+
+    // Vertical Brick Joints (Staggered Pattern)
+    glBegin(GL_LINES);
+    int row = 0;
+    for (int y = wallTop; y < wallBottom; y += 12) {
+        int xOffset = (row % 2 == 0) ? 0 : 20; // Stagger every alternate row
+        for (int x = xOffset; x < 1600; x += 40) {
+            glVertex2i(x, y);
+            glVertex2i(x, y + 12);
+        }
+        row++;
+    }
+    glEnd();
+
+    // 3. TOP COPING CAP WITH 3D SHADOW
+    // Top Cap Base
     glBegin(GL_QUADS);
-        glColor3f(0.65f, 0.65f, 0.63f); // Darker Gray Cap
-        glVertex2i(0, wallTop - 6);
-        glVertex2i(1600, wallTop - 6);
+        glColor3f(0.75f, 0.74f, 0.70f); // Light Cap Surface
+        glVertex2i(0, wallTop - 8);
+        glVertex2i(1600, wallTop - 8);
+
+        glColor3f(0.62f, 0.61f, 0.58f); // Shadowed Bottom Edge
         glVertex2i(1600, wallTop);
         glVertex2i(0, wallTop);
     glEnd();
 
-    // 3. Wall Pillar/Pillar Line Details (Spaced every 100 pixels)
-    glColor3f(0.70f, 0.70f, 0.68f);
-    glLineWidth(2.0f);
-    glBegin(GL_LINES);
-    for (int x = 0; x <= 1600; x += 100) {
-        glVertex2i(x, wallTop);
-        glVertex2i(x, wallBottom);
-    }
+    // Cast Shadow under Cap Line
+    glBegin(GL_QUADS);
+        glColor3f(0.45f, 0.44f, 0.42f); // Dark Ambient Shadow
+        glVertex2i(0, wallTop);
+        glVertex2i(1600, wallTop);
+
+        glColor3f(0.75f, 0.74f, 0.70f); // Fades into wall
+        glVertex2i(1600, wallTop + 4);
+        glVertex2i(0, wallTop + 4);
     glEnd();
-    glLineWidth(1.0f); // Reset line width
+
+    // 4. 3D PILLARS / SUPPORT COLUMNS (Spaced every 100 pixels)
+    for (int x = 0; x <= 1600; x += 100) {
+        // Pillar Main Face
+        glBegin(GL_QUADS);
+            glColor3f(0.88f, 0.87f, 0.83f); // Highlight Side
+            glVertex2i(x - 8, wallTop - 10);
+            glVertex2i(x + 2, wallTop - 10);
+            glVertex2i(x + 2, wallBottom);
+            glVertex2i(x - 8, wallBottom);
+
+            glColor3f(0.72f, 0.71f, 0.67f); // Shadowed Side
+            glVertex2i(x + 2, wallTop - 10);
+            glVertex2i(x + 8, wallTop - 10);
+            glVertex2i(x + 8, wallBottom);
+            glVertex2i(x + 2, wallBottom);
+        glEnd();
+
+        // Pillar Top Cap
+        glBegin(GL_QUADS);
+            glColor3f(0.92f, 0.91f, 0.88f);
+            glVertex2i(x - 10, wallTop - 14);
+            glVertex2i(x + 10, wallTop - 14);
+            glVertex2i(x + 10, wallTop - 10);
+            glVertex2i(x - 10, wallTop - 10);
+        glEnd();
+    }
 }
 /* ---- School Building Layer ---- */
 
@@ -1807,22 +2109,27 @@ void drawShaheedMinar() {
     glEnd();
 }
 */
-// Helper function to draw a single flower with stem and leaves
+// ============================================================================
+// FUNCTION: drawFlower
+// Scaled flower anchored inside bed
+// ============================================================================
 void drawFlower(float x, float y, float r, const float petalColor[3])
 {
-    // 1. Stem
+    float stemHeight = 6.0f;
+    float flowerY = y + stemHeight;
+    int segments = 10;
+
+    // Stem
     glColor3f(0.15f, 0.45f, 0.15f);
-    glLineWidth(2.0f);
+    glLineWidth(1.5f);
     glBegin(GL_LINES);
-    glVertex2f(x, y);
-    glVertex2f(x, y + 15.0f);
+        glVertex2f(x, y);
+        glVertex2f(x, flowerY);
     glEnd();
+    glLineWidth(1.0f);
 
-    // 2. Petals (5-petal fan)
+    // Petals
     glColor3fv(petalColor);
-    float flowerY = y + 15.0f;
-    int segments = 12;
-
     for (int i = 0; i < 5; i++)
     {
         float angle = i * 2.0f * 3.14159f / 5.0f;
@@ -1830,271 +2137,274 @@ void drawFlower(float x, float y, float r, const float petalColor[3])
         float py = flowerY + sin(angle) * r;
 
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(px, py);
-        for (int j = 0; j <= segments; j++)
-        {
-            float a = j * 2.0f * 3.14159f / segments;
-            glVertex2f(px + (r * 0.7f * cos(a)), py + (r * 0.7f * sin(a)));
-        }
+            glVertex2f(px, py);
+            for (int j = 0; j <= segments; j++)
+            {
+                float a = j * 2.0f * 3.14159f / segments;
+                glVertex2f(px + (r * 0.6f * cos(a)), py + (r * 0.6f * sin(a)));
+            }
         glEnd();
     }
 
-    // 3. Flower Center Disc
-    glColor3fv(COLOR_SUN_YELLOW);
+    // Center
+    glColor3f(1.0f, 0.9f, 0.0f);
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(x, flowerY);
-    for (int i = 0; i <= segments; i++)
-    {
-        float angle = i * 2.0f * 3.14159f / segments;
-        glVertex2f(x + (r * 0.5f * cos(angle)), flowerY + (r * 0.5f * sin(angle)));
-    }
+        glVertex2f(x, flowerY);
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = i * 2.0f * 3.14159f / segments;
+            glVertex2f(x + (r * 0.4f * cos(angle)), flowerY + (r * 0.4f * sin(angle)));
+        }
     glEnd();
 }
 
-// Helper function to draw a bushy plant clump
+// ============================================================================
+// FUNCTION: drawBush
+// Rounded green bush cap standing UPWARDS on top of garden bed
+// ============================================================================
 void drawBush(float x, float y, float rx, float ry)
 {
-    // Outer dark green base
-    glColor3f(0.1f, 0.4f, 0.1f);
-    int segments = 30;
+    int segments = 20;
 
+    // Outer Dark Green Layer (Curves UPWARDS: y - sin)
+    glColor3f(0.10f, 0.38f, 0.10f);
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(x, y);
-    for (int i = 0; i <= segments; i++)
-    {
-        float angle = i * 3.14159f / segments; // Semi-circle bush
-        glVertex2f(x + (rx * cos(angle)), y - (ry * sin(angle)));
-    }
+        glVertex2f(x, y);
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = i * 3.14159f / segments;
+            glVertex2f(x + (rx * cos(angle)), y - (ry * sin(angle)));
+        }
     glEnd();
 
-    // Inner bright green highlights
-    glColor3fv(COLOR_TREE_LEAVES); // Fixed: Changed from COLOR_TREE_LEAF to COLOR_TREE_LEAVES
+    // Inner Highlight Light Green Layer
+    glColor3f(0.25f, 0.60f, 0.20f);
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(x, y - 3.0f);
-    for (int i = 0; i <= segments; i++)
-    {
-        float angle = i * 3.14159f / segments;
-        glVertex2f(x + ((rx - 4.0f) * cos(angle)), y - 3.0f - ((ry - 4.0f) * sin(angle)));
-    }
+        glVertex2f(x, y);
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = i * 3.14159f / segments;
+            glVertex2f(x + ((rx - 2.0f) * cos(angle)), y - ((ry - 2.0f) * sin(angle)));
+        }
     glEnd();
 }
+
 // ============================================================================
 // FUNCTION: drawGarden
-// Description: Renders flower beds, lawn patches, bushes, and decorative plants.
+// Aligned strictly between School's Red Accent Pillars
 // ============================================================================
 void drawGarden()
 {
+    float schoolBottomY = 480.0f; // Bottom foundation level of school
+    float bedThickness = 10.0f;
+    float bedBottomY = schoolBottomY + bedThickness;
+
     // ---------------------------------------------------------
-    // 1. Garden Beds / Soil Patches (Left & Right Front Sections)
+    // 1. Soil Beds (Red Pillar to Red Pillar)
     // ---------------------------------------------------------
-    // Left Flower Bed
-    glColor3f(0.35f, 0.22f, 0.12f); // Soil Brown
+    glColor3f(0.35f, 0.22f, 0.12f); // Dark Brown Soil
+
+    // Left Bed: From 1st Pillar (450.0f) to 2nd Pillar (682.0f)
     glBegin(GL_QUADS);
-    glVertex2f(380.0f, 545.0f);
-    glVertex2f(670.0f, 545.0f);
-    glVertex2f(670.0f, 565.0f);
-    glVertex2f(380.0f, 565.0f);
+        glVertex2f(450.0f, schoolBottomY);
+        glVertex2f(682.0f, schoolBottomY);
+        glVertex2f(682.0f, bedBottomY);
+        glVertex2f(450.0f, bedBottomY);
     glEnd();
 
-    // Right Flower Bed
+    // Right Bed: From 3rd Pillar (918.0f) to 4th Pillar (1150.0f)
     glBegin(GL_QUADS);
-    glVertex2f(930.0f, 545.0f);
-    glVertex2f(1220.0f, 545.0f);
-    glVertex2f(1220.0f, 565.0f);
-    glVertex2f(930.0f, 565.0f);
+        glVertex2f(918.0f,  schoolBottomY);
+        glVertex2f(1150.0f, schoolBottomY);
+        glVertex2f(1150.0f, bedBottomY);
+        glVertex2f(918.0f,  bedBottomY);
     glEnd();
 
-    // Bed Concrete Borders
-    glColor3f(0.75f, 0.75f, 0.78f);
+    // ---------------------------------------------------------
+    // 2. Concrete Border Frames
+    // ---------------------------------------------------------
+    glColor3f(0.80f, 0.80f, 0.82f);
     glLineWidth(2.0f);
+
+    // Left Frame
     glBegin(GL_LINE_LOOP);
-    glVertex2f(380.0f, 545.0f);
-    glVertex2f(670.0f, 545.0f);
-    glVertex2f(670.0f, 565.0f);
-    glVertex2f(380.0f, 565.0f);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(930.0f, 545.0f);
-    glVertex2f(1220.0f, 545.0f);
-    glVertex2f(1220.0f, 565.0f);
-    glVertex2f(930.0f, 565.0f);
+        glVertex2f(450.0f, schoolBottomY);
+        glVertex2f(682.0f, schoolBottomY);
+        glVertex2f(682.0f, bedBottomY);
+        glVertex2f(450.0f, bedBottomY);
     glEnd();
 
-    // ---------------------------------------------------------
-    // 2. Decorative Bushes on Garden Edges
-    // ---------------------------------------------------------
-    drawBush(390.0f, 545.0f, 20.0f, 18.0f);
-    drawBush(660.0f, 545.0f, 20.0f, 18.0f);
-    drawBush(940.0f, 545.0f, 20.0f, 18.0f);
-    drawBush(1210.0f, 545.0f, 20.0f, 18.0f);
+    // Right Frame
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(918.0f,  schoolBottomY);
+        glVertex2f(1150.0f, schoolBottomY);
+        glVertex2f(1150.0f, bedBottomY);
+        glVertex2f(918.0f,  bedBottomY);
+    glEnd();
+    glLineWidth(1.0f);
 
     // ---------------------------------------------------------
-    // 3. Colorful Flowers Array
+    // 3. Side Bushes at Bed Ends (Fitted inside pillar boundaries)
+    // ---------------------------------------------------------
+    drawBush(450.0f,  schoolBottomY, 10.0f, 8.0f);
+    drawBush(682.0f,  schoolBottomY, 10.0f, 8.0f);
+    drawBush(918.0f,  schoolBottomY, 10.0f, 8.0f);
+    drawBush(1150.0f, schoolBottomY, 10.0f, 8.0f);
+
+    // ---------------------------------------------------------
+    // 4. Flowers Distribution
     // ---------------------------------------------------------
     static const float RED_PETAL[3]    = {0.95f, 0.15f, 0.20f};
     static const float YELLOW_PETAL[3] = {0.98f, 0.85f, 0.10f};
     static const float PINK_PETAL[3]   = {0.95f, 0.40f, 0.70f};
     static const float ORANGE_PETAL[3] = {0.98f, 0.50f, 0.10f};
 
-    // Left Garden Flowers
-    drawFlower(420.0f, 540.0f, 5.0f, RED_PETAL);
-    drawFlower(450.0f, 542.0f, 5.0f, YELLOW_PETAL);
-    drawFlower(480.0f, 539.0f, 5.0f, PINK_PETAL);
-    drawFlower(510.0f, 541.0f, 5.0f, ORANGE_PETAL);
-    drawFlower(540.0f, 540.0f, 5.0f, RED_PETAL);
-    drawFlower(570.0f, 543.0f, 5.0f, YELLOW_PETAL);
-    drawFlower(600.0f, 539.0f, 5.0f, PINK_PETAL);
-    drawFlower(630.0f, 541.0f, 5.0f, ORANGE_PETAL);
+    float plantY = schoolBottomY + 1.0f;
 
-    // Right Garden Flowers
-    drawFlower(970.0f,  540.0f, 5.0f, ORANGE_PETAL);
-    drawFlower(1000.0f, 542.0f, 5.0f, PINK_PETAL);
-    drawFlower(1030.0f, 539.0f, 5.0f, YELLOW_PETAL);
-    drawFlower(1060.0f, 541.0f, 5.0f, RED_PETAL);
-    drawFlower(1090.0f, 540.0f, 5.0f, ORANGE_PETAL);
-    drawFlower(1120.0f, 543.0f, 5.0f, PINK_PETAL);
-    drawFlower(1150.0f, 539.0f, 5.0f, YELLOW_PETAL);
-    drawFlower(1180.0f, 541.0f, 5.0f, RED_PETAL);
+    // Left Bed Flowers (Span 450 to 682)
+    for (int i = 0; i < 7; i++)
+    {
+        float fx = 470.0f + (i * 32.0f);
+        const float* col = (i % 4 == 0) ? RED_PETAL : (i % 4 == 1) ? YELLOW_PETAL : (i % 4 == 2) ? PINK_PETAL : ORANGE_PETAL;
+        drawFlower(fx, plantY, 3.5f, col);
+    }
+
+    // Right Bed Flowers (Span 918 to 1150)
+    for (int i = 0; i < 7; i++)
+    {
+        float fx = 938.0f + (i * 32.0f);
+        const float* col = (i % 4 == 0) ? ORANGE_PETAL : (i % 4 == 1) ? PINK_PETAL : (i % 4 == 2) ? YELLOW_PETAL : RED_PETAL;
+        drawFlower(fx, plantY, 3.5f, col);
+    }
 }
-// Helper function to render an individual leafy tree
+// ============================================================================
+// ALL TREE FUNCTIONS (MODULAR & PLACED ON THE RIGHT SIDE BACKGROUND GAP)
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 1. LEAFY TREE (সাধারণ পাতাওয়ালা গাছ)
+// ----------------------------------------------------------------------------
 void drawSingleTree(float x, float y, float scale)
 {
-    // ---------------------------------------------------------
-    // 1. Tree Trunk (Wood Bark)
-    // ---------------------------------------------------------
+    float trunkHeight = 90.0f * scale;
+    float topY = y - trunkHeight;
+
+    // Trunk
     glColor3fv(COLOR_TREE_TRUNK);
     glBegin(GL_POLYGON);
-    glVertex2f(x - (14.0f * scale), y);
-    glVertex2f(x + (14.0f * scale), y);
-    glVertex2f(x + (9.0f * scale),  y - (130.0f * scale));
-    glVertex2f(x - (9.0f * scale),  y - (130.0f * scale));
+        glVertex2f(x - (10.0f * scale), y);
+        glVertex2f(x + (10.0f * scale), y);
+        glVertex2f(x + (7.0f  * scale), topY);
+        glVertex2f(x - (7.0f  * scale), topY);
     glEnd();
 
-    // Trunk Bark Lines / Texture
+    // Bark Texture
     glColor3f(0.22f, 0.12f, 0.05f);
-    glLineWidth(2.0f);
+    glLineWidth(1.5f);
     glBegin(GL_LINES);
-    glVertex2f(x - (4.0f * scale), y - (20.0f * scale));
-    glVertex2f(x - (3.0f * scale), y - (85.0f * scale));
-    glVertex2f(x + (4.0f * scale), y - (30.0f * scale));
-    glVertex2f(x + (3.0f * scale), y - (95.0f * scale));
+        glVertex2f(x - (3.0f * scale), y - (15.0f * scale));
+        glVertex2f(x - (2.0f * scale), y - (60.0f * scale));
+        glVertex2f(x + (3.0f * scale), y - (25.0f * scale));
+        glVertex2f(x + (2.0f * scale), y - (70.0f * scale));
     glEnd();
+    glLineWidth(1.0f);
 
-    // ---------------------------------------------------------
-    // 2. Leafy Canopy (Layered Clusters)
-    // ---------------------------------------------------------
-    float topY = y - (130.0f * scale);
-    int segments = 30;
-
-    // Cluster positions relative to trunk top
+    // Leaves Canopy
+    int segments = 25;
     float clusters[5][3] =
     {
-        {x - (32.0f * scale), topY + (10.0f * scale), 36.0f * scale},
-        {x + (32.0f * scale), topY + (10.0f * scale), 36.0f * scale},
-        {x - (22.0f * scale), topY - (25.0f * scale), 42.0f * scale},
-        {x + (22.0f * scale), topY - (25.0f * scale), 42.0f * scale},
-        {x,                  topY - (50.0f * scale), 48.0f * scale}
+        {x - (22.0f * scale), topY - (10.0f * scale), 26.0f * scale},
+        {x + (22.0f * scale), topY - (10.0f * scale), 26.0f * scale},
+        {x - (15.0f * scale), topY - (30.0f * scale), 30.0f * scale},
+        {x + (15.0f * scale), topY - (30.0f * scale), 30.0f * scale},
+        {x,                   topY - (48.0f * scale), 34.0f * scale}
     };
 
-    // A. Dark Green Base Layer (Shadow)
+    // Dark Base
     glColor3f(0.10f, 0.38f, 0.12f);
     for (int c = 0; c < 5; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(clusters[c][0], clusters[c][1]);
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 2.0f * 3.14159f / segments;
-            glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
-                       clusters[c][1] + (clusters[c][2] * sin(angle)));
-        }
+            glVertex2f(clusters[c][0], clusters[c][1]);
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
+                           clusters[c][1] + (clusters[c][2] * sin(angle)));
+            }
         glEnd();
     }
 
-    // B. Bright Green Top Layer (Highlights)
+    // Light Highlights
     glColor3fv(COLOR_TREE_LEAVES);
     for (int c = 0; c < 5; c++)
     {
         float cx = clusters[c][0];
-        float cy = clusters[c][1] - (3.0f * scale);
-        float r  = clusters[c][2] - (4.0f * scale);
+        float cy = clusters[c][1] + (2.0f * scale);
+        float r  = clusters[c][2] - (3.0f * scale);
 
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(cx, cy);
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 2.0f * 3.14159f / segments;
-            glVertex2f(cx + (r * cos(angle)), cy + (r * sin(angle)));
-        }
+            glVertex2f(cx, cy);
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(cx + (r * cos(angle)), cy + (r * sin(angle)));
+            }
         glEnd();
     }
 }
 
-// ============================================================================
-// FUNCTION: drawTree
-// Description: Places trees seamlessly on both sides of the campus field.
-// ============================================================================
 void drawTree()
 {
-    // Left Boundary Trees
-    //drawSingleTree(180.0f, 550.0f, 1.10f);
-    //drawSingleTree(290.0f, 550.0f, 0.90f);
-
-    // Right Boundary Tree (Behind Shaheed Minar Area)
-    drawSingleTree(1580.0f, 550.0f, 1.15f);
+    // Right side background placement
+    drawSingleTree(1240.0f, 470.0f, 0.75f);
+    drawSingleTree(1420.0f, 475.0f, 0.85f);
 }
-// Helper function to draw an individual Palm / Coconut Tree
+
+// ----------------------------------------------------------------------------
+// 2. PALM / COCONUT TREE (নারকেল/খেজুরে গাছ)
+// ----------------------------------------------------------------------------
 void drawSinglePalmTree(float startX, float startY, float height)
 {
-    // ---------------------------------------------------------
-    // 1. Curved Trunk (Slanted Quads)
-    // ---------------------------------------------------------
-    glColor3f(0.45f, 0.30f, 0.18f); // Trunk Brown
+    glColor3f(0.45f, 0.30f, 0.18f);
     int segments = 8;
     float currentX = startX;
     float currentY = startY;
     float segmentH = height / segments;
-    float curveOffset = 2.5f; // Curve strength
 
     for (int i = 0; i < segments; i++)
     {
-        float nextX = currentX + (i * 0.8f); // Gentle curve to right
+        float nextX = currentX + (i * 0.8f);
         float nextY = currentY - segmentH;
-        float w1 = 12.0f - (i * 0.6f); // Tapering width
+        float w1 = 12.0f - (i * 0.6f);
         float w2 = 12.0f - ((i + 1) * 0.6f);
 
-        // Segment Quad
         glBegin(GL_QUADS);
-        glVertex2f(currentX - w1, currentY);
-        glVertex2f(currentX + w1, currentY);
-        glVertex2f(nextX + w2, nextY);
-        glVertex2f(nextX - w2, nextY);
+            glVertex2f(currentX - w1, currentY);
+            glVertex2f(currentX + w1, currentY);
+            glVertex2f(nextX + w2, nextY);
+            glVertex2f(nextX - w2, nextY);
         glEnd();
 
-        // Ring texture line
         glColor3f(0.30f, 0.20f, 0.10f);
         glLineWidth(1.5f);
         glBegin(GL_LINES);
-        glVertex2f(currentX - w1, currentY);
-        glVertex2f(currentX + w1, currentY);
+            glVertex2f(currentX - w1, currentY);
+            glVertex2f(currentX + w1, currentY);
         glEnd();
 
-        glColor3f(0.45f, 0.30f, 0.18f); // Reset trunk color
+        glColor3f(0.45f, 0.30f, 0.18f);
         currentX = nextX;
         currentY = nextY;
     }
 
-    // Top Crown Center Position
     float topX = currentX;
     float topY = currentY;
 
-    // ---------------------------------------------------------
-    // 2. Coconuts Group at Top
-    // ---------------------------------------------------------
-    glColor3f(0.20f, 0.40f, 0.05f); // Green Coconuts
+    // Coconuts
+    glColor3f(0.20f, 0.40f, 0.05f);
     int circleSegs = 15;
-    float coconutCoords[3][2] =
-    {
+    float coconutCoords[3][2] = {
         {topX - 5.0f, topY + 4.0f},
         {topX + 5.0f, topY + 4.0f},
         {topX,        topY + 8.0f}
@@ -2102,39 +2412,33 @@ void drawSinglePalmTree(float startX, float startY, float height)
     for (int c = 0; c < 3; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(coconutCoords[c][0], coconutCoords[c][1]);
-        for (int i = 0; i <= circleSegs; i++)
-        {
-            float angle = i * 2.0f * 3.14159f / circleSegs;
-            glVertex2f(coconutCoords[c][0] + (6.0f * cos(angle)),
-                       coconutCoords[c][1] + (6.0f * sin(angle)));
-        }
+            glVertex2f(coconutCoords[c][0], coconutCoords[c][1]);
+            for (int i = 0; i <= circleSegs; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / circleSegs;
+                glVertex2f(coconutCoords[c][0] + (6.0f * cos(angle)),
+                           coconutCoords[c][1] + (6.0f * sin(angle)));
+            }
         glEnd();
     }
 
-    // ---------------------------------------------------------
-    // 3. Palm Fronds (Drooping Leaves)
-    // ---------------------------------------------------------
-    glColor3f(0.12f, 0.55f, 0.15f); // Palm Green
+    // Fronds
+    glColor3f(0.12f, 0.55f, 0.15f);
     glLineWidth(2.5f);
-
     float leafAngles[] = { -160.0f, -120.0f, -70.0f, -20.0f, 20.0f, 70.0f, 120.0f, 160.0f };
-    int totalFronds = 8;
 
-    for (int f = 0; f < totalFronds; f++)
+    for (int f = 0; f < 8; f++)
     {
         float rad = leafAngles[f] * 3.14159f / 180.0f;
         float leafLen = 65.0f;
         float endX = topX + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.15f); // Droop effect
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.15f);
 
-        // Main Leaf Spine
         glBegin(GL_LINES);
-        glVertex2f(topX, topY);
-        glVertex2f(endX, endY);
+            glVertex2f(topX, topY);
+            glVertex2f(endX, endY);
         glEnd();
 
-        // Sub-leaflets (Leaf blades along the spine)
         int leaflets = 10;
         for (int j = 1; j <= leaflets; j++)
         {
@@ -2143,85 +2447,78 @@ void drawSinglePalmTree(float startX, float startY, float height)
             float ly = topY + (endY - topY) * t;
 
             glBegin(GL_LINES);
-            glVertex2f(lx, ly);
-            glVertex2f(lx - 8.0f, ly + 12.0f);
-            glVertex2f(lx, ly);
-            glVertex2f(lx + 8.0f, ly + 12.0f);
+                glVertex2f(lx, ly);
+                glVertex2f(lx - 8.0f, ly + 12.0f);
+                glVertex2f(lx, ly);
+                glVertex2f(lx + 8.0f, ly + 12.0f);
             glEnd();
         }
     }
+    glLineWidth(1.0f);
 }
 
-// ============================================================================
-// FUNCTION: drawPalmTree
-// Description: Renders coconut/palm trees at selected spots.
-// ============================================================================
 void drawPalmTree()
 {
-    // Left boundary palm tree
-    drawSinglePalmTree(100.0f, 550.0f, 160.0f);
-
-    // Far-right boundary palm tree
-    //drawSinglePalmTree(1580.0f, 550.0f, 170.0f);
+    // Rightmost boundary Palm Tree
+    drawSinglePalmTree(1540.0f, 480.0f, 140.0f);
 }
-// Helper for Mango Tree
+
+// ----------------------------------------------------------------------------
+// 3. MANGO TREE (আম গাছ)
+// ----------------------------------------------------------------------------
 void drawSingleMangoTree(float x, float y, float scale)
 {
     // Trunk
     glColor3f(0.38f, 0.24f, 0.12f);
     glBegin(GL_POLYGON);
-    glVertex2f(x - (12.0f * scale), y);
-    glVertex2f(x + (12.0f * scale), y);
-    glVertex2f(x + (8.0f * scale), y - (110.0f * scale));
-    glVertex2f(x - (8.0f * scale), y - (110.0f * scale));
+        glVertex2f(x - (12.0f * scale), y);
+        glVertex2f(x + (12.0f * scale), y);
+        glVertex2f(x + (8.0f * scale), y - (110.0f * scale));
+        glVertex2f(x - (8.0f * scale), y - (110.0f * scale));
     glEnd();
 
-    // Dense Canopy Base
     float topY = y - (110.0f * scale);
     int segments = 25;
 
-    // Foliage Clusters
-    float clusters[4][3] =
-    {
+    float clusters[4][3] = {
         {x - (25.0f * scale), topY - (10.0f * scale), 35.0f * scale},
         {x + (25.0f * scale), topY - (10.0f * scale), 35.0f * scale},
         {x,                   topY - (40.0f * scale), 42.0f * scale},
         {x,                   topY - (15.0f * scale), 38.0f * scale}
     };
 
-    // Dark Green Background
+    // Dark Canopy
     glColor3f(0.08f, 0.35f, 0.10f);
     for (int c = 0; c < 4; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(clusters[c][0], clusters[c][1]);
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 2.0f * 3.14159f / segments;
-            glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
-                       clusters[c][1] + (clusters[c][2] * sin(angle)));
-        }
+            glVertex2f(clusters[c][0], clusters[c][1]);
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
+                           clusters[c][1] + (clusters[c][2] * sin(angle)));
+            }
         glEnd();
     }
 
-    // Bright Green Highlights
+    // Light Canopy
     glColor3f(0.18f, 0.55f, 0.18f);
     for (int c = 0; c < 4; c++)
     {
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(clusters[c][0], clusters[c][1] - (3.0f * scale));
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 2.0f * 3.14159f / segments;
-            glVertex2f(clusters[c][0] + ((clusters[c][2] - 4.0f) * cos(angle)),
-                       clusters[c][1] - (3.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
-        }
+            glVertex2f(clusters[c][0], clusters[c][1] - (3.0f * scale));
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(clusters[c][0] + ((clusters[c][2] - 4.0f) * cos(angle)),
+                           clusters[c][1] - (3.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
+            }
         glEnd();
     }
 
-    // Hanging Mangoes (Yellow-Green Ovals)
-    float mangoes[6][2] =
-    {
+    // Mangoes
+    float mangoes[6][2] = {
         {x - 20.0f * scale, topY - 5.0f * scale},
         {x - 10.0f * scale, topY - 30.0f * scale},
         {x + 15.0f * scale, topY - 15.0f * scale},
@@ -2232,80 +2529,105 @@ void drawSingleMangoTree(float x, float y, float scale)
 
     for (int m = 0; m < 6; m++)
     {
-        glColor3f(0.85f, 0.75f, 0.10f); // Mango yellow/green
+        glColor3f(0.85f, 0.75f, 0.10f);
         glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(mangoes[m][0], mangoes[m][1]);
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 2.0f * 3.14159f / segments;
-            glVertex2f(mangoes[m][0] + (4.0f * scale * cos(angle)),
-                       mangoes[m][1] + (6.0f * scale * sin(angle)));
-        }
+            glVertex2f(mangoes[m][0], mangoes[m][1]);
+            for (int i = 0; i <= segments; i++)
+            {
+                float angle = i * 2.0f * 3.14159f / segments;
+                glVertex2f(mangoes[m][0] + (4.0f * scale * cos(angle)),
+                           mangoes[m][1] + (6.0f * scale * sin(angle)));
+            }
         glEnd();
     }
 }
 
 void drawMangoTree()
 {
-    // School Math-er Bam pashe Rakha holo (Adjust X as needed)
-    drawSingleMangoTree(260.0f, 550.0f, 1.0f);
+    // Right background placement near school
+    drawSingleMangoTree(1330.0f, 470.0f, 0.80f);
 }
-// Helper for Banana Tree
+
+// ----------------------------------------------------------------------------
+// 4. BEAUTIFUL BANANA TREE (সুন্দর কলাগাছ)
+// ----------------------------------------------------------------------------
 void drawSingleBananaTree(float x, float y, float scale)
 {
-    // Soft Green Stem (Pseudostem)
+    // Stem
     glColor3f(0.40f, 0.65f, 0.20f);
     glBegin(GL_POLYGON);
-    glVertex2f(x - (8.0f * scale), y);
-    glVertex2f(x + (8.0f * scale), y);
-    glVertex2f(x + (5.0f * scale), y - (80.0f * scale));
-    glVertex2f(x - (5.0f * scale), y - (80.0f * scale));
+        glVertex2f(x - (7.0f * scale), y);
+        glVertex2f(x + (7.0f * scale), y);
+        glVertex2f(x + (4.0f * scale), y - (75.0f * scale));
+        glVertex2f(x - (4.0f * scale), y - (75.0f * scale));
     glEnd();
 
-    float topY = y - (80.0f * scale);
+    // Texture
+    glColor3f(0.28f, 0.50f, 0.12f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(x - (5.0f * scale), y - (20.0f * scale));
+        glVertex2f(x + (4.0f * scale), y - (40.0f * scale));
+        glVertex2f(x - (4.0f * scale), y - (55.0f * scale));
+        glVertex2f(x + (3.0f * scale), y - (70.0f * scale));
+    glEnd();
 
-    // Large Wide Leaves (6 Arching Leaves)
-    glColor3f(0.20f, 0.70f, 0.15f);
-    float angles[] = { -140.0f, -100.0f, -40.0f, 40.0f, 100.0f, 140.0f };
+    float topY = y - (75.0f * scale);
+    float angles[] = { -155.0f, -115.0f, -55.0f, 55.0f, 115.0f, 155.0f };
 
+    // Curved Leaves
     for (int i = 0; i < 6; i++)
     {
         float rad = angles[i] * 3.14159f / 180.0f;
-        float endX = x + (55.0f * scale * cos(rad));
-        float endY = topY - (35.0f * scale * sin(rad));
+        float leafLen = 60.0f * scale;
+        float endX = x + (leafLen * cos(rad));
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)angles[i]) * 0.12f * scale);
 
-        // Wide Oval-like Leaf
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2f((x + endX) / 2.0f, (topY + endY) / 2.0f + (10.0f * scale));
-        glVertex2f(x, topY);
-        glVertex2f(endX - (10.0f * scale), endY + (5.0f * scale));
-        glVertex2f(endX, endY);
-        glVertex2f(endX + (10.0f * scale), endY - (5.0f * scale));
+        float midX = (x + endX) / 2.0f;
+        float midY = (topY + endY) / 2.0f - (8.0f * scale);
+
+        glColor3f(0.22f, 0.75f, 0.18f);
+        glBegin(GL_POLYGON);
+            glVertex2f(x, topY);
+            glVertex2f(midX - (12.0f * scale * sin(rad)), midY + (12.0f * scale * cos(rad)));
+            glVertex2f(endX, endY);
+            glVertex2f(midX + (12.0f * scale * sin(rad)), midY - (12.0f * scale * cos(rad)));
         glEnd();
 
-        // Leaf Center Rib Line
-        glColor3f(0.12f, 0.45f, 0.10f);
+        // Rib Line
+        glColor3f(0.12f, 0.48f, 0.10f);
         glLineWidth(2.0f);
         glBegin(GL_LINES);
-        glVertex2f(x, topY);
-        glVertex2f(endX, endY);
+            glVertex2f(x, topY);
+            glVertex2f(endX, endY);
         glEnd();
-        glColor3f(0.20f, 0.70f, 0.15f); // Reset Leaf Color
     }
 
-    // Banana Blossom / Bunch (Redish-Purple Heart at Center)
-    glColor3f(0.50f, 0.10f, 0.20f);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(x - (6.0f * scale), topY + (10.0f * scale));
-    glVertex2f(x + (6.0f * scale), topY + (10.0f * scale));
-    glVertex2f(x, topY + (25.0f * scale));
+    // Bananas (Chori)
+    glColor3f(0.65f, 0.82f, 0.20f);
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        glVertex2f(x - (4.0f * scale), topY + (12.0f * scale));
+        glVertex2f(x + (4.0f * scale), topY + (14.0f * scale));
+        glVertex2f(x - (3.0f * scale), topY + (18.0f * scale));
+        glVertex2f(x + (3.0f * scale), topY + (20.0f * scale));
     glEnd();
+
+    // Flower (Mocha)
+    glColor3f(0.48f, 0.08f, 0.18f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(x - (5.0f * scale), topY + (22.0f * scale));
+        glVertex2f(x + (5.0f * scale), topY + (22.0f * scale));
+        glVertex2f(x, topY + (36.0f * scale));
+    glEnd();
+
+    glLineWidth(1.0f);
 }
 
 void drawBananaTree()
 {
-    // School-er Bam side e
-    drawSingleBananaTree(360.0f, 550.0f, 0.95f);
+    // Right background placement
+    drawSingleBananaTree(1480.0f, 475.0f, 0.85f);
 }
 // Helper for Cypress / Cone Shaped Ornamental Tree
 void drawSingleDecorativeTree(float x, float y, float scale)
