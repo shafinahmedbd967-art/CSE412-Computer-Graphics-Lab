@@ -132,6 +132,7 @@ void drawRoofBanner();
    FUNCTION PROTOTYPES - CAMPUS / GARDEN LAYER
    ========================================================== */
 void drawShaheedMinar();
+void drawFlowerTribute();
 void drawGarden();
 void drawFlower();
 void drawBush();
@@ -257,6 +258,7 @@ void display()
 
     /* ---- Campus / Garden Layer ---- */
     drawShaheedMinar();
+    drawFlowerTribute();
     drawGarden();
     //drawFlower();
     //drawBush();
@@ -1973,214 +1975,332 @@ void drawRoofBanner()
     glEnd();
 }
 
-/* ---- Campus / Garden Layer ---- */
 // ============================================================================
 // FUNCTION: drawShaheedMinar
-// Description: Scaled up for better visibility and shifted right to create a
-//              natural gap between the school building and the monument.
+// Description: Fully transparent hollow frame Shaheed Minar with thin steel grills
+//              (guitar string style) so the background and red sun show through seamlessly.
 // Position: Center X = 1320.0f, Base Y = 480.0f
 // ============================================================================
 void drawShaheedMinar()
 {
-    float cx = 1320.0f;          // Shifted right to create gap from school
-    float baseY = 480.0f;       // Same Y-axis line as school base
-    float scale = 0.58f;        // Increased size for better visual presence
+    float cx = 1320.0f;          // Center X position
+    float baseY = 480.0f;        // Base platform position
+    float scale = 0.65f;         // Scale factor
 
-    #define SH_Y(offset) (baseY - ((offset) * scale))
     #define SH_X(offset) (cx + ((offset) * scale))
+    #define SH_Y(offset) (baseY - ((offset) * scale))
 
     // ---------------------------------------------------------
-    // 1. Red Sun Disc (Behind Center Columns)
+    // 1. Red Sun Disc (Directly behind the central pillar)
     // ---------------------------------------------------------
-    glColor3fv(COLOR_FLAG_RED);
+    glColor3f(0.85f, 0.12f, 0.15f); // Bangladesh Flag Red
     float sunX = SH_X(0.0f);
-    float sunY = SH_Y(110.0f);
-    float sunR = 40.0f * scale;
-    int segments = 40;
+    float sunY = SH_Y(115.0f);
+    float sunR = 48.0f * scale;
+    int segments = 50;
 
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(sunX, sunY);
-    for (int i = 0; i <= segments; i++)
-    {
-        float angle = i * 2.0f * 3.14159f / segments;
-        glVertex2f(sunX + (sunR * cos(angle)), sunY + (sunR * sin(angle)));
-    }
+        glVertex2f(sunX, sunY);
+        for (int i = 0; i <= segments; i++) {
+            float angle = i * 2.0f * 3.14159f / segments;
+            glVertex2f(sunX + (sunR * cos(angle)), sunY + (sunR * sin(angle)));
+        }
     glEnd();
 
     // ---------------------------------------------------------
-    // 2. Pillars Structure (Light Gray Fill)
+    // 2. Pillars Hollow Marble Frames (White Concrete Fill)
     // ---------------------------------------------------------
-    glColor3f(0.88f, 0.88f, 0.90f);
+    glColor3f(0.94f, 0.95f, 0.96f);
 
-    // --- A. Center Angled Column ---
+    // --- Center Pillar (Hollow Frame) ---
+    // Left Leg
     glBegin(GL_QUADS);
-    glVertex2f(SH_X(-26.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(26.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(22.0f),  SH_Y(110.0f));
-    glVertex2f(SH_X(-22.0f), SH_Y(110.0f));
+        glVertex2f(SH_X(-32.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-22.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-22.0f), SH_Y(150.0f));
+        glVertex2f(SH_X(-32.0f), SH_Y(155.0f));
+    glEnd();
+    // Right Leg
+    glBegin(GL_QUADS);
+        glVertex2f(SH_X(22.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(32.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(32.0f),  SH_Y(155.0f));
+        glVertex2f(SH_X(22.0f),  SH_Y(150.0f));
+    glEnd();
+    // Top Angled Header Frame (Symmetric Flare)
+    glBegin(GL_QUADS);
+        glVertex2f(SH_X(-42.0f), SH_Y(200.0f));
+        glVertex2f(SH_X(42.0f),  SH_Y(200.0f));
+        glVertex2f(SH_X(30.0f),  SH_Y(188.0f));
+        glVertex2f(SH_X(-30.0f), SH_Y(188.0f));
+    glEnd();
+    glBegin(GL_QUADS); // Top Left Joint
+        glVertex2f(SH_X(-32.0f), SH_Y(155.0f));
+        glVertex2f(SH_X(-22.0f), SH_Y(150.0f));
+        glVertex2f(SH_X(-30.0f), SH_Y(188.0f));
+        glVertex2f(SH_X(-42.0f), SH_Y(200.0f));
+    glEnd();
+    glBegin(GL_QUADS); // Top Right Joint
+        glVertex2f(SH_X(22.0f),  SH_Y(150.0f));
+        glVertex2f(SH_X(32.0f),  SH_Y(155.0f));
+        glVertex2f(SH_X(42.0f),  SH_Y(200.0f));
+        glVertex2f(SH_X(30.0f),  SH_Y(188.0f));
     glEnd();
 
+    // --- Medium Left Pillar Frame ---
     glBegin(GL_QUADS);
-    glVertex2f(SH_X(-22.0f), SH_Y(110.0f));
-    glVertex2f(SH_X(22.0f),  SH_Y(110.0f));
-    glVertex2f(SH_X(58.0f),  SH_Y(190.0f));
-    glVertex2f(SH_X(18.0f),  SH_Y(190.0f));
+        glVertex2f(SH_X(-78.0f), SH_Y(10.0f)); glVertex2f(SH_X(-70.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-70.0f), SH_Y(130.0f)); glVertex2f(SH_X(-78.0f), SH_Y(130.0f));
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(SH_X(-54.0f), SH_Y(10.0f)); glVertex2f(SH_X(-46.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-46.0f), SH_Y(130.0f)); glVertex2f(SH_X(-54.0f), SH_Y(130.0f));
+    glEnd();
+    glBegin(GL_QUADS); // Top Cap
+        glVertex2f(SH_X(-78.0f), SH_Y(122.0f)); glVertex2f(SH_X(-46.0f), SH_Y(122.0f));
+        glVertex2f(SH_X(-46.0f), SH_Y(130.0f)); glVertex2f(SH_X(-78.0f), SH_Y(130.0f));
     glEnd();
 
-    // --- B. Medium Side Columns ---
+    // --- Medium Right Pillar Frame ---
     glBegin(GL_QUADS);
-    glVertex2f(SH_X(-62.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-34.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-34.0f), SH_Y(115.0f));
-    glVertex2f(SH_X(-62.0f), SH_Y(115.0f));
+        glVertex2f(SH_X(46.0f), SH_Y(10.0f)); glVertex2f(SH_X(54.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(54.0f), SH_Y(130.0f)); glVertex2f(SH_X(46.0f), SH_Y(130.0f));
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(SH_X(70.0f), SH_Y(10.0f)); glVertex2f(SH_X(78.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(78.0f), SH_Y(130.0f)); glVertex2f(SH_X(70.0f), SH_Y(130.0f));
+    glEnd();
+    glBegin(GL_QUADS); // Top Cap
+        glVertex2f(SH_X(46.0f), SH_Y(122.0f)); glVertex2f(SH_X(78.0f), SH_Y(122.0f));
+        glVertex2f(SH_X(78.0f), SH_Y(130.0f)); glVertex2f(SH_X(46.0f), SH_Y(130.0f));
     glEnd();
 
+    // --- Far Left Small Pillar Frame ---
     glBegin(GL_QUADS);
-    glVertex2f(SH_X(34.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(62.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(62.0f),  SH_Y(115.0f));
-    glVertex2f(SH_X(34.0f),  SH_Y(115.0f));
+        glVertex2f(SH_X(-120.0f), SH_Y(10.0f)); glVertex2f(SH_X(-112.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-112.0f), SH_Y(95.0f)); glVertex2f(SH_X(-120.0f), SH_Y(95.0f));
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(SH_X(-100.0f), SH_Y(10.0f)); glVertex2f(SH_X(-92.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-92.0f), SH_Y(95.0f)); glVertex2f(SH_X(-100.0f), SH_Y(95.0f));
+    glEnd();
+    glBegin(GL_QUADS); // Top Cap
+        glVertex2f(SH_X(-120.0f), SH_Y(87.0f)); glVertex2f(SH_X(-92.0f), SH_Y(87.0f));
+        glVertex2f(SH_X(-92.0f), SH_Y(95.0f)); glVertex2f(SH_X(-120.0f), SH_Y(95.0f));
     glEnd();
 
-    // --- C. Small Side Columns ---
+    // --- Far Right Small Pillar Frame ---
     glBegin(GL_QUADS);
-    glVertex2f(SH_X(-94.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-70.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-70.0f), SH_Y(85.0f));
-    glVertex2f(SH_X(-94.0f), SH_Y(85.0f));
+        glVertex2f(SH_X(92.0f), SH_Y(10.0f)); glVertex2f(SH_X(100.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(100.0f), SH_Y(95.0f)); glVertex2f(SH_X(92.0f), SH_Y(95.0f));
     glEnd();
-
     glBegin(GL_QUADS);
-    glVertex2f(SH_X(70.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(94.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(94.0f),  SH_Y(85.0f));
-    glVertex2f(SH_X(70.0f),  SH_Y(85.0f));
+        glVertex2f(SH_X(112.0f), SH_Y(10.0f)); glVertex2f(SH_X(120.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(120.0f), SH_Y(95.0f)); glVertex2f(SH_X(112.0f), SH_Y(95.0f));
+    glEnd();
+    glBegin(GL_QUADS); // Top Cap
+        glVertex2f(SH_X(92.0f), SH_Y(87.0f)); glVertex2f(SH_X(120.0f), SH_Y(87.0f));
+        glVertex2f(SH_X(120.0f), SH_Y(95.0f)); glVertex2f(SH_X(92.0f), SH_Y(95.0f));
     glEnd();
 
     // ---------------------------------------------------------
-    // 3. Black Outlines & Grill Lines
+    // 3. Thin Steel Grills / Strings Inside Frames
     // ---------------------------------------------------------
-    glColor3f(0.15f, 0.15f, 0.20f);
+    glColor3f(0.20f, 0.20f, 0.25f);
+    glLineWidth(1.2f); // Thin guitar-string appearance
+    glBegin(GL_LINES);
+        // Center Pillar Grills
+        glVertex2f(SH_X(-14.0f), SH_Y(10.0f)); glVertex2f(SH_X(-14.0f), SH_Y(150.0f));
+        glVertex2f(SH_X(-14.0f), SH_Y(150.0f)); glVertex2f(SH_X(-18.0f), SH_Y(188.0f));
+
+        glVertex2f(SH_X(-5.0f),  SH_Y(10.0f)); glVertex2f(SH_X(-5.0f),  SH_Y(150.0f));
+        glVertex2f(SH_X(-5.0f),  SH_Y(150.0f)); glVertex2f(SH_X(-6.0f),  SH_Y(188.0f));
+
+        glVertex2f(SH_X(5.0f),   SH_Y(10.0f)); glVertex2f(SH_X(5.0f),   SH_Y(150.0f));
+        glVertex2f(SH_X(5.0f),   SH_Y(150.0f)); glVertex2f(SH_X(6.0f),   SH_Y(188.0f));
+
+        glVertex2f(SH_X(14.0f),  SH_Y(10.0f)); glVertex2f(SH_X(14.0f),  SH_Y(150.0f));
+        glVertex2f(SH_X(14.0f),  SH_Y(150.0f)); glVertex2f(SH_X(18.0f),  SH_Y(188.0f));
+
+        // Medium Left Grills
+        glVertex2f(SH_X(-66.0f), SH_Y(10.0f)); glVertex2f(SH_X(-66.0f), SH_Y(122.0f));
+        glVertex2f(SH_X(-58.0f), SH_Y(10.0f)); glVertex2f(SH_X(-58.0f), SH_Y(122.0f));
+
+        // Medium Right Grills
+        glVertex2f(SH_X(58.0f),  SH_Y(10.0f)); glVertex2f(SH_X(58.0f),  SH_Y(122.0f));
+        glVertex2f(SH_X(66.0f),  SH_Y(10.0f)); glVertex2f(SH_X(66.0f),  SH_Y(122.0f));
+
+        // Far Left Small Grills
+        glVertex2f(SH_X(-108.0f), SH_Y(10.0f)); glVertex2f(SH_X(-108.0f), SH_Y(87.0f));
+
+        // Far Right Small Grills
+        glVertex2f(SH_X(108.0f),  SH_Y(10.0f)); glVertex2f(SH_X(108.0f),  SH_Y(87.0f));
+    glEnd();
+
+    // ---------------------------------------------------------
+    // 4. Black Structural Border Outlines
+    // ---------------------------------------------------------
+    glColor3f(0.12f, 0.12f, 0.15f);
     glLineWidth(1.8f);
 
-    // Center Outer & Inner Frames
+    // Center Outer Outline
     glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(-26.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(26.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(22.0f),  SH_Y(110.0f));
-    glVertex2f(SH_X(58.0f),  SH_Y(190.0f));
-    glVertex2f(SH_X(18.0f),  SH_Y(190.0f));
-    glVertex2f(SH_X(-22.0f), SH_Y(110.0f));
+        glVertex2f(SH_X(-32.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(32.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(32.0f),  SH_Y(155.0f));
+        glVertex2f(SH_X(42.0f),  SH_Y(200.0f));
+        glVertex2f(SH_X(-42.0f), SH_Y(200.0f));
+        glVertex2f(SH_X(-32.0f), SH_Y(155.0f));
+    glEnd();
+    // Center Inner Cutout Outline
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(SH_X(-22.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(22.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(22.0f),  SH_Y(150.0f));
+        glVertex2f(SH_X(30.0f),  SH_Y(188.0f));
+        glVertex2f(SH_X(-30.0f), SH_Y(188.0f));
+        glVertex2f(SH_X(-22.0f), SH_Y(150.0f));
     glEnd();
 
+    // Medium Left Outer & Inner Outlines
     glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(-18.0f), SH_Y(18.0f));
-    glVertex2f(SH_X(18.0f),  SH_Y(18.0f));
-    glVertex2f(SH_X(15.0f),  SH_Y(105.0f));
-    glVertex2f(SH_X(48.0f),  SH_Y(180.0f));
-    glVertex2f(SH_X(24.0f),  SH_Y(180.0f));
-    glVertex2f(SH_X(-15.0f), SH_Y(105.0f));
+        glVertex2f(SH_X(-78.0f), SH_Y(10.0f)); glVertex2f(SH_X(-46.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-46.0f), SH_Y(130.0f)); glVertex2f(SH_X(-78.0f), SH_Y(130.0f));
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(SH_X(-70.0f), SH_Y(10.0f)); glVertex2f(SH_X(-54.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-54.0f), SH_Y(122.0f)); glVertex2f(SH_X(-70.0f), SH_Y(122.0f));
     glEnd();
 
-    // Medium Outer & Inner Frames
+    // Medium Right Outer & Inner Outlines
     glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(-62.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-34.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-34.0f), SH_Y(115.0f));
-    glVertex2f(SH_X(-62.0f), SH_Y(115.0f));
+        glVertex2f(SH_X(46.0f),  SH_Y(10.0f)); glVertex2f(SH_X(78.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(78.0f),  SH_Y(130.0f)); glVertex2f(SH_X(46.0f),  SH_Y(130.0f));
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(SH_X(54.0f),  SH_Y(10.0f)); glVertex2f(SH_X(70.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(70.0f),  SH_Y(122.0f)); glVertex2f(SH_X(54.0f),  SH_Y(122.0f));
     glEnd();
 
+    // Far Left Outer & Inner Outlines
     glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(-56.0f), SH_Y(18.0f));
-    glVertex2f(SH_X(-40.0f), SH_Y(18.0f));
-    glVertex2f(SH_X(-40.0f), SH_Y(107.0f));
-    glVertex2f(SH_X(-56.0f), SH_Y(107.0f));
+        glVertex2f(SH_X(-120.0f), SH_Y(10.0f)); glVertex2f(SH_X(-92.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(-92.0f),  SH_Y(95.0f)); glVertex2f(SH_X(-120.0f), SH_Y(95.0f));
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(SH_X(-112.0f), SH_Y(10.0f)); glVertex2f(SH_X(-100.0f), SH_Y(10.0f));
+        glVertex2f(SH_X(-100.0f), SH_Y(87.0f)); glVertex2f(SH_X(-112.0f), SH_Y(87.0f));
     glEnd();
 
+    // Far Right Outer & Inner Outlines
     glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(34.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(62.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(62.0f),  SH_Y(115.0f));
-    glVertex2f(SH_X(34.0f),  SH_Y(115.0f));
+        glVertex2f(SH_X(92.0f),   SH_Y(10.0f)); glVertex2f(SH_X(120.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(120.0f),  SH_Y(95.0f)); glVertex2f(SH_X(92.0f),   SH_Y(95.0f));
     glEnd();
-
     glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(40.0f),  SH_Y(18.0f));
-    glVertex2f(SH_X(56.0f),  SH_Y(18.0f));
-    glVertex2f(SH_X(56.0f),  SH_Y(107.0f));
-    glVertex2f(SH_X(40.0f),  SH_Y(107.0f));
-    glEnd();
-
-    // Small Outer & Inner Frames
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(-94.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-70.0f), SH_Y(10.0f));
-    glVertex2f(SH_X(-70.0f), SH_Y(85.0f));
-    glVertex2f(SH_X(-94.0f), SH_Y(85.0f));
-    glEnd();
-
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(-88.0f), SH_Y(18.0f));
-    glVertex2f(SH_X(-76.0f), SH_Y(18.0f));
-    glVertex2f(SH_X(-76.0f), SH_Y(77.0f));
-    glVertex2f(SH_X(-88.0f), SH_Y(77.0f));
-    glEnd();
-
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(70.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(94.0f),  SH_Y(10.0f));
-    glVertex2f(SH_X(94.0f),  SH_Y(85.0f));
-    glVertex2f(SH_X(70.0f),  SH_Y(85.0f));
-    glEnd();
-
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(SH_X(76.0f),  SH_Y(18.0f));
-    glVertex2f(SH_X(88.0f),  SH_Y(18.0f));
-    glVertex2f(SH_X(88.0f),  SH_Y(77.0f));
-    glVertex2f(SH_X(76.0f),  SH_Y(77.0f));
-    glEnd();
-
-    // Vertical Steel Grills
-    glLineWidth(1.2f);
-    glBegin(GL_LINES);
-    glVertex2f(SH_X(-6.0f), SH_Y(18.0f));  glVertex2f(SH_X(-5.0f), SH_Y(105.0f));
-    glVertex2f(SH_X(6.0f),  SH_Y(18.0f));  glVertex2f(SH_X(5.0f),  SH_Y(105.0f));
-    glVertex2f(SH_X(-5.0f), SH_Y(105.0f)); glVertex2f(SH_X(30.0f), SH_Y(180.0f));
-    glVertex2f(SH_X(5.0f),  SH_Y(105.0f)); glVertex2f(SH_X(40.0f), SH_Y(180.0f));
-
-    glVertex2f(SH_X(-48.0f), SH_Y(18.0f)); glVertex2f(SH_X(-48.0f), SH_Y(107.0f));
-    glVertex2f(SH_X(48.0f),  SH_Y(18.0f)); glVertex2f(SH_X(48.0f),  SH_Y(107.0f));
-
-    glVertex2f(SH_X(-82.0f), SH_Y(18.0f)); glVertex2f(SH_X(-82.0f), SH_Y(77.0f));
-    glVertex2f(SH_X(82.0f),  SH_Y(18.0f)); glVertex2f(SH_X(82.0f),  SH_Y(77.0f));
+        glVertex2f(SH_X(100.0f),  SH_Y(10.0f)); glVertex2f(SH_X(112.0f),  SH_Y(10.0f));
+        glVertex2f(SH_X(112.0f),  SH_Y(87.0f)); glVertex2f(SH_X(100.0f),  SH_Y(87.0f));
     glEnd();
 
     // ---------------------------------------------------------
-    // 4. Pedestal Base Steps
+    // 5. Pedestal Base Steps (Staircase Platform)
     // ---------------------------------------------------------
-    float stepWidths[] = { 108.0f, 118.0f, 128.0f, 138.0f };
-    float stepY_Start[] = { 30.0f, 20.0f, 10.0f, 0.0f };
-    float stepY_End[]   = { 20.0f, 10.0f, 0.0f, -10.0f };
+    float stepWidths[]  = { 135.0f, 145.0f, 155.0f };
+    float stepY_Start[] = { 10.0f,   2.0f,  -6.0f  };
+    float stepY_End[]   = {  2.0f,  -6.0f, -14.0f  };
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
-        // Step Fill
-        glColor3f(0.92f - (i * 0.02f), 0.92f - (i * 0.02f), 0.94f - (i * 0.02f));
+        // Step Concrete Fill
+        glColor3f(0.88f - (i * 0.04f), 0.89f - (i * 0.04f), 0.91f - (i * 0.04f));
         glBegin(GL_QUADS);
-        glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_Start[i]));
-        glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_Start[i]));
-        glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_End[i]));
-        glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_End[i]));
+            glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_Start[i]));
+            glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_Start[i]));
+            glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_End[i]));
+            glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_End[i]));
         glEnd();
 
-        // Step Outline
-        glColor3f(0.15f, 0.15f, 0.20f);
+        // Step Border Outline
+        glColor3f(0.12f, 0.12f, 0.15f);
         glLineWidth(1.5f);
         glBegin(GL_LINE_LOOP);
-        glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_Start[i]));
-        glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_Start[i]));
-        glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_End[i]));
-        glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_End[i]));
+            glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_Start[i]));
+            glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_Start[i]));
+            glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_End[i]));
+            glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_End[i]));
+        glEnd();
+void drawFlowerTribute(float cx, float baseY, float scale);
+    }
+
+    #undef SH_Y
+    #undef SH_X
+
+}
+
+// Flower
+void drawFlowerTribute()
+{
+
+    float cx = 1320.0f;
+    float baseY = 480.0f;
+    float scale = 0.65f;
+
+    #define SH_X(offset) (cx + ((offset) * scale))
+    #define SH_Y(offset) (baseY - ((offset) * scale))
+
+
+    float wreathX = SH_X(0.0f);
+    float wreathY = SH_Y(12.0f);
+    float wreathR = 20.0f * scale;
+
+
+    glColor3f(0.12f, 0.45f, 0.15f);
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(wreathX, wreathY);
+        for (int i = 0; i <= 20; i++) {
+            float a = i * 2.0f * 3.14159f / 20;
+            glVertex2f(wreathX + cos(a) * wreathR, wreathY + sin(a) * wreathR);
+        }
+    glEnd();
+
+
+    for (int i = 0; i < 8; i++) {
+        float angle = i * 2.0f * 3.14159f / 8;
+        float fx = wreathX + cos(angle) * (wreathR * 0.6f);
+        float fy = wreathY + sin(angle) * (wreathR * 0.6f);
+
+        glColor3f(0.90f, 0.15f, 0.15f); // লাল ফুল
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(fx, fy);
+            for (int j = 0; j <= 10; j++) {
+                float a = j * 2.0f * 3.14159f / 10;
+                glVertex2f(fx + cos(a) * (5.0f * scale), fy + sin(a) * (5.0f * scale));
+            }
+        glEnd();
+    }
+
+
+    float flowerPositions[5][2] = {
+        {-45.0f, 18.0f},
+        {-75.0f, 12.0f},
+        { 45.0f, 18.0f},
+        { 80.0f, 12.0f},
+        {  0.0f,  5.0f}
+    };
+
+    for(int k = 0; k < 5; k++) {
+        float fx = SH_X(flowerPositions[k][0]);
+        float fy = SH_Y(flowerPositions[k][1]);
+
+        if(k % 2 == 0) glColor3f(0.95f, 0.75f, 0.10f); // হলুদ
+        else glColor3f(0.90f, 0.15f, 0.15f);          // লাল
+
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(fx, fy);
+            for (int j = 0; j <= 8; j++) {
+                float a = j * 2.0f * 3.14159f / 8;
+                glVertex2f(fx + cos(a) * (4.0f * scale), fy + sin(a) * (4.0f * scale));
+            }
         glEnd();
     }
 
