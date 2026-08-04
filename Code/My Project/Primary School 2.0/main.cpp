@@ -113,7 +113,7 @@ void drawAirplane();
 // Function Declarations / Prototypes
 void drawDistantSkyline();
 void backBoundaryWall();
-void drawMetroRailTrack();
+void drawMetroRailViaductAndTrain();
 void drawGround();
 
 /* ==========================================================
@@ -243,7 +243,7 @@ void display()
     // 2. BACKGROUND GROUND & WALL (NEW ADDITION)
     drawDistantSkyline();
     //backBoundaryWall();
-    drawMetroRailTrack();
+    drawMetroRailViaductAndTrain();
     drawGround();
     /* ---- School Building Layer ---- */
     drawSchool();
@@ -1113,179 +1113,283 @@ void drawGround() {
     glLineWidth(1.0f);
 }
 
-// ============================================================================
-// FUNCTION: drawMetroRailTrack
-// Description: Replaces the concrete boundary wall with an elevated Metro Rail
-//              viaduct line, pillars, tracks, and the Dhaka Metro Rail train.
-// Coordinates: Y = 400 to 450
-// ============================================================================
-void drawMetroRailTrack() {
-    int trackBottom = 430;
-    int trackTop = 410;
+#include <GL/glut.h>
+#include <math.h>
 
-    // ------------------------------------------------------------------------
-    // 1. ELEVATED METRO PILLARS (Concrete Support Structures)
-    // ------------------------------------------------------------------------
-    for (int x = 50; x <= 1600; x += 150) {
-        // Main Pillar Stem
+// Global variable for Metro Rail Animation
+float metroX = -800.0f; // Start position off-screen on the left
+
+// ============================================================================
+// FUNCTION: backBoundaryWall
+// Description: Renders the classic textured concrete brick boundary wall.
+// Location: Y = 360 to 420
+// ============================================================================
+void backBoundaryWall() {
+    int wallTop = 360;
+    int wallBottom = 420;
+
+    // 1. MAIN CONCRETE WALL BASE
+    glBegin(GL_QUADS);
+        glColor3f(0.85f, 0.84f, 0.80f); // Top highlight
+        glVertex2i(0, wallTop);
+        glVertex2i(1600, wallTop);
+
+        glColor3f(0.68f, 0.67f, 0.64f); // Bottom shadow
+        glVertex2i(1600, wallBottom);
+        glVertex2i(0, wallBottom);
+    glEnd();
+
+    // 2. BRICK PATTERN
+    glColor3f(0.60f, 0.59f, 0.56f);
+    glLineWidth(1.0f);
+
+    glBegin(GL_LINES);
+    for (int y = wallTop + 12; y < wallBottom; y += 12) {
+        glVertex2i(0, y);
+        glVertex2i(1600, y);
+    }
+    glEnd();
+
+    glBegin(GL_LINES);
+    int row = 0;
+    for (int y = wallTop; y < wallBottom; y += 12) {
+        int xOffset = (row % 2 == 0) ? 0 : 20;
+        for (int x = xOffset; x < 1600; x += 40) {
+            glVertex2i(x, y);
+            glVertex2i(x, y + 12);
+        }
+        row++;
+    }
+    glEnd();
+
+    // 3. TOP COPING CAP
+    glBegin(GL_QUADS);
+        glColor3f(0.75f, 0.74f, 0.70f);
+        glVertex2i(0, wallTop - 8);
+        glVertex2i(1600, wallTop - 8);
+        glVertex2i(1600, wallTop);
+        glVertex2i(0, wallTop);
+    glEnd();
+
+    // 4. WALL PILLARS
+    for (int x = 0; x <= 1600; x += 100) {
         glBegin(GL_QUADS);
-            glColor3f(0.70f, 0.72f, 0.75f); // Light concrete face
-            glVertex2i(x - 12, trackBottom);
-            glVertex2i(x + 2, trackBottom);
-            glVertex2i(x + 2, trackBottom + 45);
-            glVertex2i(x - 12, trackBottom + 45);
+            glColor3f(0.88f, 0.87f, 0.83f);
+            glVertex2i(x - 8, wallTop - 10);
+            glVertex2i(x + 2, wallTop - 10);
+            glVertex2i(x + 2, wallBottom);
+            glVertex2i(x - 8, wallBottom);
 
-            glColor3f(0.55f, 0.57f, 0.60f); // Shadow side
-            glVertex2i(x + 2, trackBottom);
-            glVertex2i(x + 12, trackBottom);
-            glVertex2i(x + 12, trackBottom + 45);
-            glVertex2i(x + 2, trackBottom + 45);
+            glColor3f(0.72f, 0.71f, 0.67f);
+            glVertex2i(x + 2, wallTop - 10);
+            glVertex2i(x + 8, wallTop - 10);
+            glVertex2i(x + 8, wallBottom);
+            glVertex2i(x + 2, wallBottom);
+        glEnd();
+    }
+}
+
+// ============================================================================
+// FUNCTION: drawMetroRailViaductAndTrain
+// Description: Renders heavy realistic flyover pillars, box girders, steel rails,
+//              and a MOVING Dhaka Metro Rail train.
+// ============================================================================
+void drawMetroRailViaductAndTrain() {
+    int deckTop = 330;
+    int deckBottom = 352;
+
+    // ------------------------------------------------------------------------
+    // 1. HEAVY REALISTIC METRO PILLARS (Flyover Pillars)
+    // ------------------------------------------------------------------------
+    for (int x = 80; x <= 1600; x += 220) {
+        // Main Thick Round/Octagonal Pillar Column
+        glBegin(GL_QUADS);
+            // Left Highlight Side
+            glColor3f(0.75f, 0.77f, 0.80f);
+            glVertex2i(x - 18, deckBottom + 12);
+            glVertex2i(x, deckBottom + 12);
+            glVertex2i(x, 420); // Extends down into ground
+            glVertex2i(x - 18, 420);
+
+            // Right Shadow Side
+            glColor3f(0.58f, 0.60f, 0.63f);
+            glVertex2i(x, deckBottom + 12);
+            glVertex2i(x + 18, deckBottom + 12);
+            glVertex2i(x + 18, 420);
+            glVertex2i(x, 420);
         glEnd();
 
-        // Pillar Top Cap (T-Bar Beam)
+        // Heavy T-Bar Pier Cap (Pillar Top Beam)
         glBegin(GL_QUADS);
-            glColor3f(0.80f, 0.82f, 0.85f);
-            glVertex2i(x - 20, trackBottom - 5);
-            glVertex2i(x + 20, trackBottom - 5);
-            glVertex2i(x + 20, trackBottom);
-            glVertex2i(x - 20, trackBottom);
+            glColor3f(0.82f, 0.84f, 0.88f); // Top Face
+            glVertex2i(x - 38, deckBottom);
+            glVertex2i(x + 38, deckBottom);
+            glVertex2i(x + 32, deckBottom + 12);
+            glVertex2i(x - 32, deckBottom + 12);
+        glEnd();
+
+        // Pier Cap Under-Shadow
+        glBegin(GL_QUADS);
+            glColor3f(0.45f, 0.47f, 0.50f);
+            glVertex2i(x - 32, deckBottom + 10);
+            glVertex2i(x + 32, deckBottom + 10);
+            glVertex2i(x + 28, deckBottom + 14);
+            glVertex2i(x - 28, deckBottom + 14);
         glEnd();
     }
 
     // ------------------------------------------------------------------------
-    // 2. CONCRETE VIADUCT DECK (The Elevated Track Bed)
+    // 2. CONCRETE BOX GIRDER DECK (Continuous Elevated Track Segment)
     // ------------------------------------------------------------------------
+    // Segment Body (Box Girder)
     glBegin(GL_QUADS);
-        glColor3f(0.85f, 0.87f, 0.90f); // Top Concrete Deck
-        glVertex2i(0, trackTop);
-        glVertex2i(1600, trackTop);
+        glColor3f(0.88f, 0.90f, 0.93f); // Top Edge
+        glVertex2i(0, deckTop);
+        glVertex2i(1600, deckTop);
 
-        glColor3f(0.60f, 0.62f, 0.65f); // Bottom Shadowed Deck
-        glVertex2i(1600, trackBottom);
-        glVertex2i(0, trackBottom);
+        glColor3f(0.62f, 0.64f, 0.68f); // Bottom Edge
+        glVertex2i(1600, deckBottom);
+        glVertex2i(0, deckBottom);
     glEnd();
 
-    // Steel Safety Railing / Noise Barrier on Deck Edge
-    glColor3f(0.45f, 0.50f, 0.55f);
+    // Side Parapet / Sound Barrier Wall
     glBegin(GL_QUADS);
-        glVertex2i(0, trackTop - 6);
-        glVertex2i(1600, trackTop - 6);
-        glVertex2i(1600, trackTop);
-        glVertex2i(0, trackTop);
+        glColor3f(0.50f, 0.53f, 0.58f);
+        glVertex2i(0, deckTop - 8);
+        glVertex2i(1600, deckTop - 8);
+        glVertex2i(1600, deckTop);
+        glVertex2i(0, deckTop);
     glEnd();
 
-    // Steel Track Lines
-    glColor3f(0.25f, 0.25f, 0.28f);
+    // Steel Track Railing
+    glColor3f(0.20f, 0.22f, 0.25f);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
-        glVertex2i(0, trackTop - 2); glVertex2i(1600, trackTop - 2);
-        glVertex2i(0, trackTop - 4); glVertex2i(1600, trackTop - 4);
+        glVertex2i(0, deckTop - 3); glVertex2i(1600, deckTop - 3);
+        glVertex2i(0, deckTop - 6); glVertex2i(1600, deckTop - 6);
     glEnd();
     glLineWidth(1.0f);
 
     // ------------------------------------------------------------------------
-    // 3. DHAKA METRO RAIL TRAIN (Authentic Green & Red Design)
-    // Position: X = 200 to 1100 (Passes across the track above the school)
+    // 3. ANIMATED DHAKA METRO RAIL TRAIN (Moving Left to Right)
     // ------------------------------------------------------------------------
-    int trainLeft = 150;
-    int trainRight = 1150;
-    int trainTop = 365;
-    int trainBottom = 408;
+    glPushMatrix();
+    glTranslatef(metroX, 0.0f, 0.0f); // Applies translation for movement
 
-    // Train Main White Body
+    int trainWidth = 900;
+    int trainLeft = 0;
+    int trainRight = trainLeft + trainWidth;
+    int trainTop = deckTop - 42;
+    int trainBottom = deckTop - 4;
+
+    // Train Main Metallic White Body
     glBegin(GL_QUADS);
-        glColor3f(0.95f, 0.95f, 0.96f);
+        glColor3f(0.96f, 0.97f, 0.98f);
         glVertex2i(trainLeft, trainTop);
         glVertex2i(trainRight, trainTop);
         glVertex2i(trainRight, trainBottom);
         glVertex2i(trainLeft, trainBottom);
     glEnd();
 
-    // Metro Green Stripe (Top & Upper Front)
+    // Dhaka Metro Green Band (Upper)
     glBegin(GL_QUADS);
-        glColor3f(0.0f, 0.52f, 0.32f); // Official Metro Green
+        glColor3f(0.0f, 0.54f, 0.32f);
         glVertex2i(trainLeft, trainTop);
         glVertex2i(trainRight, trainTop);
         glVertex2i(trainRight, trainTop + 10);
         glVertex2i(trainLeft, trainTop + 10);
     glEnd();
 
-    // Metro Red Accent Stripe (Bottom)
+    // Dhaka Metro Red Stripe (Lower Accent)
     glBegin(GL_QUADS);
-        glColor3f(0.85f, 0.12f, 0.15f); // Official Metro Red
-        glVertex2i(trainLeft, trainBottom - 5);
-        glVertex2i(trainRight, trainBottom - 5);
+        glColor3f(0.85f, 0.12f, 0.15f);
+        glVertex2i(trainLeft, trainBottom - 6);
+        glVertex2i(trainRight, trainBottom - 6);
         glVertex2i(trainRight, trainBottom);
         glVertex2i(trainLeft, trainBottom);
     glEnd();
 
-    // Front Aerodynamic Engine Head (Right Side Nose)
+    // Front Aerodynamic Nose Cap (Engine)
     glBegin(GL_TRIANGLES);
-        glColor3f(0.0f, 0.52f, 0.32f);
+        glColor3f(0.0f, 0.54f, 0.32f);
         glVertex2i(trainRight, trainTop);
-        glVertex2i(trainRight + 40, trainTop + 20);
-        glVertex2i(trainRight, trainTop + 20);
+        glVertex2i(trainRight + 45, trainTop + 18);
+        glVertex2i(trainRight, trainTop + 18);
 
-        glColor3f(0.95f, 0.95f, 0.96f);
-        glVertex2i(trainRight, trainTop + 20);
-        glVertex2i(trainRight + 40, trainTop + 20);
+        glColor3f(0.96f, 0.97f, 0.98f);
+        glVertex2i(trainRight, trainTop + 18);
+        glVertex2i(trainRight + 45, trainTop + 18);
         glVertex2i(trainRight, trainBottom);
     glEnd();
 
-    // Front Windshield (Black Glass on Head)
+    // Windshield Glass (Front Driver Cabin)
     glBegin(GL_QUADS);
-        glColor3f(0.10f, 0.12f, 0.15f);
+        glColor3f(0.12f, 0.15f, 0.20f);
         glVertex2i(trainRight + 5, trainTop + 8);
-        glVertex2i(trainRight + 30, trainTop + 18);
-        glVertex2i(trainRight + 20, trainTop + 28);
+        glVertex2i(trainRight + 32, trainTop + 18);
+        glVertex2i(trainRight + 22, trainTop + 28);
         glVertex2i(trainRight + 5, trainTop + 28);
     glEnd();
 
-    // Red Round Circle (Bangladesh Flag Emblem on Front)
+    // Red National Emblem on Front Nose
     glColor3f(0.85f, 0.12f, 0.15f);
     glBegin(GL_POLYGON);
         for (int i = 0; i < 360; i += 20) {
             float rad = i * 3.14159f / 180.0f;
-            glVertex2f(trainRight + 12 + cos(rad) * 6, trainTop + 33 + sin(rad) * 6);
+            glVertex2f(trainRight + 12 + cos(rad) * 5.5f, trainTop + 33 + sin(rad) * 5.5f);
         }
     glEnd();
 
-    // Passenger Windows (Tinted Blue-Grey Glass along coaches)
-    glColor3f(0.20f, 0.30f, 0.38f);
+    // Tinted Passenger Windows
+    glColor3f(0.18f, 0.28f, 0.36f);
     glBegin(GL_QUADS);
-        for (int wx = trainLeft + 30; wx < trainRight - 40; wx += 45) {
-            // Skip space where doors are placed
-            if ((wx - trainLeft) % 180 == 0) continue;
-
-            glVertex2i(wx, trainTop + 16);
-            glVertex2i(wx + 28, trainTop + 16);
-            glVertex2i(wx + 28, trainTop + 30);
-            glVertex2i(wx, trainTop + 30);
+        for (int wx = trainLeft + 30; wx < trainRight - 40; wx += 42) {
+            if ((wx - trainLeft) % 170 == 0) continue; // Door gaps
+            glVertex2i(wx, trainTop + 15);
+            glVertex2i(wx + 26, trainTop + 15);
+            glVertex2i(wx + 26, trainTop + 28);
+            glVertex2i(wx, trainTop + 28);
         }
     glEnd();
 
-    // Automatic Sliding Doors (Dark Metal Framing)
-    glColor3f(0.35f, 0.38f, 0.42f);
-    for (int dx = trainLeft + 160; dx < trainRight - 50; dx += 180) {
+    // Automatic Passenger Doors
+    for (int dx = trainLeft + 150; dx < trainRight - 50; dx += 170) {
+        glColor3f(0.40f, 0.43f, 0.48f);
         glBegin(GL_QUADS);
-            glVertex2i(dx, trainTop + 12);
-            glVertex2i(dx + 22, trainTop + 12);
-            glVertex2i(dx + 22, trainBottom - 5);
-            glVertex2i(dx, trainBottom - 5);
+            glVertex2i(dx, trainTop + 11);
+            glVertex2i(dx + 22, trainTop + 11);
+            glVertex2i(dx + 22, trainBottom - 6);
+            glVertex2i(dx, trainBottom - 6);
         glEnd();
 
-        // Center Split Line for Door
+        // Door Center Seam Line
         glColor3f(0.15f, 0.15f, 0.15f);
         glLineWidth(1.5f);
         glBegin(GL_LINES);
-            glVertex2i(dx + 11, trainTop + 12);
-            glVertex2i(dx + 11, trainBottom - 5);
+            glVertex2i(dx + 11, trainTop + 11);
+            glVertex2i(dx + 11, trainBottom - 6);
         glEnd();
         glLineWidth(1.0f);
-        glColor3f(0.35f, 0.38f, 0.42f); // Reset
     }
+
+    glPopMatrix();
 }
 
+// ============================================================================
+// TIMER / ANIMATION FUNCTION
+// Description: Updates the train position smoothly and redraws the frame.
+// ============================================================================
+void updateMetroRail(int value) {
+    metroX += 3.5f; // Train Speed (Adjust as needed)
+
+    // Reset position when train moves completely out of screen on the right
+    if (metroX > 1700.0f) {
+        metroX = -1000.0f;
+    }
+
+    glutPostRedisplay(); // Trigger re-render
+    glutTimerFunc(16, updateMetroRail, 0); // ~60 FPS update loop
+}
 /* ---- School Building Layer ---- */
 
 #include <GL/glut.h>
@@ -3027,6 +3131,8 @@ int main(int argc, char** argv)
 
     init();
 
+    // Start Metro Rail Animation Loop
+    glutTimerFunc(0, updateMetroRail, 0);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
