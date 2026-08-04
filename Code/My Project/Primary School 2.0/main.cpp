@@ -2307,160 +2307,7 @@ void drawFlowerTribute()
     #undef SH_Y
     #undef SH_X
 }
-/*
-// ============================================================================
-// FUNCTION: drawShaheedMinar
-// Description: Renders an accurate, iconic Shaheed Minar structure on campus.
-// Position: Grounded on campus right wing (X = 1400 center, Y = 380 to 550).
-// ============================================================================
-void drawShaheedMinar() {
-    float cx = 1400.0f; // Center X of Shaheed Minar
 
-    // ---------------------------------------------------------
-    // 1. Red Sun Disc (Behind Central Column)
-    // ---------------------------------------------------------
-    glColor3fv(COLOR_FLAG_RED);
-    float sunX = cx;
-    float sunY = 430.0f;
-    float sunR = 32.0f;
-    int segments = 40;
-
-    glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(sunX, sunY);
-        for (int i = 0; i <= segments; i++) {
-            float angle = i * 2.0f * 3.14159f / segments;
-            glVertex2f(sunX + (sunR * cos(angle)), sunY + (sunR * sin(angle)));
-        }
-    glEnd();
-
-    // ---------------------------------------------------------
-    // 2. Concrete Base Pedestal (3 Steps)
-    // ---------------------------------------------------------
-    glColor3f(0.80f, 0.80f, 0.82f); // Light Marble White/Gray
-
-    // Bottom Step
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 90.0f, 535.0f);
-        glVertex2f(cx + 90.0f, 535.0f);
-        glVertex2f(cx + 90.0f, 550.0f);
-        glVertex2f(cx - 90.0f, 550.0f);
-    glEnd();
-
-    // Middle Step
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 75.0f, 520.0f);
-        glVertex2f(cx + 75.0f, 520.0f);
-        glVertex2f(cx + 75.0f, 535.0f);
-        glVertex2f(cx - 75.0f, 535.0f);
-    glEnd();
-
-    // Top Step
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 60.0f, 510.0f);
-        glVertex2f(cx + 60.0f, 510.0f);
-        glVertex2f(cx + 60.0f, 520.0f);
-        glVertex2f(cx - 60.0f, 520.0f);
-    glEnd();
-
-    // Step Lines / Borders
-    glColor3f(0.50f, 0.50f, 0.55f);
-    glLineWidth(1.5f);
-    glBegin(GL_LINES);
-        glVertex2f(cx - 90.0f, 535.0f); glVertex2f(cx + 90.0f, 535.0f);
-        glVertex2f(cx - 75.0f, 520.0f); glVertex2f(cx + 75.0f, 520.0f);
-    glEnd();
-
-    // ---------------------------------------------------------
-    // 3. Vertical Columns (Marble White Pillars)
-    // ---------------------------------------------------------
-    glColor3f(0.92f, 0.92f, 0.95f); // Pure White Marble
-
-    // --- A. Central Tall Column (With Backward Tilt Top) ---
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 15.0f, 380.0f);
-        glVertex2f(cx + 15.0f, 380.0f);
-        glVertex2f(cx + 15.0f, 510.0f);
-        glVertex2f(cx - 15.0f, 510.0f);
-    glEnd();
-
-    // Central Top Backward Slant Frame
-    glColor3f(0.85f, 0.85f, 0.88f);
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 20.0f, 365.0f);
-        glVertex2f(cx + 20.0f, 365.0f);
-        glVertex2f(cx + 15.0f, 380.0f);
-        glVertex2f(cx - 15.0f, 380.0f);
-    glEnd();
-
-    // --- B. Inner Side Columns (Medium Height) ---
-    glColor3f(0.90f, 0.90f, 0.93f);
-    // Left-Inner
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 38.0f, 420.0f);
-        glVertex2f(cx - 22.0f, 420.0f);
-        glVertex2f(cx - 22.0f, 510.0f);
-        glVertex2f(cx - 38.0f, 510.0f);
-    glEnd();
-    // Right-Inner
-    glBegin(GL_QUADS);
-        glVertex2f(cx + 22.0f, 420.0f);
-        glVertex2f(cx + 38.0f, 420.0f);
-        glVertex2f(cx + 38.0f, 510.0f);
-        glVertex2f(cx + 22.0f, 510.0f);
-    glEnd();
-
-    // --- C. Outer Side Columns (Short Height) ---
-    glColor3f(0.88f, 0.88f, 0.91f);
-    // Left-Outer
-    glBegin(GL_QUADS);
-        glVertex2f(cx - 58.0f, 450.0f);
-        glVertex2f(cx - 44.0f, 450.0f);
-        glVertex2f(cx - 44.0f, 510.0f);
-        glVertex2f(cx - 58.0f, 510.0f);
-    glEnd();
-    // Right-Outer
-    glBegin(GL_QUADS);
-        glVertex2f(cx + 44.0f, 450.0f);
-        glVertex2f(cx + 58.0f, 450.0f);
-        glVertex2f(cx + 58.0f, 510.0f);
-        glVertex2f(cx + 44.0f, 510.0f);
-    glEnd();
-
-    // ---------------------------------------------------------
-    // 4. Pillar Black Outline / Grid Lines (For Sharpness)
-    // ---------------------------------------------------------
-    glColor3f(0.30f, 0.30f, 0.35f);
-    glLineWidth(1.5f);
-
-    // Central Pillar Lines
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(cx - 15.0f, 380.0f);
-        glVertex2f(cx + 15.0f, 380.0f);
-        glVertex2f(cx + 15.0f, 510.0f);
-        glVertex2f(cx - 15.0f, 510.0f);
-    glEnd();
-
-    // Inner Pillars Lines
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(cx - 38.0f, 420.0f); glVertex2f(cx - 22.0f, 420.0f);
-        glVertex2f(cx - 22.0f, 510.0f); glVertex2f(cx - 38.0f, 510.0f);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(cx + 22.0f, 420.0f); glVertex2f(cx + 38.0f, 420.0f);
-        glVertex2f(cx + 38.0f, 510.0f); glVertex2f(cx + 22.0f, 510.0f);
-    glEnd();
-
-    // Outer Pillars Lines
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(cx - 58.0f, 450.0f); glVertex2f(cx - 44.0f, 450.0f);
-        glVertex2f(cx - 44.0f, 510.0f); glVertex2f(cx - 58.0f, 510.0f);
-    glEnd();
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(cx + 44.0f, 450.0f); glVertex2f(cx + 58.0f, 450.0f);
-        glVertex2f(cx + 58.0f, 510.0f); glVertex2f(cx + 44.0f, 510.0f);
-    glEnd();
-}
-*/
 // ============================================================================
 // FUNCTION: drawFlower
 // Scaled flower anchored inside bed
@@ -3112,55 +2959,79 @@ void drawRightSideForest()
     drawSingleBananaTree(1520.0f, 468.0f, 0.80f);        // Kala Gach 2
     drawSingleTree(1610.0f, 465.0f, 0.82f);              // Normal Leafy Tree 2
 }
-// Helper for Cypress / Cone Shaped Ornamental Tree
+
+//Decorative tree
 void drawSingleDecorativeTree(float x, float y, float scale)
 {
-    // Small Pot / Stand Base
-    glColor3f(0.60f, 0.30f, 0.15f); // Terracotta Red/Brown
+    // 1. Terracotta Pot Base (Sitting at Y)
+    glColor3f(0.60f, 0.30f, 0.15f);
     glBegin(GL_POLYGON);
-    glVertex2f(x - (12.0f * scale), y);
-    glVertex2f(x + (12.0f * scale), y);
-    glVertex2f(x + (9.0f * scale),  y - (15.0f * scale));
-    glVertex2f(x - (9.0f * scale),  y - (15.0f * scale));
+        glVertex2f(x - (12.0f * scale), y);
+        glVertex2f(x + (12.0f * scale), y);
+        glVertex2f(x + (9.0f * scale),  y - (15.0f * scale));
+        glVertex2f(x - (9.0f * scale),  y - (15.0f * scale));
     glEnd();
 
-    // Trunk
+    // Pot Rim
+    glColor3f(0.70f, 0.35f, 0.18f);
+    glBegin(GL_QUADS);
+        glVertex2f(x - (13.0f * scale), y - (12.0f * scale));
+        glVertex2f(x + (13.0f * scale), y - (12.0f * scale));
+        glVertex2f(x + (13.0f * scale), y - (15.0f * scale));
+        glVertex2f(x - (13.0f * scale), y - (15.0f * scale));
+    glEnd();
+
+    // 2. Trunk (Extending Upward)
     glColor3f(0.30f, 0.20f, 0.10f);
     glBegin(GL_QUADS);
-    glVertex2f(x - (4.0f * scale), y - (15.0f * scale));
-    glVertex2f(x + (4.0f * scale), y - (15.0f * scale));
-    glVertex2f(x + (3.0f * scale), y - (35.0f * scale));
-    glVertex2f(x - (3.0f * scale), y - (35.0f * scale));
+        glVertex2f(x - (4.0f * scale), y - (15.0f * scale));
+        glVertex2f(x + (4.0f * scale), y - (15.0f * scale));
+        glVertex2f(x + (3.0f * scale), y - (35.0f * scale));
+        glVertex2f(x - (3.0f * scale), y - (35.0f * scale));
     glEnd();
 
-    float baseY = y - (35.0f * scale);
+    // 3. Layered Cones (Leaves pointing UPWARDS)
+    float baseY = y - (30.0f * scale);
 
-    // Layered Cones (Pine/Cypress Look)
     float layers[3][3] =
     {
-        {45.0f * scale, 35.0f * scale, 0.12f}, // {Height, Half-Width, Color-Green-Tone}
-        {40.0f * scale, 28.0f * scale, 0.16f},
-        {35.0f * scale, 20.0f * scale, 0.22f}
+        {45.0f * scale, 35.0f * scale, 0.12f}, // Base layer
+        {40.0f * scale, 28.0f * scale, 0.16f}, // Middle layer
+        {35.0f * scale, 20.0f * scale, 0.22f}  // Top layer
     };
 
     float currY = baseY;
     for (int i = 0; i < 3; i++)
     {
-        glColor3f(0.05f, layers[i][2] + 0.25f, 0.10f);
+        float height = layers[i][0];
+        float halfWidth = layers[i][1];
+        float greenVal = layers[i][2];
+
+        // Left half (Shaded)
+        glColor3f(0.04f, greenVal + 0.20f, 0.08f);
         glBegin(GL_TRIANGLES);
-        glVertex2f(x - layers[i][1], currY);
-        glVertex2f(x + layers[i][1], currY);
-        glVertex2f(x, currY - layers[i][0]);
+            glVertex2f(x - halfWidth, currY);
+            glVertex2f(x, currY);
+            glVertex2f(x, currY - height);
         glEnd();
-        currY -= (layers[i][0] * 0.60f); // Overlap layers
+
+        // Right half (Lighted)
+        glColor3f(0.08f, greenVal + 0.32f, 0.14f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(x, currY);
+            glVertex2f(x + halfWidth, currY);
+            glVertex2f(x, currY - height);
+        glEnd();
+
+        currY -= (height * 0.55f); // Move upward (negative Y direction)
     }
 }
 
 void drawDecorativeTree()
 {
-    // School-er Mukhopath / Main Entrance-er Dui Pashe
-    drawSingleDecorativeTree(680.0f, 550.0f, 0.85f); // Entrance Left
-    drawSingleDecorativeTree(920.0f, 550.0f, 0.85f); // Entrance Right
+    // Positioned at the bottom edge of the school wall (Y = 480.0f)
+    drawSingleDecorativeTree(715.0f, 480.0f, 0.55f); // Left of entrance
+    drawSingleDecorativeTree(885.0f, 480.0f, 0.55f); // Right of entrance
 }
 // ============================================================================
 // FUNCTION: drawAssemblyGround
