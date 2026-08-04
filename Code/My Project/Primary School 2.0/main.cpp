@@ -3480,56 +3480,171 @@ void drawGate()
 
     glLineWidth(1.0f);
 }
-// 3. NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
+// ============================================================================
+// HIGHLY DETAILED NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
+// Adjusted for New Boundary Height (Y: 610 to 715) with Pins, Notices & 3D Frame
+// ============================================================================
+
 void drawNoticeBoard()
 {
-    // Wooden Legs
-    glColor3f(0.40f, 0.22f, 0.08f);
-    glLineWidth(4.0f);
+    float bLeft = 910.0f;
+    float bRight = 980.0f;
+    float bTop = 612.0f;
+    float bBottom = 665.0f;
+    float groundY = 715.0f;
+
+    // ------------------------------------------------------------------------
+    // 1. SUPPORT LEGS (Thick Metallic/Wooden Posts)
+    // ------------------------------------------------------------------------
+    glColor3f(0.35f, 0.20f, 0.08f); // Dark Walnut Wood
+    glBegin(GL_QUADS);
+        // Left Leg
+        glVertex2f(920.0f, bBottom);
+        glVertex2f(925.0f, bBottom);
+        glVertex2f(925.0f, groundY);
+        glVertex2f(920.0f, groundY);
+
+        // Right Leg
+        glVertex2f(965.0f, bBottom);
+        glVertex2f(970.0f, bBottom);
+        glVertex2f(970.0f, groundY);
+        glVertex2f(965.0f, groundY);
+    glEnd();
+
+    // Leg Ground Drop Shadow
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.1f, 0.1f, 0.1f, 0.3f);
+    glBegin(GL_QUADS);
+        glVertex2f(915.0f, groundY - 2.0f);
+        glVertex2f(975.0f, groundY - 2.0f);
+        glVertex2f(975.0f, groundY + 3.0f);
+        glVertex2f(915.0f, groundY + 3.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // ------------------------------------------------------------------------
+    // 2. OUTER WOODEN FRAME & BACKING (3D Depth)
+    // ------------------------------------------------------------------------
+    // Frame Backing Shadow
+    glColor3f(0.25f, 0.12f, 0.04f);
+    glBegin(GL_QUADS);
+        glVertex2f(bLeft - 2.0f, bTop - 2.0f);
+        glVertex2f(bRight + 2.0f, bTop - 2.0f);
+        glVertex2f(bRight + 2.0f, bBottom + 2.0f);
+        glVertex2f(bLeft - 2.0f, bBottom + 2.0f);
+    glEnd();
+
+    // Main Wooden Frame Border
+    glColor3f(0.48f, 0.28f, 0.12f);
+    glBegin(GL_QUADS);
+        glVertex2f(bLeft, bTop);
+        glVertex2f(bRight, bTop);
+        glVertex2f(bRight, bBottom);
+        glVertex2f(bLeft, bBottom);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. INNER GREEN FELT BOARD SURFACE
+    // ------------------------------------------------------------------------
+    glColor3f(0.12f, 0.42f, 0.22f); // Forest Green Felt
+    glBegin(GL_QUADS);
+        glVertex2f(bLeft + 4.0f, bTop + 4.0f);
+        glVertex2f(bRight - 4.0f, bTop + 4.0f);
+        glVertex2f(bRight - 4.0f, bBottom - 4.0f);
+        glVertex2f(bLeft + 4.0f, bBottom - 4.0f);
+    glEnd();
+
+    // Board Inner Bevel Shadow
+    glColor3f(0.08f, 0.30f, 0.15f);
+    glLineWidth(1.5f);
     glBegin(GL_LINES);
-        glVertex2f(920.0f, 650.0f); glVertex2f(920.0f, 715.0f);
-        glVertex2f(970.0f, 650.0f); glVertex2f(970.0f, 715.0f);
+        glVertex2f(bLeft + 4.0f, bTop + 4.0f); glVertex2f(bRight - 4.0f, bTop + 4.0f);
+        glVertex2f(bLeft + 4.0f, bTop + 4.0f); glVertex2f(bLeft + 4.0f, bBottom - 4.0f);
     glEnd();
 
-    // Wooden Frame Backing (3D Board Shadow)
-    glColor3f(0.35f, 0.18f, 0.05f);
+    // ------------------------------------------------------------------------
+    // 4. PINNED NOTICES / PAPERS WITH SIMULATED TEXT
+    // ------------------------------------------------------------------------
+    // --- Notice 1 (Left White Paper) ---
+    glColor3f(0.96f, 0.96f, 0.94f);
     glBegin(GL_QUADS);
-        glVertex2f(910.0f, 630.0f);
-        glVertex2f(980.0f, 630.0f);
-        glVertex2f(980.0f, 675.0f);
-        glVertex2f(910.0f, 675.0f);
+        glVertex2f(918.0f, 622.0f);
+        glVertex2f(936.0f, 622.0f);
+        glVertex2f(936.0f, 646.0f);
+        glVertex2f(918.0f, 646.0f);
     glEnd();
 
-    // Board Surface (Green Notice Felt)
-    glColor3f(0.12f, 0.45f, 0.25f);
+    // Notice 1 Simulated Text Lines
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+        glVertex2f(921.0f, 627.0f); glVertex2f(933.0f, 627.0f);
+        glVertex2f(921.0f, 632.0f); glVertex2f(933.0f, 632.0f);
+        glVertex2f(921.0f, 637.0f); glVertex2f(930.0f, 637.0f);
+    glEnd();
+
+    // Notice 1 Red Push Pin
+    glColor3f(0.85f, 0.15f, 0.15f);
     glBegin(GL_QUADS);
-        glVertex2f(913.0f, 633.0f);
-        glVertex2f(977.0f, 633.0f);
-        glVertex2f(977.0f, 672.0f);
-        glVertex2f(913.0f, 672.0f);
+        glVertex2f(926.0f, 620.0f); glVertex2f(928.0f, 620.0f);
+        glVertex2f(928.0f, 623.0f); glVertex2f(926.0f, 623.0f);
     glEnd();
 
-    // White Papers / Notices pinned on board
-    glColor3f(0.95f, 0.95f, 0.95f);
+    // --- Notice 2 (Right Slightly Tilted Yellowish Paper) ---
+    glColor3f(0.98f, 0.96f, 0.82f); // Light Cream/Notice Paper
     glBegin(GL_QUADS);
-        // Notice 1
-        glVertex2f(918.0f, 638.0f); glVertex2f(934.0f, 638.0f);
-        glVertex2f(934.0f, 656.0f); glVertex2f(918.0f, 656.0f);
-        // Notice 2
-        glVertex2f(940.0f, 642.0f); glVertex2f(956.0f, 642.0f);
-        glVertex2f(956.0f, 664.0f); glVertex2f(940.0f, 664.0f);
+        glVertex2f(942.0f, 626.0f);
+        glVertex2f(964.0f, 625.0f);
+        glVertex2f(964.0f, 654.0f);
+        glVertex2f(942.0f, 655.0f);
     glEnd();
 
-    // Wooden Roof Cap
-    glColor3f(0.45f, 0.25f, 0.10f);
+    // Notice 2 Simulated Text Lines
+    glColor3f(0.4f, 0.4f, 0.4f);
+    glBegin(GL_LINES);
+        glVertex2f(945.0f, 631.0f); glVertex2f(960.0f, 631.0f);
+        glVertex2f(945.0f, 636.0f); glVertex2f(961.0f, 636.0f);
+        glVertex2f(945.0f, 641.0f); glVertex2f(958.0f, 641.0f);
+        glVertex2f(945.0f, 646.0f); glVertex2f(955.0f, 646.0f);
+    glEnd();
+
+    // Notice 2 Blue Push Pin
+    glColor3f(0.15f, 0.35f, 0.85f);
+    glBegin(GL_QUADS);
+        glVertex2f(952.0f, 623.0f); glVertex2f(954.0f, 623.0f);
+        glVertex2f(954.0f, 626.0f); glVertex2f(952.0f, 626.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 5. 3D GABLE ROOF CAP (Protection Roof)
+    // ------------------------------------------------------------------------
+    // Roof Dark Backing
+    glColor3f(0.25f, 0.12f, 0.04f);
     glBegin(GL_TRIANGLES);
-        glVertex2f(905.0f, 630.0f);
-        glVertex2f(985.0f, 630.0f);
-        glVertex2f(945.0f, 620.0f);
+        glVertex2f(bLeft - 8.0f, bTop + 1.0f);
+        glVertex2f(bRight + 8.0f, bTop + 1.0f);
+        glVertex2f(945.0f, bTop - 14.0f);
     glEnd();
+
+    // Main Wooden Roof Face
+    glColor3f(0.55f, 0.32f, 0.14f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(bLeft - 6.0f, bTop);
+        glVertex2f(bRight + 6.0f, bTop);
+        glVertex2f(945.0f, bTop - 12.0f);
+    glEnd();
+
+    // Roof Top Highlight Rim
+    glColor3f(0.70f, 0.45f, 0.22f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(bLeft - 6.0f, bTop); glVertex2f(945.0f, bTop - 12.0f);
+        glVertex2f(945.0f, bTop - 12.0f); glVertex2f(bRight + 6.0f, bTop);
+    glEnd();
+
     glLineWidth(1.0f);
 }
-
 // 4. CLASSIC LAMP POSTS (Positioned symmetrically along boundary wall)
 void drawLampPost()
 {
