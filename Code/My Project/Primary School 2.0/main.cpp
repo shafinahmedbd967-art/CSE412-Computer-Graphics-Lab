@@ -124,8 +124,6 @@ void drawRoof();
 void drawWindow();
 void drawDoor();
 void drawClock();
-void drawFlagPole();
-void drawBangladeshFlag();
 void drawRoofBanner();
 
 /* ==========================================================
@@ -143,6 +141,8 @@ void drawBananaTree();
 void drawRightSideForest();
 void drawDecorativeTree();
 void drawAssemblyGround();
+void drawFlagPole();
+void drawBangladeshFlag();
 
 /* ==========================================================
    FUNCTION PROTOTYPES - PLAYGROUND
@@ -254,8 +254,7 @@ void display()
     drawWindow();
     drawDoor();
     drawClock();
-    drawFlagPole();
-    drawBangladeshFlag();
+
 
     /* ---- Campus / Garden Layer ---- */
      drawRightSideForest();
@@ -270,7 +269,8 @@ void display()
     //drawBananaTree();
     drawDecorativeTree();
     drawAssemblyGround();
-
+    drawFlagPole();
+    drawBangladeshFlag();
     /* ---- Playground ---- */
     drawPlayground();
     drawFootballField();
@@ -1882,41 +1882,44 @@ void drawClock()
 
 // ============================================================================
 // FUNCTION: drawFlagPole
-// Position: Base at (X = 745, Y = 480), Top at (X = 745, Y = 275).
+// Position: Centered at (X = 800.0f)
 // ============================================================================
 void drawFlagPole()
 {
-    // Pedestal
+    float poleX = 800.0f; // Centered to match Assembly Ground & Entrance
+
+    // Pedestal (Centered horizontally around X = 800)
     glColor3fv(COLOR_ROOF_GRAY);
     glBegin(GL_QUADS);
-    glVertex2f(733.0f, 472.0f);
-    glVertex2f(757.0f, 472.0f);
-    glVertex2f(757.0f, 480.0f);
-    glVertex2f(733.0f, 480.0f);
+    glVertex2f(poleX - 12.0f, 480.0f); // 788.0f
+    glVertex2f(poleX + 12.0f, 480.0f); // 812.0f
+    glVertex2f(poleX + 12.0f, 487.0f); // 812.0f
+    glVertex2f(poleX - 12.0f, 487.0f); // 788.0f
     glEnd();
 
-    // Metallic Pole
+    // Metallic Pole (X = 800.0f)
     glColor3fv(COLOR_POLE_GRAY);
     glLineWidth(3.0f);
     glBegin(GL_LINES);
-    glVertex2f(745.0f, 472.0f);
-    glVertex2f(745.0f, 275.0f);
+    glVertex2f(poleX, 484.0f);
+    glVertex2f(poleX, 275.0f);
     glEnd();
 
-    // Golden Knob
+    // Golden Knob (X = 800.0f)
     glColor3fv(COLOR_SUN_YELLOW);
     glPointSize(5.0f);
     glBegin(GL_POINTS);
-    glVertex2f(745.0f, 273.0f);
+    glVertex2f(poleX, 273.0f);
     glEnd();
 }
 
 // ============================================================================
 // FUNCTION: drawBangladeshFlag
+// Position: Centered attached to Pole at X = 800.0f
 // ============================================================================
 void drawBangladeshFlag()
 {
-    float poleX = 745.0f;
+    float poleX = 800.0f; // Shifted from 745.0f to 800.0f
     float topY = 275.0f;
     float flagW = 55.0f;
     float flagH = 33.0f;
@@ -1949,7 +1952,6 @@ void drawBangladeshFlag()
     }
     glEnd();
 }
-
 // ============================================================================
 // FUNCTION: drawRoofBanner
 // Position: Centered below clock (X = 680 to 920, Y = 228 to 244).
@@ -2919,110 +2921,174 @@ void drawDecorativeTree()
     drawSingleDecorativeTree(885.0f, 480.0f, 0.55f); // Right of entrance
 }
 // ============================================================================
-// FUNCTION: drawAssemblyGround
-// Description: Fills the lower half with green grass, parade grounds, and pathways.
+// PERFECTLY ALIGNED & REFINED ASSEMBLY GROUND
+// Center-aligned with School Entrance Door & Flag Pole at X = 800.0f
 // ============================================================================
+
 void drawAssemblyGround()
 {
-    /*
-    // ---------------------------------------------------------
-    // 1. Main Green Campus Field (Y: 550 to 900)
-    // ---------------------------------------------------------
-    glColor3f(0.25f, 0.68f, 0.25f); // Natural Grass Green
-    glBegin(GL_QUADS);
-        glVertex2f(0.0f,    550.0f);
-        glVertex2f(1800.0f, 550.0f);
-        glVertex2f(1800.0f, 900.0f);
-        glVertex2f(0.0f,    900.0f);
+    // ------------------------------------------------------------------------
+    // 1. PLAZA BASE DROP SHADOW (Semi-Transparent)
+    // ------------------------------------------------------------------------
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.1f, 0.2f, 0.1f, 0.30f);
+    glBegin(GL_POLYGON);
+        glVertex2f(745.0f, 485.0f);
+        glVertex2f(855.0f, 485.0f);
+        glVertex2f(1015.0f, 648.0f);
+        glVertex2f(585.0f, 648.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // ------------------------------------------------------------------------
+    // 2. MAIN CONCRETE ASSEMBLY PLAZA
+    // Top-Left: 750, Top-Right: 850 (Aligned right between entrance plants)
+    // Bottom expands symmetrically from X: 600 to 1000
+    // ------------------------------------------------------------------------
+    glColor3f(0.68f, 0.70f, 0.72f); // Concrete Grey
+    glBegin(GL_POLYGON);
+        glVertex2f(750.0f, 480.0f); // Top Left
+        glVertex2f(850.0f, 480.0f); // Top Right
+        glVertex2f(1000.0f, 642.0f); // Bottom Right
+        glVertex2f(600.0f, 642.0f);  // Bottom Left
     glEnd();
 
-    // Field Top Border Line (Boundary between building base & grass)
-    glColor3f(0.18f, 0.50f, 0.18f);
+    // Perspective Pavement Grid Lines (Tiles Texture)
+    glColor3f(0.58f, 0.60f, 0.62f);
+    glLineWidth(1.2f);
+
+    // Horizontal Tile Grid
+    glBegin(GL_LINES);
+    for (float y = 495.0f; y <= 630.0f; y += 16.0f) {
+        float factor = (y - 480.0f) / 162.0f;
+        float xLeft = 750.0f - (150.0f * factor);
+        float xRight = 850.0f + (150.0f * factor);
+        glVertex2f(xLeft, y);
+        glVertex2f(xRight, y);
+    }
+    glEnd();
+
+    // Vertical Perspective Grid Lines
+    glBegin(GL_LINES);
+    for (int i = -3; i <= 3; i++) {
+        float offsetTop = i * 14.0f;
+        float offsetBottom = i * 55.0f;
+        glVertex2f(800.0f + offsetTop, 480.0f);
+        glVertex2f(800.0f + offsetBottom, 642.0f);
+    }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. CENTRALLY ALIGNED FLAG BASE PLAZA (X: 770 to 830, Center = 800)
+    // ------------------------------------------------------------------------
+
+    // Bottom Step (Red Brick)
+    glColor3f(0.75f, 0.18f, 0.15f);
+    glBegin(GL_POLYGON);
+        glVertex2f(765.0f, 478.0f);
+        glVertex2f(835.0f, 478.0f);
+        glVertex2f(838.0f, 492.0f);
+        glVertex2f(762.0f, 492.0f);
+    glEnd();
+
+    // Top Step Slab (White Marble)
+    glColor3f(0.95f, 0.95f, 0.98f);
+    glBegin(GL_POLYGON);
+        glVertex2f(770.0f, 478.0f);
+        glVertex2f(830.0f, 478.0f);
+        glVertex2f(832.0f, 488.0f);
+        glVertex2f(768.0f, 488.0f);
+    glEnd();
+
+    // Green Center Star / Base Accent
+    glColor3f(0.0f, 0.5f, 0.2f);
+    glBegin(GL_QUADS);
+        glVertex2f(792.0f, 481.0f);
+        glVertex2f(808.0f, 481.0f);
+        glVertex2f(809.0f, 485.0f);
+        glVertex2f(791.0f, 485.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. PARADE STANDING MARKINGS (Symmetrically Aligned)
+    // ------------------------------------------------------------------------
+    glColor4f(1.0f, 1.0f, 1.0f, 0.90f);
+    glLineWidth(2.5f);
+
+    // 4 Column Line Guides (-105, -35, +35, +105 around center 800)
+    float columnOffsets[] = { -105.0f, -35.0f, 35.0f, 105.0f };
+
+    for (int col = 0; col < 4; col++) {
+        float cx = columnOffsets[col];
+
+        // Vertical Guides
+        glBegin(GL_LINES);
+            glVertex2f(800.0f + cx, 508.0f);
+            glVertex2f(800.0f + (cx * 1.40f), 625.0f);
+        glEnd();
+
+        // Horizontal Student Markings
+        for (float rowY = 518.0f; rowY <= 615.0f; rowY += 20.0f) {
+            float factor = (rowY - 480.0f) / 162.0f;
+            float currentX = 800.0f + (cx * (1.0f + factor * 0.40f));
+            float boxWidth = 9.0f + (factor * 5.0f);
+
+            glBegin(GL_LINES);
+                glVertex2f(currentX - boxWidth, rowY);
+                glVertex2f(currentX + boxWidth, rowY);
+            glEnd();
+        }
+    }
+
+    // Leader Assembly Line (Yellow Bar)
+    glColor3f(0.95f, 0.80f, 0.10f);
     glLineWidth(3.0f);
     glBegin(GL_LINES);
-        glVertex2f(0.0f,    550.0f);
-        glVertex2f(1800.0f, 550.0f);
+        glVertex2f(685.0f, 504.0f);
+        glVertex2f(915.0f, 504.0f);
     glEnd();
 
-    // ---------------------------------------------------------
-    // 2. Central Pathway / Walkway (Paved Road in front of Main Door)
-    // ---------------------------------------------------------
-    glColor3f(0.82f, 0.78f, 0.72f); // Light Tan/Concrete Brick Color
-    glBegin(GL_QUADS);
-        glVertex2f(760.0f, 550.0f);
-        glVertex2f(840.0f, 550.0f);
-        glVertex2f(870.0f, 900.0f);
-        glVertex2f(730.0f, 900.0f);
-    glEnd();
+    // ------------------------------------------------------------------------
+    // 5. RED & WHITE 3D CURBSTONES
+    // ------------------------------------------------------------------------
+    int totalCurbBlocks = 16;
+    for (int i = 0; i < totalCurbBlocks; i++) {
+        float t1 = (float)i / totalCurbBlocks;
+        float t2 = (float)(i + 1) / totalCurbBlocks;
 
-    // Pathway Side Borders
-    glColor3f(0.55f, 0.50f, 0.45f);
-    glLineWidth(2.0f);
-    glBegin(GL_LINES);
-        glVertex2f(760.0f, 550.0f); glVertex2f(730.0f, 900.0f);
-        glVertex2f(840.0f, 550.0f); glVertex2f(870.0f, 900.0f);
-    glEnd();
+        if (i % 2 == 0) glColor3f(0.85f, 0.15f, 0.15f); // Red
+        else glColor3f(0.95f, 0.95f, 0.95f);            // White
 
-    // Pathway Horizontal Brick Lines Texture
-    glColor3f(0.72f, 0.68f, 0.62f);
+        // Left Edge
+        float lx1 = 750.0f - (150.0f * t1);
+        float ly1 = 480.0f + (162.0f * t1);
+        float lx2 = 750.0f - (150.0f * t2);
+        float ly2 = 480.0f + (162.0f * t2);
+
+        glBegin(GL_POLYGON);
+            glVertex2f(lx1, ly1);
+            glVertex2f(lx2, ly2);
+            glVertex2f(lx2 - 6.0f, ly2 + 3.0f);
+            glVertex2f(lx1 - 6.0f, ly1 + 3.0f);
+        glEnd();
+
+        // Right Edge
+        float rx1 = 850.0f + (150.0f * t1);
+        float ry1 = 480.0f + (162.0f * t1);
+        float rx2 = 850.0f + (150.0f * t2);
+        float ry2 = 480.0f + (162.0f * t2);
+
+        glBegin(GL_POLYGON);
+            glVertex2f(rx1, ry1);
+            glVertex2f(rx2, ry2);
+            glVertex2f(rx2 + 6.0f, ry2 + 3.0f);
+            glVertex2f(rx1 + 6.0f, ry1 + 3.0f);
+        glEnd();
+    }
+
     glLineWidth(1.0f);
-    glBegin(GL_LINES);
-        for (float py = 580.0f; py < 900.0f; py += 30.0f) {
-            float ratio = (py - 550.0f) / 350.0f;
-            float leftX  = 760.0f - (30.0f * ratio);
-            float rightX = 840.0f + (30.0f * ratio);
-            glVertex2f(leftX, py);
-            glVertex2f(rightX, py);
-        }
-    glEnd();
-
-    // ---------------------------------------------------------
-    // 3. Assembly Ground Parade Standing Lines (White Chalk Lines)
-    // ---------------------------------------------------------
-    glColor3f(0.95f, 0.95f, 0.95f); // White Paint
-    glLineWidth(2.0f);
-
-    // Assembly Square Outer Margin
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(450.0f, 620.0f);
-        glVertex2f(1150.0f, 620.0f);
-        glVertex2f(1150.0f, 820.0f);
-        glVertex2f(450.0f, 820.0f);
-    glEnd();
-
-    // Standing Squad Lines for Students
-    glBegin(GL_LINES);
-        for (float lx = 520.0f; lx <= 1080.0f; lx += 70.0f) {
-            // Skip the central walkway area
-            if (lx > 720.0f && lx < 880.0f) continue;
-
-            glVertex2f(lx, 640.0f);
-            glVertex2f(lx, 800.0f);
-        }
-    glEnd();
-
-    // ---------------------------------------------------------
-    // 4. Shaheed Minar Connecting Pathway
-    // ---------------------------------------------------------
-    glColor3f(0.82f, 0.78f, 0.72f);
-    glBegin(GL_QUADS);
-        glVertex2f(1300.0f, 550.0f);
-        glVertex2f(1500.0f, 550.0f);
-        glVertex2f(1520.0f, 650.0f);
-        glVertex2f(1280.0f, 650.0f);
-    glEnd();
-
-    glColor3f(0.55f, 0.50f, 0.45f);
-    glLineWidth(2.0f);
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(1300.0f, 550.0f);
-        glVertex2f(1500.0f, 550.0f);
-        glVertex2f(1520.0f, 650.0f);
-        glVertex2f(1280.0f, 650.0f);
-    glEnd();
-    */
 }
-
 /* ---- Playground ---- */
 void drawPlayground() { }
 void drawFootballField() { }
