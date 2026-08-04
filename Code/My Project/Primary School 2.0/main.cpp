@@ -2921,12 +2921,16 @@ void drawDecorativeTree()
     drawSingleDecorativeTree(885.0f, 480.0f, 0.55f); // Right of entrance
 }
 // ============================================================================
-// PERFECTLY ALIGNED & REFINED ASSEMBLY GROUND
-// Center-aligned with School Entrance Door & Flag Pole at X = 800.0f
+// PERFECTLY ADJUSTED ASSEMBLY GROUND
+// Fitted exactly to Blue Line boundary (Y = 665) & Trimmed Yellow Leader Line
 // ============================================================================
 
 void drawAssemblyGround()
 {
+    float topY = 480.0f;
+    float bottomY = 665.0f; // Adjusted to match your exact Blue Line mark
+    float height = bottomY - topY; // Height = 185.0f
+
     // ------------------------------------------------------------------------
     // 1. PLAZA BASE DROP SHADOW (Semi-Transparent)
     // ------------------------------------------------------------------------
@@ -2936,51 +2940,50 @@ void drawAssemblyGround()
     glBegin(GL_POLYGON);
         glVertex2f(745.0f, 485.0f);
         glVertex2f(855.0f, 485.0f);
-        glVertex2f(1015.0f, 648.0f);
-        glVertex2f(585.0f, 648.0f);
+        glVertex2f(1025.0f, bottomY + 6.0f);
+        glVertex2f(575.0f, bottomY + 6.0f);
     glEnd();
     glDisable(GL_BLEND);
 
     // ------------------------------------------------------------------------
     // 2. MAIN CONCRETE ASSEMBLY PLAZA
-    // Top-Left: 750, Top-Right: 850 (Aligned right between entrance plants)
-    // Bottom expands symmetrically from X: 600 to 1000
+    // Top: X(750 to 850), Bottom: X(580 to 1020)
     // ------------------------------------------------------------------------
     glColor3f(0.68f, 0.70f, 0.72f); // Concrete Grey
     glBegin(GL_POLYGON);
-        glVertex2f(750.0f, 480.0f); // Top Left
-        glVertex2f(850.0f, 480.0f); // Top Right
-        glVertex2f(1000.0f, 642.0f); // Bottom Right
-        glVertex2f(600.0f, 642.0f);  // Bottom Left
+        glVertex2f(750.0f, topY);       // Top Left
+        glVertex2f(850.0f, topY);       // Top Right
+        glVertex2f(1020.0f, bottomY);   // Bottom Right
+        glVertex2f(580.0f, bottomY);    // Bottom Left
     glEnd();
 
     // Perspective Pavement Grid Lines (Tiles Texture)
-    glColor3f(0.58f, 0.60f, 0.62f);
+    glColor3f(0.60f, 0.62f, 0.64f);
     glLineWidth(1.2f);
 
     // Horizontal Tile Grid
     glBegin(GL_LINES);
-    for (float y = 495.0f; y <= 630.0f; y += 16.0f) {
-        float factor = (y - 480.0f) / 162.0f;
-        float xLeft = 750.0f - (150.0f * factor);
-        float xRight = 850.0f + (150.0f * factor);
+    for (float y = 495.0f; y <= bottomY - 5.0f; y += 16.0f) {
+        float factor = (y - topY) / height;
+        float xLeft = 750.0f - (170.0f * factor);
+        float xRight = 850.0f + (170.0f * factor);
         glVertex2f(xLeft, y);
         glVertex2f(xRight, y);
     }
     glEnd();
 
-    // Vertical Perspective Grid Lines
+    // Vertical Pavement Grid Lines
     glBegin(GL_LINES);
-    for (int i = -3; i <= 3; i++) {
-        float offsetTop = i * 14.0f;
-        float offsetBottom = i * 55.0f;
-        glVertex2f(800.0f + offsetTop, 480.0f);
-        glVertex2f(800.0f + offsetBottom, 642.0f);
+    for (int i = -4; i <= 4; i++) {
+        float offsetTop = i * 11.0f;
+        float offsetBottom = i * 50.0f;
+        glVertex2f(800.0f + offsetTop, topY);
+        glVertex2f(800.0f + offsetBottom, bottomY);
     }
     glEnd();
 
     // ------------------------------------------------------------------------
-    // 3. CENTRALLY ALIGNED FLAG BASE PLAZA (X: 770 to 830, Center = 800)
+    // 3. CENTRALLY ALIGNED FLAG BASE PLAZA (Center = X: 800)
     // ------------------------------------------------------------------------
 
     // Bottom Step (Red Brick)
@@ -3001,7 +3004,7 @@ void drawAssemblyGround()
         glVertex2f(768.0f, 488.0f);
     glEnd();
 
-    // Green Center Star / Base Accent
+    // Green Center Accent
     glColor3f(0.0f, 0.5f, 0.2f);
     glBegin(GL_QUADS);
         glVertex2f(792.0f, 481.0f);
@@ -3010,43 +3013,45 @@ void drawAssemblyGround()
         glVertex2f(791.0f, 485.0f);
     glEnd();
 
-    // ------------------------------------------------------------------------
-    // 4. PARADE STANDING MARKINGS (Symmetrically Aligned)
-    // ------------------------------------------------------------------------
-    glColor4f(1.0f, 1.0f, 1.0f, 0.90f);
-    glLineWidth(2.5f);
-
-    // 4 Column Line Guides (-105, -35, +35, +105 around center 800)
-    float columnOffsets[] = { -105.0f, -35.0f, 35.0f, 105.0f };
-
-    for (int col = 0; col < 4; col++) {
-        float cx = columnOffsets[col];
-
-        // Vertical Guides
-        glBegin(GL_LINES);
-            glVertex2f(800.0f + cx, 508.0f);
-            glVertex2f(800.0f + (cx * 1.40f), 625.0f);
-        glEnd();
-
-        // Horizontal Student Markings
-        for (float rowY = 518.0f; rowY <= 615.0f; rowY += 20.0f) {
-            float factor = (rowY - 480.0f) / 162.0f;
-            float currentX = 800.0f + (cx * (1.0f + factor * 0.40f));
-            float boxWidth = 9.0f + (factor * 5.0f);
-
-            glBegin(GL_LINES);
-                glVertex2f(currentX - boxWidth, rowY);
-                glVertex2f(currentX + boxWidth, rowY);
-            glEnd();
-        }
-    }
-
-    // Leader Assembly Line (Yellow Bar)
+    // TRIMMED LEADER LINE (Yellow Bar strictly within plaza boundary)
     glColor3f(0.95f, 0.80f, 0.10f);
     glLineWidth(3.0f);
     glBegin(GL_LINES);
-        glVertex2f(685.0f, 504.0f);
-        glVertex2f(915.0f, 504.0f);
+        glVertex2f(725.0f, 504.0f); // Trimmed X from 670 to 725
+        glVertex2f(875.0f, 504.0f); // Trimmed X from 930 to 875
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. PARADE STANDING LINES (Clean Perspective Lines)
+    // ------------------------------------------------------------------------
+    glColor4f(1.0f, 1.0f, 1.0f, 0.95f);
+    glLineWidth(2.5f);
+
+    float columnOffsets[] = { -95.0f, -32.0f, 32.0f, 95.0f };
+
+    for (int col = 0; col < 4; col++) {
+        float cx = columnOffsets[col];
+        float startX = 800.0f + (cx * 0.35f);
+        float endX = 800.0f + (cx * 1.65f);
+
+        // Continuous Column Guide Lines
+        glBegin(GL_LINES);
+            glVertex2f(startX, 512.0f);
+            glVertex2f(endX, bottomY - 10.0f);
+        glEnd();
+    }
+
+    // Small White Standing Dots / Marks
+    glPointSize(4.5f);
+    glBegin(GL_POINTS);
+    for (int col = 0; col < 4; col++) {
+        float cx = columnOffsets[col];
+        for (float rowY = 525.0f; rowY <= bottomY - 15.0f; rowY += 18.0f) {
+            float factor = (rowY - topY) / height;
+            float px = 800.0f + (cx * (0.35f + factor * 1.30f));
+            glVertex2f(px, rowY);
+        }
+    }
     glEnd();
 
     // ------------------------------------------------------------------------
@@ -3060,11 +3065,11 @@ void drawAssemblyGround()
         if (i % 2 == 0) glColor3f(0.85f, 0.15f, 0.15f); // Red
         else glColor3f(0.95f, 0.95f, 0.95f);            // White
 
-        // Left Edge
-        float lx1 = 750.0f - (150.0f * t1);
-        float ly1 = 480.0f + (162.0f * t1);
-        float lx2 = 750.0f - (150.0f * t2);
-        float ly2 = 480.0f + (162.0f * t2);
+        // Left Border
+        float lx1 = 750.0f - (170.0f * t1);
+        float ly1 = topY + (height * t1);
+        float lx2 = 750.0f - (170.0f * t2);
+        float ly2 = topY + (height * t2);
 
         glBegin(GL_POLYGON);
             glVertex2f(lx1, ly1);
@@ -3073,11 +3078,11 @@ void drawAssemblyGround()
             glVertex2f(lx1 - 6.0f, ly1 + 3.0f);
         glEnd();
 
-        // Right Edge
-        float rx1 = 850.0f + (150.0f * t1);
-        float ry1 = 480.0f + (162.0f * t1);
-        float rx2 = 850.0f + (150.0f * t2);
-        float ry2 = 480.0f + (162.0f * t2);
+        // Right Border
+        float rx1 = 850.0f + (170.0f * t1);
+        float ry1 = topY + (height * t1);
+        float rx2 = 850.0f + (170.0f * t2);
+        float ry2 = topY + (height * t2);
 
         glBegin(GL_POLYGON);
             glVertex2f(rx1, ry1);
