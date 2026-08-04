@@ -3268,102 +3268,218 @@ void drawBoundaryWall()
 
     glLineWidth(1.0f);
 }
-// 2. MAIN ENTRANCE GATE & PILLARS (Balanced Opening: X = 720 to 880)
+// ============================================================================
+// HIGHLY DETAILED MAIN ENTRANCE GATE & PILLARS
+// Perfectly Matched with Boundaries (Y: 615 to 715) with 3D Concrete & Iron Work
+// ============================================================================
+
 void drawGate()
 {
-    float pY1 = 645.0f;
-    float pY2 = 725.0f;
+    float pY1 = 615.0f; // Pillar Top (Slightly taller than wall at 635)
+    float pY2 = 715.0f; // Pillar Bottom (Aligned with wall base)
 
-    // --- LEFT GATE PILLAR (3D Brick Pillar at X: 720 to 750) ---
-    glColor3f(0.75f, 0.70f, 0.58f); // Base
+    float leftPillLeft = 715.0f;
+    float leftPillRight = 750.0f;
+    float rightPillLeft = 850.0f;
+    float rightPillRight = 885.0f;
+
+    // ------------------------------------------------------------------------
+    // 1. LEFT GATE PILLAR (Concrete Pillar with 3D Depth & Moldings)
+    // ------------------------------------------------------------------------
+    // Base Pillar Body
+    glColor3f(0.76f, 0.76f, 0.74f); // Matched Concrete Grey
     glBegin(GL_QUADS);
-        glVertex2f(720.0f, pY1);
-        glVertex2f(750.0f, pY1);
-        glVertex2f(750.0f, pY2);
-        glVertex2f(720.0f, pY2);
+        glVertex2f(leftPillLeft, pY1);
+        glVertex2f(leftPillRight, pY1);
+        glVertex2f(leftPillRight, pY2);
+        glVertex2f(leftPillLeft, pY2);
     glEnd();
 
-    // Left Pillar 3D Side Shadow
-    glColor3f(0.60f, 0.55f, 0.45f);
+    // 3D Right Side Shadow Band
+    glColor3f(0.60f, 0.60f, 0.58f);
     glBegin(GL_QUADS);
-        glVertex2f(745.0f, pY1);
-        glVertex2f(750.0f, pY1);
-        glVertex2f(750.0f, pY2);
-        glVertex2f(745.0f, pY2);
+        glVertex2f(leftPillRight - 6.0f, pY1);
+        glVertex2f(leftPillRight, pY1);
+        glVertex2f(leftPillRight, pY2);
+        glVertex2f(leftPillRight - 6.0f, pY2);
     glEnd();
 
-    // Left Pillar Top Cap
-    glColor3f(0.90f, 0.85f, 0.75f);
-    glBegin(GL_QUADS);
-        glVertex2f(716.0f, pY1 - 8.0f);
-        glVertex2f(754.0f, pY1 - 8.0f);
-        glVertex2f(754.0f, pY1);
-        glVertex2f(716.0f, pY1);
+    // Horizontal Pillar Decorative Grooves
+    glColor3f(0.50f, 0.50f, 0.48f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(leftPillLeft, pY1 + 30.0f); glVertex2f(leftPillRight, pY1 + 30.0f);
+        glVertex2f(leftPillLeft, pY1 + 60.0f); glVertex2f(leftPillRight, pY1 + 60.0f);
     glEnd();
 
-    // --- RIGHT GATE PILLAR (3D Brick Pillar at X: 850 to 880) ---
-    glColor3f(0.75f, 0.70f, 0.58f);
+    // Pyramid Pillar Top Cap (Double Layer Concrete Slab)
+    glColor3f(0.85f, 0.85f, 0.83f); // Light Top Highlight
     glBegin(GL_QUADS);
-        glVertex2f(850.0f, pY1);
-        glVertex2f(880.0f, pY1);
-        glVertex2f(880.0f, pY2);
-        glVertex2f(850.0f, pY2);
+        // Base Cap Layer
+        glVertex2f(leftPillLeft - 4.0f, pY1 - 6.0f);
+        glVertex2f(leftPillRight + 4.0f, pY1 - 6.0f);
+        glVertex2f(leftPillRight + 4.0f, pY1);
+        glVertex2f(leftPillLeft - 4.0f, pY1);
+
+        // Pyramid Slanted Roof Cap
+        glVertex2f(leftPillLeft - 1.0f, pY1 - 14.0f);
+        glVertex2f(leftPillRight + 1.0f, pY1 - 14.0f);
+        glVertex2f(leftPillRight + 4.0f, pY1 - 6.0f);
+        glVertex2f(leftPillLeft - 4.0f, pY1 - 6.0f);
     glEnd();
 
-    // Right Pillar 3D Side Shadow
-    glColor3f(0.60f, 0.55f, 0.45f);
+    // ------------------------------------------------------------------------
+    // 2. RIGHT GATE PILLAR (Symmetrical Concrete Pillar)
+    // ------------------------------------------------------------------------
+    // Base Pillar Body
+    glColor3f(0.76f, 0.76f, 0.74f);
     glBegin(GL_QUADS);
-        glVertex2f(875.0f, pY1);
-        glVertex2f(880.0f, pY1);
-        glVertex2f(880.0f, pY2);
-        glVertex2f(875.0f, pY2);
+        glVertex2f(rightPillLeft, pY1);
+        glVertex2f(rightPillRight, pY1);
+        glVertex2f(rightPillRight, pY2);
+        glVertex2f(rightPillLeft, pY2);
     glEnd();
 
-    // Right Pillar Top Cap
-    glColor3f(0.90f, 0.85f, 0.75f);
+    // 3D Left Side Highlight Band
+    glColor3f(0.84f, 0.84f, 0.82f);
     glBegin(GL_QUADS);
-        glVertex2f(846.0f, pY1 - 8.0f);
-        glVertex2f(884.0f, pY1 - 8.0f);
-        glVertex2f(884.0f, pY1);
-        glVertex2f(846.0f, pY1);
+        glVertex2f(rightPillLeft, pY1);
+        glVertex2f(rightPillLeft + 6.0f, pY1);
+        glVertex2f(rightPillLeft + 6.0f, pY2);
+        glVertex2f(rightPillLeft, pY2);
     glEnd();
 
-    // --- OPEN STEEL GRILL GATES (Metallic Perspective) ---
-    glColor3f(0.25f, 0.28f, 0.30f); // Dark Metallic Steel
+    // Horizontal Pillar Decorative Grooves
+    glColor3f(0.50f, 0.50f, 0.48f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(rightPillLeft, pY1 + 30.0f); glVertex2f(rightPillRight, pY1 + 30.0f);
+        glVertex2f(rightPillLeft, pY1 + 60.0f); glVertex2f(rightPillRight, pY1 + 60.0f);
+    glEnd();
+
+    // Pyramid Pillar Top Cap
+    glColor3f(0.85f, 0.85f, 0.83f);
+    glBegin(GL_QUADS);
+        // Base Cap Layer
+        glVertex2f(rightPillLeft - 4.0f, pY1 - 6.0f);
+        glVertex2f(rightPillRight + 4.0f, pY1 - 6.0f);
+        glVertex2f(rightPillRight + 4.0f, pY1);
+        glVertex2f(rightPillLeft - 4.0f, pY1);
+
+        // Pyramid Slanted Roof Cap
+        glVertex2f(rightPillLeft - 1.0f, pY1 - 14.0f);
+        glVertex2f(rightPillRight + 1.0f, pY1 - 14.0f);
+        glVertex2f(rightPillRight + 4.0f, pY1 - 6.0f);
+        glVertex2f(rightPillLeft - 4.0f, pY1 - 6.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. PILLAR HINGES & ATTACHMENTS
+    // ------------------------------------------------------------------------
+    glColor3f(0.20f, 0.20f, 0.22f); // Black Metal Hinges
+    glBegin(GL_QUADS);
+        // Left Hinges
+        glVertex2f(leftPillRight, pY1 + 25.0f); glVertex2f(leftPillRight + 4.0f, pY1 + 25.0f);
+        glVertex2f(leftPillRight + 4.0f, pY1 + 33.0f); glVertex2f(leftPillRight, pY1 + 33.0f);
+
+        glVertex2f(leftPillRight, pY2 - 25.0f); glVertex2f(leftPillRight + 4.0f, pY2 - 25.0f);
+        glVertex2f(leftPillRight + 4.0f, pY2 - 17.0f); glVertex2f(leftPillRight, pY2 - 17.0f);
+
+        // Right Hinges
+        glVertex2f(rightPillLeft - 4.0f, pY1 + 25.0f); glVertex2f(rightPillLeft, pY1 + 25.0f);
+        glVertex2f(rightPillLeft, pY1 + 33.0f); glVertex2f(rightPillLeft - 4.0f, pY1 + 33.0f);
+
+        glVertex2f(rightPillLeft - 4.0f, pY2 - 25.0f); glVertex2f(rightPillLeft, pY2 - 25.0f);
+        glVertex2f(rightPillLeft, pY2 - 17.0f); glVertex2f(rightPillLeft - 4.0f, pY2 - 17.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. OPEN STEEL GRILL GATES (Detailed Wrought Iron)
+    // ------------------------------------------------------------------------
+    glColor3f(0.18f, 0.22f, 0.24f); // Metallic Dark Slate/Steel
     glLineWidth(2.5f);
 
-    // Left Gate Door (Swung Slightly Open)
-    glBegin(GL_LINES);
-        // Outer Frame
-        glVertex2f(750.0f, 655.0f); glVertex2f(795.0f, 660.0f);
-        glVertex2f(795.0f, 660.0f); glVertex2f(795.0f, 720.0f);
-        glVertex2f(795.0f, 720.0f); glVertex2f(750.0f, 720.0f);
-        glVertex2f(750.0f, 720.0f); glVertex2f(750.0f, 655.0f);
+    // --- Left Gate Door (Swung Slightly Open) ---
+    float lStart = leftPillRight;
+    float lEnd = 796.0f;
+    float lTopY = pY1 + 18.0f;
+    float lBotY = pY2 - 5.0f;
 
-        // Vertical Bars
-        for(float x = 756.0f; x < 795.0f; x += 8.0f) {
-            glVertex2f(x, 657.0f);
-            glVertex2f(x, 720.0f);
-        }
+    // Outer Heavy Frame
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(lStart, lTopY);
+        glVertex2f(lEnd, lTopY + 6.0f);
+        glVertex2f(lEnd, lBotY);
+        glVertex2f(lStart, lBotY);
     glEnd();
 
-    // Right Gate Door (Swung Slightly Open)
+    // Inner Horizontal Support Rails
+    glLineWidth(1.8f);
     glBegin(GL_LINES);
-        // Outer Frame
-        glVertex2f(850.0f, 655.0f); glVertex2f(805.0f, 660.0f);
-        glVertex2f(805.0f, 660.0f); glVertex2f(805.0f, 720.0f);
-        glVertex2f(805.0f, 720.0f); glVertex2f(850.0f, 720.0f);
-        glVertex2f(850.0f, 720.0f); glVertex2f(850.0f, 655.0f);
-
-        // Vertical Bars
-        for(float x = 844.0f; x > 805.0f; x -= 8.0f) {
-            glVertex2f(x, 657.0f);
-            glVertex2f(x, 720.0f);
-        }
+        glVertex2f(lStart, lTopY + 30.0f); glVertex2f(lEnd, lTopY + 32.0f);
+        glVertex2f(lStart, lBotY - 25.0f); glVertex2f(lEnd, lBotY - 25.0f);
     glEnd();
+
+    // Vertical Steel Bars with Decorative Spearheads
+    for (float x = lStart + 6.0f; x < lEnd; x += 7.5f) {
+        float currentTopY = lTopY + ((x - lStart) / (lEnd - lStart)) * 6.0f;
+
+        glLineWidth(1.8f);
+        glBegin(GL_LINES);
+            glVertex2f(x, currentTopY + 4.0f);
+            glVertex2f(x, lBotY);
+        glEnd();
+
+        // Decorative Arrow/Spearhead Top
+        glBegin(GL_TRIANGLES);
+            glVertex2f(x - 2.0f, currentTopY + 4.0f);
+            glVertex2f(x + 2.0f, currentTopY + 4.0f);
+            glVertex2f(x, currentTopY - 3.0f);
+        glEnd();
+    }
+
+    // --- Right Gate Door (Swung Slightly Open) ---
+    float rStart = rightPillLeft;
+    float rEnd = 804.0f;
+    float rTopY = pY1 + 18.0f;
+    float rBotY = pY2 - 5.0f;
+
+    // Outer Heavy Frame
+    glLineWidth(2.5f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(rStart, rTopY);
+        glVertex2f(rEnd, rTopY + 6.0f);
+        glVertex2f(rEnd, rBotY);
+        glVertex2f(rStart, rBotY);
+    glEnd();
+
+    // Inner Horizontal Support Rails
+    glLineWidth(1.8f);
+    glBegin(GL_LINES);
+        glVertex2f(rStart, rTopY + 30.0f); glVertex2f(rEnd, rTopY + 32.0f);
+        glVertex2f(rStart, rBotY - 25.0f); glVertex2f(rEnd, rBotY - 25.0f);
+    glEnd();
+
+    // Vertical Steel Bars with Decorative Spearheads
+    for (float x = rStart - 6.0f; x > rEnd; x -= 7.5f) {
+        float currentTopY = rTopY + ((rStart - x) / (rStart - rEnd)) * 6.0f;
+
+        glLineWidth(1.8f);
+        glBegin(GL_LINES);
+            glVertex2f(x, currentTopY + 4.0f);
+            glVertex2f(x, rBotY);
+        glEnd();
+
+        // Decorative Arrow/Spearhead Top
+        glBegin(GL_TRIANGLES);
+            glVertex2f(x - 2.0f, currentTopY + 4.0f);
+            glVertex2f(x + 2.0f, currentTopY + 4.0f);
+            glVertex2f(x, currentTopY - 3.0f);
+        glEnd();
+    }
+
     glLineWidth(1.0f);
 }
-
 // 3. NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
 void drawNoticeBoard()
 {
