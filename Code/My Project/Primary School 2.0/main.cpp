@@ -3106,14 +3106,534 @@ void drawSeesaw() { }
 void drawMonkeyBars() { }
 
 /* ---- Boundary & Gate Layer ---- */
-void drawBoundaryWall() { }
-void drawGate() { }
-void drawNoticeBoard() { }
-void drawLampPost() { }
-void drawBench() { }
-void drawWaterStation() { }
-void drawCycleParking() { }
-void drawDustbin() { }
+// ============================================================================
+// REALISTIC FRONT BOUNDARY WALL (Color Matched with Background Wall)
+// Extended Depth with Concrete Panels, Vertical Support Pillars & Top Caps
+// ============================================================================
+
+void drawBoundaryWall()
+{
+    float wallTopY = 635.0f;
+    float wallBottomY = 715.0f;
+    float leftPillarX = 720.0f;
+    float rightPillarX = 880.0f;
+
+    // ------------------------------------------------------------------------
+    // 1. CONCRETE BASE PLINTH (Dark Grey Foundation matching background)
+    // ------------------------------------------------------------------------
+    glColor3f(0.55f, 0.55f, 0.56f); // Concrete Grey Base
+    glBegin(GL_QUADS);
+        // Left Base
+        glVertex2f(0.0f, wallBottomY - 10.0f);
+        glVertex2f(leftPillarX, wallBottomY - 10.0f);
+        glVertex2f(leftPillarX, wallBottomY);
+        glVertex2f(0.0f, wallBottomY);
+
+        // Right Base
+        glVertex2f(rightPillarX, wallBottomY - 10.0f);
+        glVertex2f(1600.0f, wallBottomY - 10.0f);
+        glVertex2f(1600.0f, wallBottomY);
+        glVertex2f(rightPillarX, wallBottomY);
+    glEnd();
+
+    // Base Highlight Line
+    glColor3f(0.68f, 0.68f, 0.70f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, wallBottomY - 10.0f);
+        glVertex2f(leftPillarX, wallBottomY - 10.0f);
+        glVertex2f(rightPillarX, wallBottomY - 10.0f);
+        glVertex2f(1600.0f, wallBottomY - 10.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 2. MAIN WALL BODY (Light Ash / Grey matching Background Boundary Wall)
+    // ------------------------------------------------------------------------
+    glColor3f(0.82f, 0.82f, 0.80f); // Matched Back-wall Light Grey Tone
+    glBegin(GL_QUADS);
+        // Left Section
+        glVertex2f(0.0f, wallTopY);
+        glVertex2f(leftPillarX, wallTopY);
+        glVertex2f(leftPillarX, wallBottomY - 10.0f);
+        glVertex2f(0.0f, wallBottomY - 10.0f);
+
+        // Right Section
+        glVertex2f(rightPillarX, wallTopY);
+        glVertex2f(1600.0f, wallTopY);
+        glVertex2f(1600.0f, wallBottomY - 10.0f);
+        glVertex2f(rightPillarX, wallBottomY - 10.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. HORIZONTAL BRICK / PANEL GROOVE LINES
+    // ------------------------------------------------------------------------
+    glColor3f(0.70f, 0.70f, 0.68f); // Mortar Joint Grey
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+    for (float y = wallTopY + 16.0f; y < wallBottomY - 10.0f; y += 16.0f) {
+        glVertex2f(0.0f, y);
+        glVertex2f(leftPillarX, y);
+
+        glVertex2f(rightPillarX, y);
+        glVertex2f(1600.0f, y);
+    }
+    glEnd();
+
+    // Staggered Vertical Joint Lines
+    int rowCount = 0;
+    glBegin(GL_LINES);
+    for (float y = wallTopY; y < wallBottomY - 16.0f; y += 16.0f) {
+        float xShift = (rowCount % 2 == 0) ? 0.0f : 30.0f;
+
+        // Left Section
+        for (float x = xShift; x < leftPillarX; x += 60.0f) {
+            glVertex2f(x, y);
+            glVertex2f(x, y + 16.0f);
+        }
+        // Right Section
+        for (float x = rightPillarX + xShift; x < 1600.0f; x += 60.0f) {
+            glVertex2f(x, y);
+            glVertex2f(x, y + 16.0f);
+        }
+        rowCount++;
+    }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. EMBOSSED VERTICAL CONCRETE POSTS / PILLARS (Realism Detail)
+    // ------------------------------------------------------------------------
+    // Adds structural pillars every 240px along the wall just like the backwall
+    glColor3f(0.76f, 0.76f, 0.74f); // Slightly darker panel grey
+    for (float x = 160.0f; x < leftPillarX - 20.0f; x += 200.0f) {
+        glBegin(GL_QUADS);
+            glVertex2f(x, wallTopY);
+            glVertex2f(x + 14.0f, wallTopY);
+            glVertex2f(x + 14.0f, wallBottomY - 10.0f);
+            glVertex2f(x, wallBottomY - 10.0f);
+        glEnd();
+    }
+    for (float x = rightPillarX + 160.0f; x < 1600.0f - 20.0f; x += 200.0f) {
+        glBegin(GL_QUADS);
+            glVertex2f(x, wallTopY);
+            glVertex2f(x + 14.0f, wallTopY);
+            glVertex2f(x + 14.0f, wallBottomY - 10.0f);
+            glVertex2f(x, wallBottomY - 10.0f);
+        glEnd();
+    }
+
+    // ------------------------------------------------------------------------
+    // 5. 3D TOP CAP RAIL (Slanted Concrete Top Cover)
+    // ------------------------------------------------------------------------
+    // Drop Shadow under Top Cap
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.1f, 0.1f, 0.1f, 0.22f);
+    glBegin(GL_QUADS);
+        glVertex2f(0.0f, wallTopY);
+        glVertex2f(leftPillarX, wallTopY);
+        glVertex2f(leftPillarX, wallTopY + 5.0f);
+        glVertex2f(0.0f, wallTopY + 5.0f);
+
+        glVertex2f(rightPillarX, wallTopY);
+        glVertex2f(1600.0f, wallTopY);
+        glVertex2f(1600.0f, wallTopY + 5.0f);
+        glVertex2f(rightPillarX, wallTopY + 5.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // Main Concrete Top Slab
+    glColor3f(0.72f, 0.72f, 0.70f); // Medium Grey Cap
+    glBegin(GL_QUADS);
+        glVertex2f(-2.0f, wallTopY - 8.0f);
+        glVertex2f(leftPillarX + 3.0f, wallTopY - 8.0f);
+        glVertex2f(leftPillarX + 3.0f, wallTopY);
+        glVertex2f(-2.0f, wallTopY);
+
+        glVertex2f(rightPillarX - 3.0f, wallTopY - 8.0f);
+        glVertex2f(1602.0f, wallTopY - 8.0f);
+        glVertex2f(1602.0f, wallTopY);
+        glVertex2f(rightPillarX - 3.0f, wallTopY);
+    glEnd();
+
+    // Top Cap Light Highlight (Sunlight Reflection on Rim)
+    glColor3f(0.92f, 0.92f, 0.90f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(-2.0f, wallTopY - 8.0f);
+        glVertex2f(leftPillarX + 3.0f, wallTopY - 8.0f);
+
+        glVertex2f(rightPillarX - 3.0f, wallTopY - 8.0f);
+        glVertex2f(1602.0f, wallTopY - 8.0f);
+    glEnd();
+
+    glLineWidth(1.0f);
+}
+// 2. MAIN ENTRANCE GATE & PILLARS (Balanced Opening: X = 720 to 880)
+void drawGate()
+{
+    float pY1 = 645.0f;
+    float pY2 = 725.0f;
+
+    // --- LEFT GATE PILLAR (3D Brick Pillar at X: 720 to 750) ---
+    glColor3f(0.75f, 0.70f, 0.58f); // Base
+    glBegin(GL_QUADS);
+        glVertex2f(720.0f, pY1);
+        glVertex2f(750.0f, pY1);
+        glVertex2f(750.0f, pY2);
+        glVertex2f(720.0f, pY2);
+    glEnd();
+
+    // Left Pillar 3D Side Shadow
+    glColor3f(0.60f, 0.55f, 0.45f);
+    glBegin(GL_QUADS);
+        glVertex2f(745.0f, pY1);
+        glVertex2f(750.0f, pY1);
+        glVertex2f(750.0f, pY2);
+        glVertex2f(745.0f, pY2);
+    glEnd();
+
+    // Left Pillar Top Cap
+    glColor3f(0.90f, 0.85f, 0.75f);
+    glBegin(GL_QUADS);
+        glVertex2f(716.0f, pY1 - 8.0f);
+        glVertex2f(754.0f, pY1 - 8.0f);
+        glVertex2f(754.0f, pY1);
+        glVertex2f(716.0f, pY1);
+    glEnd();
+
+    // --- RIGHT GATE PILLAR (3D Brick Pillar at X: 850 to 880) ---
+    glColor3f(0.75f, 0.70f, 0.58f);
+    glBegin(GL_QUADS);
+        glVertex2f(850.0f, pY1);
+        glVertex2f(880.0f, pY1);
+        glVertex2f(880.0f, pY2);
+        glVertex2f(850.0f, pY2);
+    glEnd();
+
+    // Right Pillar 3D Side Shadow
+    glColor3f(0.60f, 0.55f, 0.45f);
+    glBegin(GL_QUADS);
+        glVertex2f(875.0f, pY1);
+        glVertex2f(880.0f, pY1);
+        glVertex2f(880.0f, pY2);
+        glVertex2f(875.0f, pY2);
+    glEnd();
+
+    // Right Pillar Top Cap
+    glColor3f(0.90f, 0.85f, 0.75f);
+    glBegin(GL_QUADS);
+        glVertex2f(846.0f, pY1 - 8.0f);
+        glVertex2f(884.0f, pY1 - 8.0f);
+        glVertex2f(884.0f, pY1);
+        glVertex2f(846.0f, pY1);
+    glEnd();
+
+    // --- OPEN STEEL GRILL GATES (Metallic Perspective) ---
+    glColor3f(0.25f, 0.28f, 0.30f); // Dark Metallic Steel
+    glLineWidth(2.5f);
+
+    // Left Gate Door (Swung Slightly Open)
+    glBegin(GL_LINES);
+        // Outer Frame
+        glVertex2f(750.0f, 655.0f); glVertex2f(795.0f, 660.0f);
+        glVertex2f(795.0f, 660.0f); glVertex2f(795.0f, 720.0f);
+        glVertex2f(795.0f, 720.0f); glVertex2f(750.0f, 720.0f);
+        glVertex2f(750.0f, 720.0f); glVertex2f(750.0f, 655.0f);
+
+        // Vertical Bars
+        for(float x = 756.0f; x < 795.0f; x += 8.0f) {
+            glVertex2f(x, 657.0f);
+            glVertex2f(x, 720.0f);
+        }
+    glEnd();
+
+    // Right Gate Door (Swung Slightly Open)
+    glBegin(GL_LINES);
+        // Outer Frame
+        glVertex2f(850.0f, 655.0f); glVertex2f(805.0f, 660.0f);
+        glVertex2f(805.0f, 660.0f); glVertex2f(805.0f, 720.0f);
+        glVertex2f(805.0f, 720.0f); glVertex2f(850.0f, 720.0f);
+        glVertex2f(850.0f, 720.0f); glVertex2f(850.0f, 655.0f);
+
+        // Vertical Bars
+        for(float x = 844.0f; x > 805.0f; x -= 8.0f) {
+            glVertex2f(x, 657.0f);
+            glVertex2f(x, 720.0f);
+        }
+    glEnd();
+    glLineWidth(1.0f);
+}
+
+// 3. NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
+void drawNoticeBoard()
+{
+    // Wooden Legs
+    glColor3f(0.40f, 0.22f, 0.08f);
+    glLineWidth(4.0f);
+    glBegin(GL_LINES);
+        glVertex2f(920.0f, 650.0f); glVertex2f(920.0f, 715.0f);
+        glVertex2f(970.0f, 650.0f); glVertex2f(970.0f, 715.0f);
+    glEnd();
+
+    // Wooden Frame Backing (3D Board Shadow)
+    glColor3f(0.35f, 0.18f, 0.05f);
+    glBegin(GL_QUADS);
+        glVertex2f(910.0f, 630.0f);
+        glVertex2f(980.0f, 630.0f);
+        glVertex2f(980.0f, 675.0f);
+        glVertex2f(910.0f, 675.0f);
+    glEnd();
+
+    // Board Surface (Green Notice Felt)
+    glColor3f(0.12f, 0.45f, 0.25f);
+    glBegin(GL_QUADS);
+        glVertex2f(913.0f, 633.0f);
+        glVertex2f(977.0f, 633.0f);
+        glVertex2f(977.0f, 672.0f);
+        glVertex2f(913.0f, 672.0f);
+    glEnd();
+
+    // White Papers / Notices pinned on board
+    glColor3f(0.95f, 0.95f, 0.95f);
+    glBegin(GL_QUADS);
+        // Notice 1
+        glVertex2f(918.0f, 638.0f); glVertex2f(934.0f, 638.0f);
+        glVertex2f(934.0f, 656.0f); glVertex2f(918.0f, 656.0f);
+        // Notice 2
+        glVertex2f(940.0f, 642.0f); glVertex2f(956.0f, 642.0f);
+        glVertex2f(956.0f, 664.0f); glVertex2f(940.0f, 664.0f);
+    glEnd();
+
+    // Wooden Roof Cap
+    glColor3f(0.45f, 0.25f, 0.10f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(905.0f, 630.0f);
+        glVertex2f(985.0f, 630.0f);
+        glVertex2f(945.0f, 620.0f);
+    glEnd();
+    glLineWidth(1.0f);
+}
+
+// 4. CLASSIC LAMP POSTS (Positioned symmetrically along boundary wall)
+void drawLampPost()
+{
+    float lampPositionsX[] = { 100.0f, 680.0f, 1010.0f, 1500.0f };
+
+    for(int i = 0; i < 4; i++) {
+        float lx = lampPositionsX[i];
+
+        // Metal Pole (Black Iron)
+        glColor3f(0.15f, 0.15f, 0.18f);
+        glLineWidth(3.5f);
+        glBegin(GL_LINES);
+            glVertex2f(lx, 600.0f);
+            glVertex2f(lx, 665.0f);
+        glEnd();
+
+        // Pole Base Pedestal
+        glBegin(GL_QUADS);
+            glVertex2f(lx - 4.0f, 660.0f);
+            glVertex2f(lx + 4.0f, 660.0f);
+            glVertex2f(lx + 4.0f, 665.0f);
+            glVertex2f(lx - 4.0f, 665.0f);
+        glEnd();
+
+        // Lamp Frame (3D Vintage Design)
+        glLineWidth(1.5f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(lx - 7.0f, 588.0f);
+            glVertex2f(lx + 7.0f, 588.0f);
+            glVertex2f(lx + 5.0f, 600.0f);
+            glVertex2f(lx - 5.0f, 600.0f);
+        glEnd();
+
+        // Glowing Light Bulb (Warm Yellow Glow)
+        glColor3f(1.0f, 0.88f, 0.30f);
+        glBegin(GL_POLYGON);
+            glVertex2f(lx - 5.0f, 589.0f);
+            glVertex2f(lx + 5.0f, 589.0f);
+            glVertex2f(lx + 4.0f, 599.0f);
+            glVertex2f(lx - 4.0f, 599.0f);
+        glEnd();
+
+        // Lamp Top Cap
+        glColor3f(0.15f, 0.15f, 0.18f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(lx - 9.0f, 588.0f);
+            glVertex2f(lx + 9.0f, 588.0f);
+            glVertex2f(lx, 580.0f);
+        glEnd();
+    }
+    glLineWidth(1.0f);
+}
+
+// 5. WOODEN PARK BENCH (Left side near Wall at X: 220 to 280)
+void drawBench()
+{
+    float bx = 220.0f;
+    float by = 672.0f;
+
+    // Metal Legs (Cast Iron)
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        glVertex2f(bx + 5.0f, by); glVertex2f(bx + 5.0f, by + 28.0f);
+        glVertex2f(bx + 55.0f, by); glVertex2f(bx + 55.0f, by + 28.0f);
+        // Backrest supports
+        glVertex2f(bx + 2.0f, by - 12.0f); glVertex2f(bx + 5.0f, by + 18.0f);
+        glVertex2f(bx + 58.0f, by - 12.0f); glVertex2f(bx + 55.0f, by + 18.0f);
+    glEnd();
+
+    // Wooden Slats (Seating Area)
+    glColor3f(0.60f, 0.32f, 0.12f); // Wood Tone
+    for(float offset = 0.0f; offset <= 12.0f; offset += 4.0f) {
+        glBegin(GL_QUADS);
+            glVertex2f(bx, by + offset);
+            glVertex2f(bx + 60.0f, by + offset);
+            glVertex2f(bx + 60.0f, by + offset + 2.5f);
+            glVertex2f(bx, by + offset + 2.5f);
+        glEnd();
+    }
+
+    // Wooden Slats (Backrest Area)
+    for(float offset = -12.0f; offset <= -2.0f; offset += 4.0f) {
+        glBegin(GL_QUADS);
+            glVertex2f(bx, by + offset);
+            glVertex2f(bx + 60.0f, by + offset);
+            glVertex2f(bx + 60.0f, by + offset + 2.5f);
+            glVertex2f(bx, by + offset + 2.5f);
+        glEnd();
+    }
+    glLineWidth(1.0f);
+}
+
+// 6. REFRESHING WATER DRINKING STATION (Left Wall X: 360 to 410)
+void drawWaterStation()
+{
+    float wx = 360.0f;
+    float wy = 665.0f;
+
+    // Tiled Wall Backing
+    glColor3f(0.80f, 0.90f, 0.95f); // Light Cyan Tiles
+    glBegin(GL_QUADS);
+        glVertex2f(wx, wy - 30.0f);
+        glVertex2f(wx + 50.0f, wy - 30.0f);
+        glVertex2f(wx + 50.0f, wy + 25.0f);
+        glVertex2f(wx, wy + 25.0f);
+    glEnd();
+
+    // Stainless Steel Basin
+    glColor3f(0.70f, 0.72f, 0.75f);
+    glBegin(GL_POLYGON);
+        glVertex2f(wx + 5.0f, wy + 5.0f);
+        glVertex2f(wx + 45.0f, wy + 5.0f);
+        glVertex2f(wx + 40.0f, wy + 18.0f);
+        glVertex2f(wx + 10.0f, wy + 18.0f);
+    glEnd();
+
+    // Water Taps (Metallic Silver)
+    glColor3f(0.3f, 0.3f, 0.35f);
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        // Tap 1
+        glVertex2f(wx + 15.0f, wy - 10.0f); glVertex2f(wx + 15.0f, wy + 2.0f);
+        glVertex2f(wx + 15.0f, wy + 2.0f); glVertex2f(wx + 18.0f, wy + 2.0f);
+        // Tap 2
+        glVertex2f(wx + 35.0f, wy - 10.0f); glVertex2f(wx + 35.0f, wy + 2.0f);
+        glVertex2f(wx + 35.0f, wy + 2.0f); glVertex2f(wx + 38.0f, wy + 2.0f);
+    glEnd();
+    glLineWidth(1.0f);
+}
+
+// 7. BICYCLE PARKING STAND & CYCLES (Right Wall X: 1120 to 1220)
+void drawCycleParking()
+{
+    float cx = 1120.0f;
+    float cy = 680.0f;
+
+    // Metal Rack Stand
+    glColor3f(0.4f, 0.45f, 0.5f);
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        glVertex2f(cx, cy + 15.0f); glVertex2f(cx + 90.0f, cy + 15.0f);
+        for(float x = cx + 10.0f; x <= cx + 80.0f; x += 15.0f) {
+            glVertex2f(x, cy + 15.0f);
+            glVertex2f(x - 5.0f, cy + 32.0f);
+        }
+    glEnd();
+
+    // Parked Bicycle 1 (Red Frame)
+    float b1x = cx + 20.0f;
+    glColor3f(0.85f, 0.15f, 0.15f); // Red Body
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(b1x, cy + 12.0f);
+        glVertex2f(b1x + 12.0f, cy + 12.0f);
+        glVertex2f(b1x + 7.0f, cy + 2.0f);
+    glEnd();
+    // Bicycle Wheels
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINE_LOOP); // Back Wheel
+        for(int i=0; i<12; i++) {
+            float a = i * 2.0f * 3.14159f / 12.0f;
+            glVertex2f(b1x - 3.0f + 7.0f*cos(a), cy + 15.0f + 7.0f*sin(a));
+        }
+    glEnd();
+
+    // Parked Bicycle 2 (Blue Frame)
+    float b2x = cx + 55.0f;
+    glColor3f(0.15f, 0.35f, 0.85f); // Blue Body
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(b2x, cy + 12.0f);
+        glVertex2f(b2x + 12.0f, cy + 12.0f);
+        glVertex2f(b2x + 7.0f, cy + 2.0f);
+    glEnd();
+    glLineWidth(1.0f);
+}
+
+// 8. RECYCLING DUSTBINS (Placed near Wall X: 520 & 1060)
+void drawDustbin()
+{
+    float binX[] = { 520.0f, 1060.0f };
+
+    for(int i = 0; i < 2; i++) {
+        float bx = binX[i];
+        float by = 675.0f;
+
+        // Green Bin (Bio Waste) / Blue Bin (Recycle)
+        if(i == 0) glColor3f(0.12f, 0.65f, 0.25f); // Green
+        else glColor3f(0.15f, 0.45f, 0.85f);       // Blue
+
+        // 3D Cylinder Body
+        glBegin(GL_POLYGON);
+            glVertex2f(bx, by);
+            glVertex2f(bx + 18.0f, by);
+            glVertex2f(bx + 15.0f, by + 26.0f);
+            glVertex2f(bx + 3.0f, by + 26.0f);
+        glEnd();
+
+        // Bin Cap / Lid
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glBegin(GL_QUADS);
+            glVertex2f(bx - 2.0f, by - 4.0f);
+            glVertex2f(bx + 20.0f, by - 4.0f);
+            glVertex2f(bx + 19.0f, by);
+            glVertex2f(bx - 1.0f, by);
+        glEnd();
+
+        // Recycle Symbol Icon (White Mark)
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(bx + 9.0f, by + 8.0f);
+            glVertex2f(bx + 14.0f, by + 16.0f);
+            glVertex2f(bx + 4.0f, by + 16.0f);
+        glEnd();
+    }
+    glLineWidth(1.0f);
+}
 
 /* ---- Footpath Layer ---- */
 void drawFootpath() { }
