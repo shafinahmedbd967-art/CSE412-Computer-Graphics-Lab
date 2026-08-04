@@ -112,13 +112,13 @@ void drawAirplane();
 
 // Function Declarations / Prototypes
 void drawDistantSkyline();
-void backBoundaryWall();
 void drawMetroRailViaductAndTrain();
 void drawGround();
 
 /* ==========================================================
    FUNCTION PROTOTYPES - SCHOOL BUILDING LAYER
    ========================================================== */
+void backBoundaryWall();
 void drawSchool();
 void drawRoof();
 void drawWindow();
@@ -246,6 +246,7 @@ void display()
     //backBoundaryWall();
     drawMetroRailViaductAndTrain();
     drawGround();
+    backBoundaryWall();
     /* ---- School Building Layer ---- */
     drawSchool();
     drawRoof();
@@ -437,7 +438,7 @@ void drawSun()
     float centerY = 130.0f;
     float coreRadius = 38.0f;      // Slightly reduced size for realism
     float glowRadius = 55.0f;      // Soft outer glow border
-    int segments = 60;
+    int segments = 50;
 
     // ---------------------------------------------------------
     // 1. Soft Outer Sunlight Glow (Gradient Triangle Fan)
@@ -569,15 +570,15 @@ void drawCloud()
     // ---------------------------------------------------------
 
     // Cloud 1 - Far Left Sky (Small Size: 0.70x)
-    drawSingleCloud(150.0f + cloud1OffsetX, 110.0f, 0.70f);
+    drawSingleCloud(150.0f + cloud1OffsetX, 110.0f, 2.70f);
 
     // Cloud 2 - Mid Left Sky (Fast & Tiny: 0.55x) -> NEW CLOUD 4
-    drawSingleCloud(450.0f + cloud4OffsetX, 60.0f, 0.55f);
+    drawSingleCloud(450.0f + cloud4OffsetX, 60.0f, 1.55f);
 
     // Cloud 3 - Center Sky (Medium Size: 0.95x)
     drawSingleCloud(750.0f + cloud2OffsetX, 95.0f, 0.95f);
 
-    // Cloud 4 - Mid Right Sky (Higher up, Medium: 0.80x) -> NEW CLOUD 5
+    // Cloud 4 - Mid Right Sky (Higher up, Medium: 0.80x)
     drawSingleCloud(1050.0f + cloud5OffsetX, 50.0f, 0.80f);
 
     // Cloud 5 - Far Right Sky (Large Size: 1.15x)
@@ -1117,14 +1118,15 @@ void drawGround() {
 
 #include <GL/glut.h>
 #include <math.h>
+
 // ============================================================================
 // FUNCTION: backBoundaryWall
 // Description: Renders the classic textured concrete brick boundary wall.
-// Location: Y = 360 to 420
+// Location: Positioned behind the trees (Y = 395 to 455).
 // ============================================================================
 void backBoundaryWall() {
-    int wallTop = 360;
-    int wallBottom = 420;
+    int wallTop = 405;
+    int wallBottom = 465;
 
     // 1. MAIN CONCRETE WALL BASE
     glBegin(GL_QUADS);
@@ -1186,7 +1188,6 @@ void backBoundaryWall() {
         glEnd();
     }
 }
-
 #include <GL/glut.h>
 #include <math.h>
 
