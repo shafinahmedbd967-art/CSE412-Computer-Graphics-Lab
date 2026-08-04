@@ -1953,27 +1953,37 @@ void drawBangladeshFlag()
 // ============================================================================
 // FUNCTION: drawRoofBanner
 // Position: Centered below clock (X = 680 to 920, Y = 228 to 244).
+// Text: "GOVERNMENT PRIMARY SCHOOL"
 // ============================================================================
 void drawRoofBanner()
 {
     // Banner Background Board
     glColor3fv(COLOR_WHITE);
     glBegin(GL_QUADS);
-    glVertex2f(680.0f, 228.0f);
-    glVertex2f(920.0f, 228.0f);
-    glVertex2f(920.0f, 244.0f);
-    glVertex2f(680.0f, 244.0f);
+        glVertex2f(680.0f, 228.0f);
+        glVertex2f(920.0f, 228.0f);
+        glVertex2f(920.0f, 244.0f);
+        glVertex2f(680.0f, 244.0f);
     glEnd();
 
     // Green Border
     glColor3fv(COLOR_FLAG_GREEN);
     glLineWidth(2.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(680.0f, 228.0f);
-    glVertex2f(920.0f, 228.0f);
-    glVertex2f(920.0f, 244.0f);
-    glVertex2f(680.0f, 244.0f);
+        glVertex2f(680.0f, 228.0f);
+        glVertex2f(920.0f, 228.0f);
+        glVertex2f(920.0f, 244.0f);
+        glVertex2f(680.0f, 244.0f);
     glEnd();
+
+    // Green Text (Vertically centered)
+    glColor3fv(COLOR_FLAG_GREEN);
+    glRasterPos2f(690.0f, 240.0f);
+    const char* bannerText = "GOVERNMENT PRIMARY SCHOOL";
+    for (const char* c = bannerText; *c != '\0'; c++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *c);
+    }
 }
 
 // ============================================================================
