@@ -257,6 +257,7 @@ void display()
     drawBangladeshFlag();
 
     /* ---- Campus / Garden Layer ---- */
+     drawRightSideForest();
     drawShaheedMinar();
     drawFlowerTribute();
     drawGarden();
@@ -266,7 +267,6 @@ void display()
     //drawPalmTree();
     //drawMangoTree();
     //drawBananaTree();
-    drawRightSideForest();
     drawDecorativeTree();
     drawAssemblyGround();
 
@@ -2479,9 +2479,41 @@ void drawGarden()
 #include <GL/glut.h>
 #include <cmath>
 
+// Helper Constant for Smooth Calculations
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // ============================================================================
-// HIGH-DETAIL REALISTIC TREE MODELS (Adjusted for School Boundary)
+// HIGH-DETAIL REALISTIC TREE MODELS (Enhanced Aesthetics & Lighting)
 // ============================================================================
+
+// Helper function to draw smooth gradient filled circle/oval
+void drawSmoothCircle(float cx, float cy, float rx, float ry, float r, float g, float b, float alpha = 1.0f)
+{
+    int segments = 32;
+    glColor4f(r, g, b, alpha);
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(cx, cy);
+        for (int i = 0; i <= segments; i++)
+        {
+            float theta = i * 2.0f * M_PI / segments;
+            glVertex2f(cx + rx * cos(theta), cy + ry * sin(theta));
+        }
+    glEnd();
+}
+
+// Helper function to draw organic tapering trunk segments
+void drawBranchSegment(float x1, float y1, float w1, float x2, float y2, float w2, float r, float g, float b)
+{
+    glColor3f(r, g, b);
+    glBegin(GL_QUADS);
+        glVertex2f(x1 - w1 / 2.0f, y1);
+        glVertex2f(x1 + w1 / 2.0f, y1);
+        glVertex2f(x2 + w2 / 2.0f, y2);
+        glVertex2f(x2 - w2 / 2.0f, y2);
+    glEnd();
+}
 
 // ----------------------------------------------------------------------------
 // 1. IMPROVED NORMAL LEAFY TREE
@@ -2491,53 +2523,34 @@ void drawSingleTree(float x, float y, float scale)
     float trunkH = 80.0f * scale;
     float topY = y - trunkH;
 
-    // Organic Branching Trunk
-    glColor3f(0.35f, 0.20f, 0.10f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - (8.0f * scale), y);
-        glVertex2f(x + (8.0f * scale), y);
-        glVertex2f(x + (5.0f * scale), topY);
-        glVertex2f(x - (5.0f * scale), topY);
-    glEnd();
+    // Organic Tapered Main Trunk
+    drawBranchSegment(x, y, 16.0f * scale, x, topY, 9.0f * scale, 0.30f, 0.16f, 0.08f);
 
-    int segments = 20;
-    float clusters[5][3] = {
-        {x - (20.0f * scale), topY - (5.0f * scale),  24.0f * scale},
-        {x + (20.0f * scale), topY - (5.0f * scale),  24.0f * scale},
-        {x - (12.0f * scale), topY - (22.0f * scale), 28.0f * scale},
-        {x + (12.0f * scale), topY - (22.0f * scale), 28.0f * scale},
-        {x,                   topY - (42.0f * scale), 32.0f * scale}
+    // Natural Side Branches
+    drawBranchSegment(x, topY + 15.0f * scale, 6.0f * scale, x - 22.0f * scale, topY - 10.0f * scale, 3.0f * scale, 0.28f, 0.14f, 0.06f);
+    drawBranchSegment(x, topY + 20.0f * scale, 6.0f * scale, x + 22.0f * scale, topY - 10.0f * scale, 3.0f * scale, 0.28f, 0.14f, 0.06f);
+
+    // Canopy Clusters with Multi-layer Lighting Depth
+    float clusters[6][3] = {
+        {x - (24.0f * scale), topY - (5.0f * scale),  26.0f * scale},
+        {x + (24.0f * scale), topY - (5.0f * scale),  26.0f * scale},
+        {x - (15.0f * scale), topY - (25.0f * scale), 30.0f * scale},
+        {x + (15.0f * scale), topY - (25.0f * scale), 30.0f * scale},
+        {x,                   topY - (45.0f * scale), 35.0f * scale},
+        {x,                   topY - (15.0f * scale), 28.0f * scale}
     };
 
-    // Deep Shadow Underlayer
-    glColor3f(0.08f, 0.38f, 0.10f);
-    for (int c = 0; c < 5; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1]);
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
-                           clusters[c][1] + (clusters[c][2] * sin(angle)));
-            }
-        glEnd();
-    }
+    // Layer 1: Dark Base Shadows
+    for (int c = 0; c < 6; c++)
+        drawSmoothCircle(clusters[c][0], clusters[c][1], clusters[c][2], clusters[c][2] * 0.9f, 0.05f, 0.28f, 0.08f);
 
-    // Leaf Sunlight Highlight
-    glColor3f(0.22f, 0.62f, 0.18f);
-    for (int c = 0; c < 5; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1] + (3.0f * scale));
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + ((clusters[c][2] - 4.0f) * cos(angle)),
-                           clusters[c][1] + (3.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
-            }
-        glEnd();
-    }
+    // Layer 2: Midtone Leaves
+    for (int c = 0; c < 6; c++)
+        drawSmoothCircle(clusters[c][0] + 2.0f * scale, clusters[c][1] - 2.0f * scale, clusters[c][2] * 0.85f, clusters[c][2] * 0.8f, 0.15f, 0.48f, 0.12f);
+
+    // Layer 3: Vibrant Sunlit Highlights
+    for (int c = 0; c < 6; c++)
+        drawSmoothCircle(clusters[c][0] - 3.0f * scale, clusters[c][1] - 5.0f * scale, clusters[c][2] * 0.65f, clusters[c][2] * 0.6f, 0.28f, 0.68f, 0.20f);
 }
 
 // ----------------------------------------------------------------------------
@@ -2545,112 +2558,90 @@ void drawSingleTree(float x, float y, float scale)
 // ----------------------------------------------------------------------------
 void drawSingleMangoTree(float x, float y, float scale)
 {
-    glColor3f(0.32f, 0.18f, 0.08f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - (10.0f * scale), y);
-        glVertex2f(x + (10.0f * scale), y);
-        glVertex2f(x + (6.0f * scale), y - (85.0f * scale));
-        glVertex2f(x - (6.0f * scale), y - (85.0f * scale));
-    glEnd();
-
     float topY = y - (85.0f * scale);
-    int segments = 20;
 
-    float clusters[4][3] = {
-        {x - (22.0f * scale), topY - (8.0f * scale),  32.0f * scale},
-        {x + (22.0f * scale), topY - (8.0f * scale),  32.0f * scale},
-        {x,                   topY - (36.0f * scale), 36.0f * scale},
-        {x,                   topY - (12.0f * scale), 32.0f * scale}
+    // Thick Textured Trunk with Bark Gradient Accent
+    drawBranchSegment(x, y, 22.0f * scale, x, topY, 12.0f * scale, 0.26f, 0.14f, 0.06f);
+    drawBranchSegment(x - 2.0f * scale, y, 4.0f * scale, x - 1.0f * scale, topY, 2.0f * scale, 0.36f, 0.22f, 0.10f); // Bark Highlight
+
+    // Spreading Branches
+    drawBranchSegment(x, topY + 25.0f * scale, 8.0f * scale, x - 28.0f * scale, topY - 5.0f * scale, 4.0f * scale, 0.24f, 0.12f, 0.05f);
+    drawBranchSegment(x, topY + 20.0f * scale, 8.0f * scale, x + 28.0f * scale, topY - 5.0f * scale, 4.0f * scale, 0.24f, 0.12f, 0.05f);
+
+    float clusters[5][3] = {
+        {x - (28.0f * scale), topY - (8.0f * scale),  35.0f * scale},
+        {x + (28.0f * scale), topY - (8.0f * scale),  35.0f * scale},
+        {x - (14.0f * scale), topY - (38.0f * scale), 38.0f * scale},
+        {x + (14.0f * scale), topY - (38.0f * scale), 38.0f * scale},
+        {x,                   topY - (20.0f * scale), 42.0f * scale}
     };
 
-    // Dark Dense Canopy Base
-    glColor3f(0.06f, 0.32f, 0.08f);
-    for (int c = 0; c < 4; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1]);
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
-                           clusters[c][1] + (clusters[c][2] * sin(angle)));
-            }
-        glEnd();
-    }
+    // Deep Dense Foliage Layers
+    for (int c = 0; c < 5; c++)
+        drawSmoothCircle(clusters[c][0], clusters[c][1], clusters[c][2], clusters[c][2] * 0.85f, 0.03f, 0.24f, 0.06f);
 
-    // Top Light Layer
-    glColor3f(0.15f, 0.52f, 0.12f);
-    for (int c = 0; c < 4; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1] + (2.0f * scale));
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + ((clusters[c][2] - 4.0f) * cos(angle)),
-                           clusters[c][1] + (2.0f * scale) + ((clusters[c][2] - 4.0f) * sin(angle)));
-            }
-        glEnd();
-    }
+    for (int c = 0; c < 5; c++)
+        drawSmoothCircle(clusters[c][0] + 3.0f * scale, clusters[c][1] - 3.0f * scale, clusters[c][2] * 0.82f, clusters[c][2] * 0.72f, 0.10f, 0.42f, 0.10f);
 
-    // Yellow Mangoes
-    float mangoes[5][2] = {
-        {x - 16.0f * scale, topY - 2.0f * scale},
-        {x - 6.0f  * scale, topY - 25.0f * scale},
-        {x + 14.0f * scale, topY - 10.0f * scale},
-        {x + 20.0f * scale, topY + 6.0f * scale},
-        {x + 2.0f  * scale, topY - 32.0f * scale}
+    for (int c = 0; c < 5; c++)
+        drawSmoothCircle(clusters[c][0] - 3.0f * scale, clusters[c][1] - 6.0f * scale, clusters[c][2] * 0.6f, clusters[c][2] * 0.5f, 0.22f, 0.58f, 0.16f);
+
+    // High-Detail Hanging Mangoes with Stem
+    float mangoes[6][2] = {
+        {x - 20.0f * scale, topY - 2.0f * scale},
+        {x - 8.0f  * scale, topY - 28.0f * scale},
+        {x + 18.0f * scale, topY - 12.0f * scale},
+        {x + 24.0f * scale, topY + 8.0f * scale},
+        {x + 4.0f  * scale, topY - 35.0f * scale},
+        {x - 30.0f * scale, topY + 5.0f * scale}
     };
 
-    for (int m = 0; m < 5; m++)
+    for (int m = 0; m < 6; m++)
     {
-        glColor3f(0.95f, 0.82f, 0.05f);
-        glBegin(GL_TRIANGLE_FAN);
+        // Mango Stem
+        glColor3f(0.2f, 0.15f, 0.05f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
             glVertex2f(mangoes[m][0], mangoes[m][1]);
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(mangoes[m][0] + (3.5f * scale * cos(angle)),
-                           mangoes[m][1] + (5.0f * scale * sin(angle)));
-            }
+            glVertex2f(mangoes[m][0], mangoes[m][1] - 4.0f * scale);
         glEnd();
+
+        // Mango Body (Realistic teardrop-ish gradient)
+        drawSmoothCircle(mangoes[m][0], mangoes[m][1] + 5.0f * scale, 3.8f * scale, 5.5f * scale, 0.95f, 0.75f, 0.0f);
+        drawSmoothCircle(mangoes[m][0] - 0.8f * scale, mangoes[m][1] + 4.2f * scale, 2.2f * scale, 3.5f * scale, 1.00f, 0.35f, 0.05f); // Blush Accent
     }
+    glLineWidth(1.0f);
 }
 
 // ----------------------------------------------------------------------------
-// 3. COCONUT TREE (Curved Trunk, Green Coconuts & Feathery Fronds)
+// 3. COCONUT TREE (Curved Trunk Leaning Left, Green Coconuts & Feathery Fronds)
 // ----------------------------------------------------------------------------
 void drawSingleCoconutTree(float startX, float startY, float height)
 {
-    glColor3f(0.42f, 0.28f, 0.14f);
-    int segments = 10;
+    int segments = 12;
     float currentX = startX;
     float currentY = startY;
     float segmentH = height / segments;
 
+    // Curved Trunk with Bark Ring Textures (Leaning Left)
     for (int i = 0; i < segments; i++)
     {
-        float nextX = currentX + (i * 0.8f);
+
+        float nextX = currentX - (i * .4f);
         float nextY = currentY - segmentH;
-        float w1 = 9.0f - (i * 0.4f);
-        float w2 = 9.0f - ((i + 1) * 0.4f);
+        float w1 = 11.0f - (i * 0.5f);
+        float w2 = 11.0f - ((i + 1) * 0.45f);
 
-        glBegin(GL_QUADS);
-            glVertex2f(currentX - w1, currentY);
-            glVertex2f(currentX + w1, currentY);
-            glVertex2f(nextX + w2, nextY);
-            glVertex2f(nextX - w2, nextY);
-        glEnd();
+        drawBranchSegment(currentX, currentY, w1 * 2.0f, nextX, nextY, w2 * 2.0f, 0.38f, 0.24f, 0.12f);
 
-        // Trunk Ring Details
-        glColor3f(0.28f, 0.16f, 0.08f);
-        glLineWidth(1.5f);
+        // Trunk Ring Detail Lines
+        glColor3f(0.22f, 0.12f, 0.05f);
+        glLineWidth(2.0f);
         glBegin(GL_LINES);
             glVertex2f(currentX - w1, currentY);
             glVertex2f(currentX + w1, currentY);
         glEnd();
 
-        glColor3f(0.42f, 0.28f, 0.14f);
         currentX = nextX;
         currentY = nextY;
     }
@@ -2658,45 +2649,41 @@ void drawSingleCoconutTree(float startX, float startY, float height)
     float topX = currentX;
     float topY = currentY;
 
-    // Green Coconuts
-    glColor3f(0.18f, 0.45f, 0.08f);
-    int circleSegs = 12;
-    float coconutCoords[3][2] = {
-        {topX - 4.0f, topY + 3.0f},
-        {topX + 4.0f, topY + 3.0f},
-        {topX,        topY + 6.0f}
+    // Natural Round Coconuts with Highlights
+    float coconutCoords[4][2] = {
+        {topX - 5.0f, topY + 2.0f},
+        {topX + 5.0f, topY + 2.0f},
+        {topX - 1.0f, topY + 6.0f},
+        {topX + 2.0f, topY - 2.0f}
     };
-    for (int c = 0; c < 3; c++)
+    for (int c = 0; c < 4; c++)
     {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(coconutCoords[c][0], coconutCoords[c][1]);
-            for (int i = 0; i <= circleSegs; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / circleSegs;
-                glVertex2f(coconutCoords[c][0] + (5.0f * cos(angle)),
-                           coconutCoords[c][1] + (5.0f * sin(angle)));
-            }
-        glEnd();
+        drawSmoothCircle(coconutCoords[c][0], coconutCoords[c][1], 5.5f, 6.0f, 0.15f, 0.38f, 0.05f);
+        drawSmoothCircle(coconutCoords[c][0] - 1.5f, coconutCoords[c][1] - 1.5f, 2.5f, 3.0f, 0.30f, 0.55f, 0.10f);
     }
 
-    // Feathery Leaves
-    glColor3f(0.10f, 0.55f, 0.12f);
-    glLineWidth(2.0f);
-    float leafAngles[] = { -160.0f, -120.0f, -70.0f, -20.0f, 20.0f, 70.0f, 120.0f, 160.0f };
+    // Organic Curved Feathery Leaves (Fronds)
+    float leafAngles[] = { -165.0f, -130.0f, -85.0f, -30.0f, 20.0f, 75.0f, 120.0f, 160.0f };
 
     for (int f = 0; f < 8; f++)
     {
-        float rad = leafAngles[f] * 3.14159f / 180.0f;
-        float leafLen = 60.0f;
+        float rad = leafAngles[f] * M_PI / 180.0f;
+        float leafLen = 65.0f;
         float endX = topX + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.15f);
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.18f);
 
+        // Main Spine
+        glColor3f(0.08f, 0.42f, 0.08f);
+        glLineWidth(2.5f);
         glBegin(GL_LINES);
             glVertex2f(topX, topY);
             glVertex2f(endX, endY);
         glEnd();
 
-        int leaflets = 12;
+        // Feathery Leaflets along the spine
+        int leaflets = 16;
+        glLineWidth(1.5f);
+        glColor3f(0.12f, 0.58f, 0.12f);
         for (int j = 1; j <= leaflets; j++)
         {
             float t = (float)j / leaflets;
@@ -2705,15 +2692,14 @@ void drawSingleCoconutTree(float startX, float startY, float height)
 
             glBegin(GL_LINES);
                 glVertex2f(lx, ly);
-                glVertex2f(lx - 5.0f, ly + 9.0f);
+                glVertex2f(lx - 7.0f * (1.0f - t * 0.3f), ly + 10.0f);
                 glVertex2f(lx, ly);
-                glVertex2f(lx + 5.0f, ly + 9.0f);
+                glVertex2f(lx + 7.0f * (1.0f - t * 0.3f), ly + 10.0f);
             glEnd();
         }
     }
     glLineWidth(1.0f);
 }
-
 // ----------------------------------------------------------------------------
 // 4. PALMYRA PALM TREE (Tal Gach - Tall Straight Trunk & Fan Fronds)
 // ----------------------------------------------------------------------------
@@ -2721,57 +2707,51 @@ void drawSinglePalmTree(float x, float y, float height)
 {
     float topY = y - height;
 
-    // Dark Straight Trunk
-    glColor3f(0.20f, 0.15f, 0.10f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - 7.0f, y);
-        glVertex2f(x + 7.0f, y);
-        glVertex2f(x + 4.5f, topY);
-        glVertex2f(x - 4.5f, topY);
-    glEnd();
+    // Dark Straight Trunk with Slight Taper
+    drawBranchSegment(x, y, 15.0f, x, topY, 9.0f, 0.18f, 0.13f, 0.08f);
 
-    // Trunk Rings
-    glColor3f(0.10f, 0.08f, 0.05f);
-    glLineWidth(1.5f);
-    for (float r = y - 10.0f; r > topY; r -= 12.0f)
+    // Textured Trunk Horizontal Ridges
+    glColor3f(0.08f, 0.05f, 0.03f);
+    glLineWidth(2.0f);
+    for (float r = y - 8.0f; r > topY; r -= 10.0f)
     {
         glBegin(GL_LINES);
-            glVertex2f(x - 6.0f, r);
-            glVertex2f(x + 6.0f, r);
+            glVertex2f(x - 7.0f + ((y - r) / height * 2.5f), r);
+            glVertex2f(x + 7.0f - ((y - r) / height * 2.5f), r);
         glEnd();
     }
 
-    // Black Palm Fruits (Tal)
-    glColor3f(0.08f, 0.08f, 0.08f);
-    int segs = 10;
-    float fruits[3][2] = {{x - 5.0f, topY + 4.0f}, {x + 5.0f, topY + 4.0f}, {x, topY + 8.0f}};
-    for (int k = 0; k < 3; k++)
+    // Black Palm Fruits (Tal) Clustered at top
+    float fruits[4][2] = {{x - 6.0f, topY + 4.0f}, {x + 6.0f, topY + 4.0f}, {x, topY + 8.0f}, {x, topY + 2.0f}};
+    for (int k = 0; k < 4; k++)
     {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(fruits[k][0], fruits[k][1]);
-            for (int i = 0; i <= segs; i++)
-            {
-                float a = i * 2.0f * 3.14159f / segs;
-                glVertex2f(fruits[k][0] + (4.0f * cos(a)), fruits[k][1] + (4.0f * sin(a)));
-            }
-        glEnd();
+        drawSmoothCircle(fruits[k][0], fruits[k][1], 4.5f, 4.5f, 0.05f, 0.05f, 0.05f);
+        drawSmoothCircle(fruits[k][0] - 1.0f, fruits[k][1] - 1.0f, 2.0f, 2.0f, 0.25f, 0.20f, 0.10f); // Calyx accent
     }
 
-    // Fan-shaped Leaf Crown
-    glColor3f(0.05f, 0.40f, 0.10f);
-    glLineWidth(2.0f);
-    int numFronds = 14;
+    // Dense Fan-shaped Leaf Crown
+    int numFronds = 16;
     for (int i = 0; i < numFronds; i++)
     {
-        float angle = (-170.0f + (i * 26.0f)) * 3.14159f / 180.0f;
-        float len = 42.0f;
+        float angle = (-175.0f + (i * 23.0f)) * M_PI / 180.0f;
+        float len = 46.0f;
         float ex = x + (len * cos(angle));
         float ey = topY - (len * sin(angle));
 
+        // Fan leaf blade
+        glColor3f(0.04f, 0.38f, 0.08f);
         glBegin(GL_TRIANGLES);
             glVertex2f(x, topY);
-            glVertex2f(ex - 6.0f * sin(angle), ey + 6.0f * cos(angle));
-            glVertex2f(ex + 6.0f * sin(angle), ey - 6.0f * cos(angle));
+            glVertex2f(ex - 7.0f * sin(angle), ey + 7.0f * cos(angle));
+            glVertex2f(ex + 7.0f * sin(angle), ey - 7.0f * cos(angle));
+        glEnd();
+
+        // Bright Leaf Edge Highlight
+        glColor3f(0.12f, 0.55f, 0.15f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            glVertex2f(x, topY);
+            glVertex2f(ex, ey);
         glEnd();
     }
     glLineWidth(1.0f);
@@ -2782,184 +2762,78 @@ void drawSinglePalmTree(float x, float y, float height)
 // ----------------------------------------------------------------------------
 void drawSingleBananaTree(float x, float y, float scale)
 {
-    // Green Soft Stem
-    glColor3f(0.40f, 0.68f, 0.18f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - (5.0f * scale), y);
-        glVertex2f(x + (5.0f * scale), y);
-        glVertex2f(x + (3.0f * scale), y - (55.0f * scale));
-        glVertex2f(x - (3.0f * scale), y - (55.0f * scale));
-    glEnd();
-
     float topY = y - (55.0f * scale);
-    float leafAngles[] = { -145.0f, -100.0f, -40.0f, 40.0f, 100.0f, 145.0f };
 
-    // Curved Drooping Broad Leaves
+    // Green Soft Layered Pseudostem
+    drawBranchSegment(x, y, 12.0f * scale, x, topY, 7.0f * scale, 0.35f, 0.62f, 0.15f);
+    drawBranchSegment(x - 1.0f * scale, y, 3.0f * scale, x - 0.5f * scale, topY, 2.0f * scale, 0.48f, 0.75f, 0.20f); // Soft Highlight
+
+    float leafAngles[] = { -150.0f, -105.0f, -45.0f, 45.0f, 105.0f, 150.0f };
+
+    // Broad Curved Arching Leaves with Natural Volume
     for (int i = 0; i < 6; i++)
     {
-        float rad = leafAngles[i] * 3.14159f / 180.0f;
-        float leafLen = 45.0f * scale;
+        float rad = leafAngles[i] * M_PI / 180.0f;
+        float leafLen = 50.0f * scale;
 
         float endX = x + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[i]) * 0.12f * scale);
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[i]) * 0.14f * scale);
 
         float midX = (x + endX) / 2.0f;
-        float midY = (topY + endY) / 2.0f - (8.0f * scale);
+        float midY = (topY + endY) / 2.0f - (10.0f * scale);
 
-        glColor3f(0.30f, 0.72f, 0.15f);
+        // Smooth Broad Leaf Body
+        glColor3f(0.25f, 0.68f, 0.12f);
         glBegin(GL_TRIANGLE_FAN);
             glVertex2f(x, topY);
-            glVertex2f(midX - (10.0f * scale * sin(rad)), midY + (10.0f * scale * cos(rad)));
+            glVertex2f(midX - (12.0f * scale * sin(rad)), midY + (12.0f * scale * cos(rad)));
             glVertex2f(endX, endY);
-            glVertex2f(midX + (10.0f * scale * sin(rad)), midY - (10.0f * scale * cos(rad)));
+            glVertex2f(midX + (12.0f * scale * sin(rad)), midY - (12.0f * scale * cos(rad)));
         glEnd();
 
-        // Rib
-        glColor3f(0.18f, 0.48f, 0.08f);
-        glLineWidth(2.0f);
+        // Distinct Central Leaf Midrib Line
+        glColor3f(0.15f, 0.42f, 0.06f);
+        glLineWidth(2.5f);
         glBegin(GL_LINES);
             glVertex2f(x, topY);
             glVertex2f(endX, endY);
         glEnd();
     }
 
-    // Hanging Yellow Bananas Stalk
-    glColor3f(0.70f, 0.82f, 0.10f);
-    glLineWidth(2.5f);
+    // Hanging Banana Comb Stalk
+    glColor3f(0.65f, 0.78f, 0.08f);
+    glLineWidth(3.0f);
     glBegin(GL_LINES);
         glVertex2f(x, topY);
-        glVertex2f(x, topY + (16.0f * scale));
+        glVertex2f(x, topY + (18.0f * scale));
     glEnd();
 
+    // Curved Yellow Bananas
     for (int b = 0; b < 3; b++)
     {
-        glBegin(GL_LINES);
-            glVertex2f(x - (4.0f * scale), topY + ((5.0f + b * 3.5f) * scale));
-            glVertex2f(x + (4.0f * scale), topY + ((5.0f + b * 3.5f) * scale));
-        glEnd();
+        float by = topY + ((6.0f + b * 3.5f) * scale);
+        drawSmoothCircle(x - 3.0f * scale, by, 4.0f * scale, 2.0f * scale, 0.88f, 0.82f, 0.05f);
+        drawSmoothCircle(x + 3.0f * scale, by, 4.0f * scale, 2.0f * scale, 0.88f, 0.82f, 0.05f);
     }
 
-    // Banana Flower Bud (Kolar Mocha)
-    glColor3f(0.48f, 0.05f, 0.15f);
-    glBegin(GL_TRIANGLES);
-        glVertex2f(x - (4.0f * scale), topY + (16.0f * scale));
-        glVertex2f(x + (4.0f * scale), topY + (16.0f * scale));
-        glVertex2f(x, topY + (28.0f * scale));
-    glEnd();
-
-    glLineWidth(1.0f);
-}
-
-// ----------------------------------------------------------------------------
-// 6. KRISHNACHURA TREE (Red Canopy)
-// ----------------------------------------------------------------------------
-void drawSingleKrishnachuraTree(float x, float y, float scale)
-{
-    glColor3f(0.35f, 0.20f, 0.10f);
-    glBegin(GL_POLYGON);
-        glVertex2f(x - (11.0f * scale), y);
-        glVertex2f(x + (11.0f * scale), y);
-        glVertex2f(x + (6.0f * scale), y - (75.0f * scale));
-        glVertex2f(x - (6.0f * scale), y - (75.0f * scale));
-    glEnd();
-
-    float topY = y - (75.0f * scale);
-
-    glLineWidth(2.5f);
-    glBegin(GL_LINES);
-        glVertex2f(x - 4.0f * scale, topY);
-        glVertex2f(x - 30.0f * scale, topY - 20.0f * scale);
-
-        glVertex2f(x + 4.0f * scale, topY);
-        glVertex2f(x + 30.0f * scale, topY - 20.0f * scale);
-    glEnd();
-
-    float clusters[5][3] = {
-        {x - (35.0f * scale), topY - (18.0f * scale), 22.0f * scale},
-        {x + (35.0f * scale), topY - (18.0f * scale), 22.0f * scale},
-        {x - (18.0f * scale), topY - (30.0f * scale), 26.0f * scale},
-        {x + (18.0f * scale), topY - (30.0f * scale), 26.0f * scale},
-        {x,                   topY - (40.0f * scale), 30.0f * scale}
-    };
-
-    int segments = 16;
-
-    // Green Foliage Underlayer
-    glColor3f(0.10f, 0.40f, 0.10f);
-    for (int c = 0; c < 5; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1]);
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + (clusters[c][2] * cos(angle)),
-                           clusters[c][1] + (clusters[c][2] * sin(angle)));
-            }
-        glEnd();
-    }
-
-    // Vibrant Red Petals
-    glColor3f(0.92f, 0.12f, 0.05f);
-    for (int c = 0; c < 5; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1] - (2.0f * scale));
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + ((clusters[c][2] - 3.0f) * cos(angle)),
-                           clusters[c][1] - (2.0f * scale) + ((clusters[c][2] - 3.0f) * sin(angle)));
-            }
-        glEnd();
-    }
-
-    // Orange Highlights
-    glColor3f(1.00f, 0.42f, 0.00f);
-    for (int c = 0; c < 5; c++)
-    {
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(clusters[c][0], clusters[c][1] - (4.0f * scale));
-            for (int i = 0; i <= segments; i++)
-            {
-                float angle = i * 2.0f * 3.14159f / segments;
-                glVertex2f(clusters[c][0] + ((clusters[c][2] - 9.0f) * cos(angle)),
-                           clusters[c][1] - (4.0f * scale) + ((clusters[c][2] - 9.0f) * sin(angle)));
-            }
-        glEnd();
-    }
+    // Banana Flower Bud (Kolar Mocha) with Smooth Curved Tip
+    drawSmoothCircle(x, topY + (22.0f * scale), 5.5f * scale, 7.5f * scale, 0.45f, 0.03f, 0.12f);
 
     glLineWidth(1.0f);
 }
 
 // ============================================================================
-// FUNCTION: drawRightSideForest
-// Description: Places ALL trees strictly on the RIGHT SIDE (X: 1160 to 1800)
-// Behind and around Shaheed Minar to cover the back boundary wall cleanly.
+// RIGHT SIDE FOREST (Single instance of each tree within 1600f screen limit)
 // ============================================================================
 void drawRightSideForest()
 {
-    // --- LAYER 1: Background Layer (Taller Trees right behind boundary wall) ---
-    // Ground Y = 460 (Matches the base of boundary wall)
-
-    drawSinglePalmTree(1200.0f, 460.0f, 130.0f);         // Tal Gach 1
-    drawSingleCoconutTree(1280.0f, 460.0f, 135.0f);      // Narkel Gach 1
-    drawSingleKrishnachuraTree(1370.0f, 460.0f, 0.95f);  // Krishnachura
-    drawSingleMangoTree(1470.0f, 460.0f, 0.90f);         // Mango Tree 1
-    drawSingleCoconutTree(1560.0f, 460.0f, 140.0f);      // Narkel Gach 2
-    drawSinglePalmTree(1650.0f, 460.0f, 130.0f);         // Tal Gach 2
-    drawSingleMangoTree(1730.0f, 460.0f, 0.88f);         // Mango Tree 2
-
-
-    // --- LAYER 2: Midground Layer (Filling spaces between Shaheed Minar & Wall) ---
-
-    drawSingleMangoTree(1230.0f, 465.0f, 0.82f);         // Mango Tree 3 (Multiple Mangoes)
-    drawSingleBananaTree(1320.0f, 468.0f, 0.85f);        // Kala Gach 1
-    drawSingleTree(1420.0f, 465.0f, 0.80f);              // Normal Leafy Tree 1
-    drawSingleBananaTree(1520.0f, 468.0f, 0.80f);        // Kala Gach 2
-    drawSingleTree(1610.0f, 465.0f, 0.82f);              // Normal Leafy Tree 2
+    // Ground Y = 460 ~ 465
+    drawSingleBananaTree(1190.0f, 480.0f, 0.85f);
+    drawSingleMangoTree(1450.0f, 475.0f, 0.85f);
+    drawSingleCoconutTree(1570.0f, 485.0f, 130.0f);
+    drawSinglePalmTree(1250.0f, 470.0f, 125.0f);
+    drawSingleTree(1350.0f, 465.0f, 0.80f);
 }
-
 //Decorative tree
 void drawSingleDecorativeTree(float x, float y, float scale)
 {
