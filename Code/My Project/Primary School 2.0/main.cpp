@@ -3645,59 +3645,169 @@ void drawNoticeBoard()
 
     glLineWidth(1.0f);
 }
-// 4. CLASSIC LAMP POSTS (Positioned symmetrically along boundary wall)
+// ============================================================================
+// HIGHLY DETAILED VINTAGE CLASSIC LAMP POSTS
+// Height Adjusted for Footpath Base Alignment (Y: 570.0f to 715.0f)
+// Features Cast-Iron Pedestal, Curved Lantern Bracket & Light Glow Effect
+// ============================================================================
+
 void drawLampPost()
 {
     float lampPositionsX[] = { 100.0f, 680.0f, 1010.0f, 1500.0f };
 
-    for(int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         float lx = lampPositionsX[i];
+        float groundY = 715.0f; // Footpath Base Line
 
-        // Metal Pole (Black Iron)
-        glColor3f(0.15f, 0.15f, 0.18f);
-        glLineWidth(3.5f);
-        glBegin(GL_LINES);
-            glVertex2f(lx, 600.0f);
-            glVertex2f(lx, 665.0f);
-        glEnd();
-
-        // Pole Base Pedestal
+        // --------------------------------------------------------------------
+        // 1. CAST-IRON PEDESTAL BASE (3D Tiered Foundation)
+        // --------------------------------------------------------------------
+        // Pedestal Shadow at Footpath
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.08f, 0.08f, 0.08f, 0.4f);
         glBegin(GL_QUADS);
-            glVertex2f(lx - 4.0f, 660.0f);
-            glVertex2f(lx + 4.0f, 660.0f);
-            glVertex2f(lx + 4.0f, 665.0f);
-            glVertex2f(lx - 4.0f, 665.0f);
+            glVertex2f(lx - 12.0f, groundY - 2.0f);
+            glVertex2f(lx + 12.0f, groundY - 2.0f);
+            glVertex2f(lx + 12.0f, groundY + 2.0f);
+            glVertex2f(lx - 12.0f, groundY + 2.0f);
+        glEnd();
+        glDisable(GL_BLEND);
+
+        // Tier 1 Base Plinth
+        glColor3f(0.12f, 0.12f, 0.14f);
+        glBegin(GL_QUADS);
+            glVertex2f(lx - 10.0f, groundY - 8.0f);
+            glVertex2f(lx + 10.0f, groundY - 8.0f);
+            glVertex2f(lx + 10.0f, groundY);
+            glVertex2f(lx - 10.0f, groundY);
         glEnd();
 
-        // Lamp Frame (3D Vintage Design)
-        glLineWidth(1.5f);
-        glBegin(GL_LINE_LOOP);
-            glVertex2f(lx - 7.0f, 588.0f);
-            glVertex2f(lx + 7.0f, 588.0f);
-            glVertex2f(lx + 5.0f, 600.0f);
-            glVertex2f(lx - 5.0f, 600.0f);
-        glEnd();
-
-        // Glowing Light Bulb (Warm Yellow Glow)
-        glColor3f(1.0f, 0.88f, 0.30f);
+        // Tier 2 Beveled Mid Base
+        glColor3f(0.18f, 0.18f, 0.22f);
         glBegin(GL_POLYGON);
-            glVertex2f(lx - 5.0f, 589.0f);
-            glVertex2f(lx + 5.0f, 589.0f);
-            glVertex2f(lx + 4.0f, 599.0f);
-            glVertex2f(lx - 4.0f, 599.0f);
+            glVertex2f(lx - 8.0f, groundY - 18.0f);
+            glVertex2f(lx + 8.0f, groundY - 18.0f);
+            glVertex2f(lx + 10.0f, groundY - 8.0f);
+            glVertex2f(lx - 10.0f, groundY - 8.0f);
         glEnd();
 
-        // Lamp Top Cap
+        // Base Decorative Ring Collar
+        glColor3f(0.25f, 0.25f, 0.30f);
+        glBegin(GL_QUADS);
+            glVertex2f(lx - 6.0f, groundY - 22.0f);
+            glVertex2f(lx + 6.0f, groundY - 22.0f);
+            glVertex2f(lx + 6.0f, groundY - 18.0f);
+            glVertex2f(lx - 6.0f, groundY - 22.0f);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // 2. MAIN METALLIC TAPERED SHAFT & RING RIBS
+        // --------------------------------------------------------------------
+        // Main Black Iron Pole Body
         glColor3f(0.15f, 0.15f, 0.18f);
+        glBegin(GL_QUADS);
+            glVertex2f(lx - 3.5f, 592.0f);
+            glVertex2f(lx + 3.5f, 592.0f);
+            glVertex2f(lx + 5.0f, groundY - 22.0f);
+            glVertex2f(lx - 5.0f, groundY - 22.0f);
+        glEnd();
+
+        // Pole Highlighting Specular Line (3D Cylindrical Reflection)
+        glColor3f(0.35f, 0.35f, 0.40f);
+        glLineWidth(1.2f);
+        glBegin(GL_LINES);
+            glVertex2f(lx - 1.5f, 592.0f);
+            glVertex2f(lx - 2.0f, groundY - 22.0f);
+        glEnd();
+
+        // Decorative Middle Ring Ribs
+        glColor3f(0.28f, 0.28f, 0.32f);
+        glBegin(GL_QUADS);
+            glVertex2f(lx - 5.5f, 645.0f);
+            glVertex2f(lx + 5.5f, 645.0f);
+            glVertex2f(lx + 5.5f, 649.0f);
+            glVertex2f(lx - 5.5f, 649.0f);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // 3. CURVED LANTERN HOLDER BRACKETS
+        // --------------------------------------------------------------------
+        glColor3f(0.12f, 0.12f, 0.14f);
+        glLineWidth(2.5f);
+        glBegin(GL_LINES);
+            // Left Bracket
+            glVertex2f(lx, 595.0f);
+            glVertex2f(lx - 9.0f, 590.0f);
+
+            // Right Bracket
+            glVertex2f(lx, 595.0f);
+            glVertex2f(lx + 9.0f, 590.0f);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // 4. SOFT RADIAL LIGHT GLOW / AURA (Translucent)
+        // --------------------------------------------------------------------
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(1.0f, 0.88f, 0.35f, 0.15f); // Soft Warm Yellow Aura
+        glBegin(GL_POLYGON);
+            glVertex2f(lx - 22.0f, 565.0f);
+            glVertex2f(lx + 22.0f, 565.0f);
+            glVertex2f(lx + 35.0f, 615.0f);
+            glVertex2f(lx - 35.0f, 615.0f);
+        glEnd();
+        glDisable(GL_BLEND);
+
+        // --------------------------------------------------------------------
+        // 5. GLOWING LANTERN HOUSING & GLASS PANELS
+        // --------------------------------------------------------------------
+        // Warm Yellow Glowing Core Bulb
+        glColor3f(1.0f, 0.90f, 0.40f);
+        glBegin(GL_QUADS);
+            glVertex2f(lx - 6.0f, 572.0f);
+            glVertex2f(lx + 6.0f, 572.0f);
+            glVertex2f(lx + 4.0f, 588.0f);
+            glVertex2f(lx - 4.0f, 588.0f);
+        glEnd();
+
+        // Outer Lantern Vintage Frame (Black Iron Outline)
+        glColor3f(0.10f, 0.10f, 0.12f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(lx - 8.0f, 570.0f);
+            glVertex2f(lx + 8.0f, 570.0f);
+            glVertex2f(lx + 5.0f, 590.0f);
+            glVertex2f(lx - 5.0f, 590.0f);
+        glEnd();
+
+        // Vertical Glass Pane Dividers
+        glLineWidth(1.0f);
+        glBegin(GL_LINES);
+            glVertex2f(lx, 570.0f);
+            glVertex2f(lx, 590.0f);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // 6. LANTERN TOP CAP & FINIAL
+        // --------------------------------------------------------------------
+        // Roof Cap
+        glColor3f(0.18f, 0.18f, 0.20f);
         glBegin(GL_TRIANGLES);
-            glVertex2f(lx - 9.0f, 588.0f);
-            glVertex2f(lx + 9.0f, 588.0f);
-            glVertex2f(lx, 580.0f);
+            glVertex2f(lx - 10.0f, 570.0f);
+            glVertex2f(lx + 10.0f, 570.0f);
+            glVertex2f(lx, 560.0f);
+        glEnd();
+
+        // Top Decorative Finial Tip
+        glBegin(GL_TRIANGLES);
+            glVertex2f(lx - 2.0f, 560.0f);
+            glVertex2f(lx + 2.0f, 560.0f);
+            glVertex2f(lx, 553.0f);
         glEnd();
     }
     glLineWidth(1.0f);
 }
-
 // 5. WOODEN PARK BENCH (Left side near Wall at X: 220 to 280)
 void drawBench()
 {
