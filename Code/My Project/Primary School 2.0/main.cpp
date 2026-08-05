@@ -4535,8 +4535,8 @@ void drawRoad()
     glBegin(GL_QUADS);
         glVertex2f(0.0f, 730.0f);
         glVertex2f(1600.0f, 730.0f);
-        glVertex2f(1600.0f, 860.0f);
-        glVertex2f(0.0f, 860.0f);
+        glVertex2f(1600.0f, 900.0f);
+        glVertex2f(0.0f, 900.0f);
     glEnd();
 
     // Road Texture / Walkway Shadow Overlay (Under Walkway Platform Edge)
@@ -4568,20 +4568,29 @@ void drawRoad()
 }
 
 // ----------------------------------------------------------------------------
-// 2. ROAD DIVIDER & REFLECTOR STUDS
+// 1. ROAD DIVIDER & REFLECTOR STUDS (Centered at Y = 815.0f)
 // ----------------------------------------------------------------------------
 void drawRoadDivider()
 {
-    float midY = 795.0f;
-    float dashWidth = 50.0f;
-    float gapWidth = 30.0f;
+    float midY = 815.0f;        // Vertical exact center of the road surface (730 to 900)
+    float dashWidth = 45.0f;
+    float gapWidth = 35.0f;
 
-    // Dashed Center Marking Line Across Road
+    // Boundaries to skip drawing divider lines (Speed Breaker & Zebra Crossing areas)
+    float speedBreakerStart = 480.0f;
+    float speedBreakerEnd   = 580.0f;
+    float zebraStart        = 680.0f;
+    float zebraEnd          = 980.0f;
+
     for (float x = 0.0f; x < 1600.0f; x += (dashWidth + gapWidth)) {
-        // Skip Zebra Crossing Region (X: 670 to 930)
-        if (x + dashWidth > 670.0f && x < 930.0f) continue;
 
-        // White Center Line Stripe
+        // Skip divider inside Speed Breaker or Zebra Crossing zone
+        if ((x + dashWidth > speedBreakerStart && x < speedBreakerEnd) ||
+            (x + dashWidth > zebraStart && x < zebraEnd)) {
+            continue;
+        }
+
+        // White Center Line Dash Stripe
         glColor3f(0.92f, 0.92f, 0.95f);
         glBegin(GL_QUADS);
             glVertex2f(x, midY - 2.5f);
@@ -4591,104 +4600,205 @@ void drawRoadDivider()
         glEnd();
 
         // 3D Amber Cat's Eye Reflector Studs
-        glColor3f(0.95f, 0.70f, 0.10f);
+        float catEyeX = x + dashWidth + (gapWidth / 2.0f) - 3.0f;
+
+        if ((catEyeX >= speedBreakerStart - 10.0f && catEyeX <= speedBreakerEnd + 10.0f) ||
+            (catEyeX >= zebraStart - 10.0f && catEyeX <= zebraEnd + 10.0f) ||
+            (catEyeX + 6.0f > 1600.0f)) continue;
+
+        glColor3f(0.98f, 0.72f, 0.08f); // High-vis Amber
         glBegin(GL_QUADS);
-            glVertex2f(x + dashWidth + 12.0f, midY - 3.5f);
-            glVertex2f(x + dashWidth + 18.0f, midY - 3.5f);
-            glVertex2f(x + dashWidth + 18.0f, midY + 3.5f);
-            glVertex2f(x + dashWidth + 12.0f, midY + 3.5f);
+            glVertex2f(catEyeX, midY - 3.5f);
+            glVertex2f(catEyeX + 6.0f, midY - 3.5f);
+            glVertex2f(catEyeX + 6.0f, midY + 3.5f);
+            glVertex2f(catEyeX, midY + 3.5f);
         glEnd();
     }
 }
 
 // ----------------------------------------------------------------------------
-// 3. ZEBRA CROSSING (Aligned Right in Front of Gate X: 700 to 900)
+// 2. REALISTIC PERSPECTIVE ZEBRA CROSSING (Weathered Paint, Depth & Shadows)
 // ----------------------------------------------------------------------------
 void drawZebraCrossing()
 {
-    float startX = 700.0f;
-    float endX = 900.0f;
-    float stripeWidth = 22.0f;
-    float gap = 16.0f;
+    float topY = 730.0f;      // Top road edge (near sidewalk)
+    float bottomY = 900.0f;   // Bottom road edge
 
-    for (float x = startX; x < endX; x += (stripeWidth + gap)) {
-        // Solid White Paint Bar
-        glColor3f(0.92f, 0.94f, 0.96f);
+    // Top X coordinates (aligned at gate entrance)
+    float topStartX = 720.0f;
+    float topEndX   = 880.0f;
+
+    // Bottom X coordinates with perspective spread
+    float bottomStartX = 620.0f;
+    float bottomEndX   = 980.0f;
+
+    int numStripes = 7;
+    float topStripeW = (topEndX - topStartX) / (numStripes * 2 - 1);
+    float bottomStripeW = (bottomEndX - bottomStartX) / (numStripes * 2 - 1);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    for (int i = 0; i < numStripes; i++) {
+        float tX1 = topStartX + i * 2 * topStripeW;
+        float tX2 = tX1 + topStripeW;
+
+        float bX1 = bottomStartX + i * 2 * bottomStripeW;
+        float bX2 = bX1 + bottomStripeW;
+
+        // 1. Soft Paint Shadow Base (Gives a slight raised/painted thickness look)
+        glColor4f(0.0f, 0.0f, 0.0f, 0.25f);
         glBegin(GL_QUADS);
-            glVertex2f(x, 732.0f);
-            glVertex2f(x + stripeWidth, 732.0f);
-            glVertex2f(x + stripeWidth, 858.0f);
-            glVertex2f(x, 858.0f);
+            glVertex2f(tX1 - 2.0f, topY);
+            glVertex2f(tX2 + 2.0f, topY);
+            glVertex2f(bX2 + 4.0f, bottomY);
+            glVertex2f(bX1 - 4.0f, bottomY);
         glEnd();
 
-        // Subtle Edge Shadow for Painted Layer Realism
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(0.0f, 0.0f, 0.0f, 0.18f);
+        // 2. Main White Stripe with Perspective Vertical Gradient
+        // Top is slightly darker (distance fade), Bottom is brighter & clearer
         glBegin(GL_QUADS);
-            glVertex2f(x + stripeWidth - 3.0f, 732.0f);
-            glVertex2f(x + stripeWidth, 732.0f);
-            glVertex2f(x + stripeWidth, 858.0f);
-            glVertex2f(x + stripeWidth - 3.0f, 858.0f);
+            // Top Left (Distance)
+            glColor4f(0.88f, 0.89f, 0.90f, 0.92f);
+            glVertex2f(tX1, topY);
+
+            // Top Right (Distance)
+            glColor4f(0.88f, 0.89f, 0.90f, 0.92f);
+            glVertex2f(tX2, topY);
+
+            // Bottom Right (Foreground - Brighter)
+            glColor4f(0.96f, 0.96f, 0.98f, 0.98f);
+            glVertex2f(bX2, bottomY);
+
+            // Bottom Left (Foreground)
+            glColor4f(0.96f, 0.96f, 0.98f, 0.98f);
+            glVertex2f(bX1, bottomY);
         glEnd();
-        glDisable(GL_BLEND);
+
+        // 3. Inner Center Wear/Tire Line (Simulates natural road wear from tires)
+        float midTX = (tX1 + tX2) * 0.5f;
+        float midBX = (bX1 + bX2) * 0.5f;
+
+        glColor4f(0.80f, 0.80f, 0.82f, 0.35f);
+        glBegin(GL_QUADS);
+            glVertex2f(midTX - 3.0f, topY);
+            glVertex2f(midTX + 3.0f, topY);
+            glVertex2f(midBX + 5.0f, bottomY);
+            glVertex2f(midBX - 5.0f, bottomY);
+        glEnd();
+
+        // 4. Edge Highlight (Right Side bevel for 3D realism)
+        glColor4f(1.0f, 1.0f, 1.0f, 0.40f);
+        glBegin(GL_LINES);
+            glVertex2f(tX2, topY);
+            glVertex2f(bX2, bottomY);
+        glEnd();
     }
-}
 
+    glDisable(GL_BLEND);
+}
 // ----------------------------------------------------------------------------
-// 4. SPEED BREAKER WITH HAZARD STRIPES & 3D BUMP SHADING
+// 3. REALISTIC 3D SPEED BREAKER (Aligned Angle with Zebra Crossing Perspective)
 // ----------------------------------------------------------------------------
 void drawSpeedBreaker()
 {
-    float bx = 420.0f; // Positioned before zebra crossing
-    float width = 36.0f;
+    // Adjusted Coordinates to match EXACT slope of the Zebra Crossing:
+    // Top-to-Bottom Shift = 100px (Top Slope centered around 540f, Bottom Slope shifted left to 440f)
+    float topX1 = 530.0f, topX2 = 555.0f, topY = 730.0f;
+    float botX1 = 430.0f, botX2 = 455.0f, botY = 900.0f;
 
-    // Drop Shadow under Speed Hump
+    // 1. Soft Outer Asphalt Shadow
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0.0f, 0.0f, 0.0f, 0.35f);
     glBegin(GL_QUADS);
-        glVertex2f(bx - 4.0f, 730.0f);
-        glVertex2f(bx + width + 4.0f, 730.0f);
-        glVertex2f(bx + width + 4.0f, 860.0f);
-        glVertex2f(bx - 4.0f, 860.0f);
+        glVertex2f(topX1 - 8.0f, topY);
+        glVertex2f(topX2 + 8.0f, topY);
+        glVertex2f(botX2 + 10.0f, botY);
+        glVertex2f(botX1 - 10.0f, botY);
     glEnd();
     glDisable(GL_BLEND);
 
-    // Speed Hump Base
-    glColor3f(0.32f, 0.32f, 0.35f);
+    // 2. Base Dark Bump Body (Asphalt Base)
+    glColor3f(0.15f, 0.15f, 0.17f);
     glBegin(GL_QUADS);
-        glVertex2f(bx, 730.0f);
-        glVertex2f(bx + width, 730.0f);
-        glVertex2f(bx + width, 860.0f);
-        glVertex2f(bx, 860.0f);
+        glVertex2f(topX1 - 2.0f, topY);
+        glVertex2f(topX2 + 2.0f, topY);
+        glVertex2f(botX2 + 2.0f, botY);
+        glVertex2f(botX1 - 2.0f, botY);
     glEnd();
 
-    // Yellow and Black Diagonal Hazard Marking
-    float stripeH = 16.0f;
-    for (float y = 730.0f; y < 860.0f; y += stripeH) {
-        glColor3f(0.95f, 0.80f, 0.10f); // Bright Safety Yellow
-        glBegin(GL_POLYGON);
-            glVertex2f(bx + 3.0f, y);
-            glVertex2f(bx + width - 3.0f, y + 6.0f);
-            glVertex2f(bx + width - 3.0f, y + 12.0f);
-            glVertex2f(bx + 3.0f, y + 6.0f);
+    // 3. Alternating Yellow & White High-Vis Caution Segments with Slanted Slope
+    int numSegments = 10;
+    for (int i = 0; i < numSegments; i++) {
+        float t1 = (float)i / numSegments;
+        float t2 = (float)(i + 1) / numSegments;
+
+        // Perspective Interpolation
+        float pX1 = topX1 + t1 * (botX1 - topX1);
+        float pX2 = topX2 + t1 * (botX2 - topX2);
+        float pY1 = topY + t1 * (botY - topY);
+
+        float nX1 = topX1 + t2 * (botX1 - topX1);
+        float nX2 = topX2 + t2 * (botX2 - topX2);
+        float nY2 = topY + t2 * (botY - topY);
+
+        // Center ridge for 3D curved effect
+        float midPX = (pX1 + pX2) * 0.5f;
+        float midNX = (nX1 + nX2) * 0.5f;
+
+        // Colors (Yellow & White)
+        float r = (i % 2 == 0) ? 0.98f : 0.92f;
+        float g = (i % 2 == 0) ? 0.78f : 0.92f;
+        float b = (i % 2 == 0) ? 0.05f : 0.92f;
+
+        // Left Slope (Ramp Up)
+        glBegin(GL_QUADS);
+            glColor3f(r * 0.75f, g * 0.75f, b * 0.75f);
+            glVertex2f(pX1, pY1);
+
+            glColor3f(r * 1.1f > 1.0f ? 1.0f : r * 1.1f,
+                      g * 1.1f > 1.0f ? 1.0f : g * 1.1f,
+                      b * 1.1f > 1.0f ? 1.0f : b * 1.1f);
+            glVertex2f(midPX, pY1);
+            glVertex2f(midNX, nY2);
+
+            glColor3f(r * 0.75f, g * 0.75f, b * 0.75f);
+            glVertex2f(nX1, nY2);
+        glEnd();
+
+        // Right Slope (Ramp Down)
+        glBegin(GL_QUADS);
+            glColor3f(r * 1.1f > 1.0f ? 1.0f : r * 1.1f,
+                      g * 1.1f > 1.0f ? 1.0f : g * 1.1f,
+                      b * 1.1f > 1.0f ? 1.0f : b * 1.1f);
+            glVertex2f(midPX, pY1);
+
+            glColor3f(r * 0.60f, g * 0.60f, b * 0.60f);
+            glVertex2f(pX2, pY1);
+            glVertex2f(nX2, nY2);
+
+            glColor3f(r * 1.1f > 1.0f ? 1.0f : r * 1.1f,
+                      g * 1.1f > 1.0f ? 1.0f : g * 1.1f,
+                      b * 1.1f > 1.0f ? 1.0f : b * 1.1f);
+            glVertex2f(midNX, nY2);
         glEnd();
     }
 
-    // 3D Specular Curve Highlight Across Bump Center
+    // 4. Center Specular Light Reflection
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.22f);
-    glBegin(GL_QUADS);
-        glVertex2f(bx + 12.0f, 730.0f);
-        glVertex2f(bx + 20.0f, 730.0f);
-        glVertex2f(bx + 20.0f, 860.0f);
-        glVertex2f(bx + 12.0f, 860.0f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        glColor4f(1.0f, 1.0f, 1.0f, 0.65f);
+        glVertex2f((topX1 + topX2) * 0.5f, topY);
+
+        glColor4f(1.0f, 1.0f, 1.0f, 0.85f);
+        glVertex2f((botX1 + botX2) * 0.5f, botY);
     glEnd();
+    glLineWidth(1.0f);
     glDisable(GL_BLEND);
 }
-
 // ============================================================================
 // 5. TRAFFIC SIGN BOARD (Speed Hump Warning Sign - Moved Near Gate & Enhanced)
 // ============================================================================
