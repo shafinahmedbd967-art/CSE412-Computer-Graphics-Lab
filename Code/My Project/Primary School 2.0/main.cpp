@@ -5026,35 +5026,34 @@ void drawBusCircle(float cx, float cy, float r, int num_segments) {
     glEnd();
 }
 
-// Timer Function with Speed Breaker Physics
+// Timer Function with Speed Breaker Physics & Fixed X-Axis Boundary (1600f Screen)
 void schoolBusTimer(int value) {
     float currentSpeed = 1.6f; // Slow, natural school bus speed
 
-    // Rear wheel hits speed breaker when schoolBusX reaches around 480.0f
+    // Rear wheel hits speed breaker when schoolBusX reaches around 485.0f
     float rearWheelOnBreakerX = 485.0f;
 
-    // 1. Front Wheel Bump (Halkka Jhaki)
+    // 1. Front Wheel Bump (Light Bounce)
     if (schoolBusX >= 340.0f && schoolBusX < 380.0f) {
         float frontBump = (schoolBusX - 340.0f) / 40.0f;
-        schoolBusY_Offset = -sinf(frontBump * 3.14159f) * 3.5f; // Light bounce
+        schoolBusY_Offset = -sinf(frontBump * 3.14159f) * 3.5f;
     }
-    // 2. STOP EXACTLY WHEN 2ND (REAR) WHEEL IS ON SPEED BREAKER
+    // 2. STOP EXACTLY WHEN REAR WHEEL IS ON SPEED BREAKER
     else if (schoolBusX >= rearWheelOnBreakerX - 10.0f && schoolBusX <= rearWheelOnBreakerX + 15.0f && !isBusPaused) {
         if (busPauseCounter < 25) { // Stop for ~0.4s
             currentSpeed = 0.0f;    // FULL STOP
             busPauseCounter++;
-            schoolBusY_Offset = -7.0f; // Big height jump (Rear wheel on top of bump)
+            schoolBusY_Offset = -7.0f; // Height jump on bump
         } else {
             isBusPaused = true;     // Resume driving
             currentSpeed = 1.0f;
         }
     }
-    // 3. Coming Down to Straight Road (Soja Rastay Jhaki Effect)
+    // 3. Coming Down to Straight Road (Settle Bounce)
     else if (schoolBusX > rearWheelOnBreakerX + 15.0f && schoolBusX <= rearWheelOnBreakerX + 80.0f) {
         currentSpeed = 1.2f;
         float settleProgress = (schoolBusX - (rearWheelOnBreakerX + 15.0f)) / 65.0f;
 
-        // Downward bounce effect while landing back on straight road
         schoolBusY_Offset = -sinf(settleProgress * 3.14159f) * 5.0f + sinf(settleProgress * 6.28318f) * 1.5f;
     }
     else {
@@ -5068,8 +5067,9 @@ void schoolBusTimer(int value) {
         schoolBusWheelAngle -= currentSpeed * 4.0f;
     }
 
-    // Reset Off-screen Loop
-    if (schoolBusX > 1300.0f) {
+    // FIXED: Reset only AFTER the entire bus completely crosses 1600f screen width
+    // Bus length is ~212 units, so 1850.0f ensures it smoothly leaves the visible area
+    if (schoolBusX > 1850.0f) {
         schoolBusX = -350.0f;
         isBusPaused = false;
         busPauseCounter = 0;
@@ -5079,7 +5079,6 @@ void schoolBusTimer(int value) {
     glutPostRedisplay();
     glutTimerFunc(16, schoolBusTimer, 0);
 }
-
 // ---------------------------------------------------------
 // BUS INTERIOR: STUDENTS & DRIVER (DETAILED)
 // ---------------------------------------------------------
@@ -5329,7 +5328,7 @@ void internalTrafficTimer(int value) {
 
     // Reset Bus Position
     if (busX < -350.0f) {
-        busX = 1300.0f;
+        busX = 1700.0f;
     }
 
     // 2. CNG Movement Update (Synchronized with Bus speed and same relative logic)
