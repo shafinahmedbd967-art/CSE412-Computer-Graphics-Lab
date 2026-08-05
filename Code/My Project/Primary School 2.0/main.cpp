@@ -22,6 +22,7 @@
 #include <cmath>
 
 bool isPassingActive = true;
+bool isGateOpen = false;
 /* ==========================================================
    WINDOW CONSTANTS
    ========================================================== */
@@ -364,21 +365,28 @@ void keyboard(unsigned char key, int x, int y)
     switch (key)
     {
     case 'p':
-        case 'P':
-            isPassingActive = !isPassingActive;
-            break;
+    case 'P':
+        isPassingActive = !isPassingActive;
+        break;
+
+    case 'g':
+    case 'G':
+        isGateOpen = !isGateOpen; // Gate Open/Close toggle
+        break;
+
     case 27: // ESC key
         exit(0);
         break;
+
     case ' ': // Spacebar toggles animation
         isAnimating = !isAnimating;
         break;
+
     default:
         break;
     }
     glutPostRedisplay();
 }
-
 /* ==========================================================
    SPECIAL KEYS FUNCTION (arrow keys, reserved for future use)
    ========================================================== */
@@ -4090,7 +4098,7 @@ void drawSwing()
 {
     // Frame Timing & Animation Logic
     static float angleTime = 0.0f;
-    angleTime += 0.04f; // Speed of swing oscillation
+    angleTime += 0.02f; // Speed of swing oscillation
 
     // Updated Positioning & 0.60 Scale Parameters
     float centerX = 145.0f;     // Center X position
@@ -4732,6 +4740,48 @@ void drawBoundaryWall()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------------
+// GLOBAL VARIABLES FOR GATE
+// ----------------------------------------------------------------------------
+float gateOpenFactor = 0.0f;   
+
+// ----------------------------------------------------------------------------
+// UPDATE ANIMATION FUNCTION
+// ----------------------------------------------------------------------------
+void updateGateAnimation()
+{
+    float speed = 0.02f;
+
+    if (isGateOpen && gateOpenFactor < 1.0f)
+    {
+        gateOpenFactor += speed;
+        if (gateOpenFactor > 1.0f) gateOpenFactor = 1.0f;
+    }
+    else if (!isGateOpen && gateOpenFactor > 0.0f)
+    {
+        gateOpenFactor -= speed;
+        if (gateOpenFactor < 0.0f) gateOpenFactor = 0.0f;
+    }
+
+    glutPostRedisplay();
+}
+
 // ============================================================================
 // HIGHLY DETAILED MAIN ENTRANCE GATE & PILLARS
 // Perfectly Matched with Boundaries (Y: 615 to 715) with 3D Concrete & Iron Work
@@ -4739,8 +4789,10 @@ void drawBoundaryWall()
 
 void drawGate()
 {
-    float pY1 = 615.0f; // Pillar Top (Slightly taller than wall at 635)
-    float pY2 = 715.0f; // Pillar Bottom (Aligned with wall base)
+    updateGateAnimation();
+
+    float pY1 = 615.0f; // Pillar Top
+    float pY2 = 715.0f; // Pillar Bottom
 
     float leftPillLeft = 715.0f;
     float leftPillRight = 750.0f;
@@ -4748,10 +4800,9 @@ void drawGate()
     float rightPillRight = 885.0f;
 
     // ------------------------------------------------------------------------
-    // 1. LEFT GATE PILLAR (Concrete Pillar with 3D Depth & Moldings)
+    // 1. LEFT GATE PILLAR
     // ------------------------------------------------------------------------
-    // Base Pillar Body
-    glColor3f(0.76f, 0.76f, 0.74f); // Matched Concrete Grey
+    glColor3f(0.76f, 0.76f, 0.74f);
     glBegin(GL_QUADS);
         glVertex2f(leftPillLeft, pY1);
         glVertex2f(leftPillRight, pY1);
@@ -4759,7 +4810,6 @@ void drawGate()
         glVertex2f(leftPillLeft, pY2);
     glEnd();
 
-    // 3D Right Side Shadow Band
     glColor3f(0.60f, 0.60f, 0.58f);
     glBegin(GL_QUADS);
         glVertex2f(leftPillRight - 6.0f, pY1);
@@ -4768,7 +4818,6 @@ void drawGate()
         glVertex2f(leftPillRight - 6.0f, pY2);
     glEnd();
 
-    // Horizontal Pillar Decorative Grooves
     glColor3f(0.50f, 0.50f, 0.48f);
     glLineWidth(1.5f);
     glBegin(GL_LINES);
@@ -4776,16 +4825,13 @@ void drawGate()
         glVertex2f(leftPillLeft, pY1 + 60.0f); glVertex2f(leftPillRight, pY1 + 60.0f);
     glEnd();
 
-    // Pyramid Pillar Top Cap (Double Layer Concrete Slab)
-    glColor3f(0.85f, 0.85f, 0.83f); // Light Top Highlight
+    glColor3f(0.85f, 0.85f, 0.83f);
     glBegin(GL_QUADS);
-        // Base Cap Layer
         glVertex2f(leftPillLeft - 4.0f, pY1 - 6.0f);
         glVertex2f(leftPillRight + 4.0f, pY1 - 6.0f);
         glVertex2f(leftPillRight + 4.0f, pY1);
         glVertex2f(leftPillLeft - 4.0f, pY1);
 
-        // Pyramid Slanted Roof Cap
         glVertex2f(leftPillLeft - 1.0f, pY1 - 14.0f);
         glVertex2f(leftPillRight + 1.0f, pY1 - 14.0f);
         glVertex2f(leftPillRight + 4.0f, pY1 - 6.0f);
@@ -4793,9 +4839,8 @@ void drawGate()
     glEnd();
 
     // ------------------------------------------------------------------------
-    // 2. RIGHT GATE PILLAR (Symmetrical Concrete Pillar)
+    // 2. RIGHT GATE PILLAR
     // ------------------------------------------------------------------------
-    // Base Pillar Body
     glColor3f(0.76f, 0.76f, 0.74f);
     glBegin(GL_QUADS);
         glVertex2f(rightPillLeft, pY1);
@@ -4804,7 +4849,6 @@ void drawGate()
         glVertex2f(rightPillLeft, pY2);
     glEnd();
 
-    // 3D Left Side Highlight Band
     glColor3f(0.84f, 0.84f, 0.82f);
     glBegin(GL_QUADS);
         glVertex2f(rightPillLeft, pY1);
@@ -4813,7 +4857,6 @@ void drawGate()
         glVertex2f(rightPillLeft, pY2);
     glEnd();
 
-    // Horizontal Pillar Decorative Grooves
     glColor3f(0.50f, 0.50f, 0.48f);
     glLineWidth(1.5f);
     glBegin(GL_LINES);
@@ -4821,16 +4864,13 @@ void drawGate()
         glVertex2f(rightPillLeft, pY1 + 60.0f); glVertex2f(rightPillRight, pY1 + 60.0f);
     glEnd();
 
-    // Pyramid Pillar Top Cap
     glColor3f(0.85f, 0.85f, 0.83f);
     glBegin(GL_QUADS);
-        // Base Cap Layer
         glVertex2f(rightPillLeft - 4.0f, pY1 - 6.0f);
         glVertex2f(rightPillRight + 4.0f, pY1 - 6.0f);
         glVertex2f(rightPillRight + 4.0f, pY1);
         glVertex2f(rightPillLeft - 4.0f, pY1);
 
-        // Pyramid Slanted Roof Cap
         glVertex2f(rightPillLeft - 1.0f, pY1 - 14.0f);
         glVertex2f(rightPillRight + 1.0f, pY1 - 14.0f);
         glVertex2f(rightPillRight + 4.0f, pY1 - 6.0f);
@@ -4840,16 +4880,14 @@ void drawGate()
     // ------------------------------------------------------------------------
     // 3. PILLAR HINGES & ATTACHMENTS
     // ------------------------------------------------------------------------
-    glColor3f(0.20f, 0.20f, 0.22f); // Black Metal Hinges
+    glColor3f(0.20f, 0.20f, 0.22f);
     glBegin(GL_QUADS);
-        // Left Hinges
         glVertex2f(leftPillRight, pY1 + 25.0f); glVertex2f(leftPillRight + 4.0f, pY1 + 25.0f);
         glVertex2f(leftPillRight + 4.0f, pY1 + 33.0f); glVertex2f(leftPillRight, pY1 + 33.0f);
 
         glVertex2f(leftPillRight, pY2 - 25.0f); glVertex2f(leftPillRight + 4.0f, pY2 - 25.0f);
         glVertex2f(leftPillRight + 4.0f, pY2 - 17.0f); glVertex2f(leftPillRight, pY2 - 17.0f);
 
-        // Right Hinges
         glVertex2f(rightPillLeft - 4.0f, pY1 + 25.0f); glVertex2f(rightPillLeft, pY1 + 25.0f);
         glVertex2f(rightPillLeft, pY1 + 33.0f); glVertex2f(rightPillLeft - 4.0f, pY1 + 33.0f);
 
@@ -4858,92 +4896,110 @@ void drawGate()
     glEnd();
 
     // ------------------------------------------------------------------------
-    // 4. OPEN STEEL GRILL GATES (Detailed Wrought Iron)
+    // 4. ANIMATED STEEL GRILL GATES
     // ------------------------------------------------------------------------
-    glColor3f(0.18f, 0.22f, 0.24f); // Metallic Dark Slate/Steel
-    glLineWidth(2.5f);
+    glColor3f(0.18f, 0.22f, 0.24f);
 
-    // --- Left Gate Door (Swung Slightly Open) ---
+    // --- Left Gate Door ---
     float lStart = leftPillRight;
-    float lEnd = 796.0f;
+    float lClosedEnd = 798.0f;
+    float lOpenEnd = leftPillRight + 2.0f;
+    float lEnd = lClosedEnd + (lOpenEnd - lClosedEnd) * gateOpenFactor;
+
     float lTopY = pY1 + 18.0f;
     float lBotY = pY2 - 5.0f;
 
-    // Outer Heavy Frame
+    glLineWidth(2.5f);
     glBegin(GL_LINE_LOOP);
         glVertex2f(lStart, lTopY);
-        glVertex2f(lEnd, lTopY + 6.0f);
+        glVertex2f(lEnd, lTopY + (6.0f * (1.0f - gateOpenFactor)));
         glVertex2f(lEnd, lBotY);
         glVertex2f(lStart, lBotY);
     glEnd();
 
-    // Inner Horizontal Support Rails
     glLineWidth(1.8f);
     glBegin(GL_LINES);
         glVertex2f(lStart, lTopY + 30.0f); glVertex2f(lEnd, lTopY + 32.0f);
         glVertex2f(lStart, lBotY - 25.0f); glVertex2f(lEnd, lBotY - 25.0f);
     glEnd();
 
-    // Vertical Steel Bars with Decorative Spearheads
-    for (float x = lStart + 6.0f; x < lEnd; x += 7.5f) {
-        float currentTopY = lTopY + ((x - lStart) / (lEnd - lStart)) * 6.0f;
+    if (fabs(lEnd - lStart) > 2.0f) {
+        for (float x = lStart + 6.0f; x < lEnd; x += 7.5f) {
+            float currentTopY = lTopY + ((x - lStart) / (lEnd - lStart)) * (6.0f * (1.0f - gateOpenFactor));
 
-        glLineWidth(1.8f);
-        glBegin(GL_LINES);
-            glVertex2f(x, currentTopY + 4.0f);
-            glVertex2f(x, lBotY);
-        glEnd();
+            glLineWidth(1.8f);
+            glBegin(GL_LINES);
+                glVertex2f(x, currentTopY + 4.0f);
+                glVertex2f(x, lBotY);
+            glEnd();
 
-        // Decorative Arrow/Spearhead Top
-        glBegin(GL_TRIANGLES);
-            glVertex2f(x - 2.0f, currentTopY + 4.0f);
-            glVertex2f(x + 2.0f, currentTopY + 4.0f);
-            glVertex2f(x, currentTopY - 3.0f);
-        glEnd();
+            glBegin(GL_TRIANGLES);
+                glVertex2f(x - 2.0f, currentTopY + 4.0f);
+                glVertex2f(x + 2.0f, currentTopY + 4.0f);
+                glVertex2f(x, currentTopY - 3.0f);
+            glEnd();
+        }
     }
 
-    // --- Right Gate Door (Swung Slightly Open) ---
+    // --- Right Gate Door ---
     float rStart = rightPillLeft;
-    float rEnd = 804.0f;
+    float rClosedEnd = 802.0f;
+    float rOpenEnd = rightPillLeft - 2.0f;
+    float rEnd = rClosedEnd + (rOpenEnd - rClosedEnd) * gateOpenFactor;
+
     float rTopY = pY1 + 18.0f;
     float rBotY = pY2 - 5.0f;
 
-    // Outer Heavy Frame
     glLineWidth(2.5f);
     glBegin(GL_LINE_LOOP);
         glVertex2f(rStart, rTopY);
-        glVertex2f(rEnd, rTopY + 6.0f);
+        glVertex2f(rEnd, rTopY + (6.0f * (1.0f - gateOpenFactor)));
         glVertex2f(rEnd, rBotY);
         glVertex2f(rStart, rBotY);
     glEnd();
 
-    // Inner Horizontal Support Rails
     glLineWidth(1.8f);
     glBegin(GL_LINES);
         glVertex2f(rStart, rTopY + 30.0f); glVertex2f(rEnd, rTopY + 32.0f);
         glVertex2f(rStart, rBotY - 25.0f); glVertex2f(rEnd, rBotY - 25.0f);
     glEnd();
 
-    // Vertical Steel Bars with Decorative Spearheads
-    for (float x = rStart - 6.0f; x > rEnd; x -= 7.5f) {
-        float currentTopY = rTopY + ((rStart - x) / (rStart - rEnd)) * 6.0f;
+    if (fabs(rStart - rEnd) > 2.0f) {
+        for (float x = rStart - 6.0f; x > rEnd; x -= 7.5f) {
+            float currentTopY = rTopY + ((rStart - x) / (rStart - rEnd)) * (6.0f * (1.0f - gateOpenFactor));
 
-        glLineWidth(1.8f);
-        glBegin(GL_LINES);
-            glVertex2f(x, currentTopY + 4.0f);
-            glVertex2f(x, rBotY);
-        glEnd();
+            glLineWidth(1.8f);
+            glBegin(GL_LINES);
+                glVertex2f(x, currentTopY + 4.0f);
+                glVertex2f(x, rBotY);
+            glEnd();
 
-        // Decorative Arrow/Spearhead Top
-        glBegin(GL_TRIANGLES);
-            glVertex2f(x - 2.0f, currentTopY + 4.0f);
-            glVertex2f(x + 2.0f, currentTopY + 4.0f);
-            glVertex2f(x, currentTopY - 3.0f);
-        glEnd();
+            glBegin(GL_TRIANGLES);
+                glVertex2f(x - 2.0f, currentTopY + 4.0f);
+                glVertex2f(x + 2.0f, currentTopY + 4.0f);
+                glVertex2f(x, currentTopY - 3.0f);
+            glEnd();
+        }
     }
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // HIGHLY DETAILED NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
 // Adjusted for New Boundary Height (Y: 610 to 715) with Pins, Notices & 3D Frame
@@ -5109,6 +5165,23 @@ void drawNoticeBoard()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // HIGHLY DETAILED VINTAGE CLASSIC LAMP POSTS
 // Height Adjusted for Footpath Base Alignment (Y: 570.0f to 715.0f)
@@ -5272,6 +5345,28 @@ void drawLampPost()
     }
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // REALISTIC PARK BENCH (Low-Height Straight Legs, Wide Seating & Armrests)
 // Based on Modern Public Park Bench Reference
