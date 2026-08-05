@@ -199,6 +199,7 @@ void drawWalkingStudents();
    ========================================================== */
 void drawRickshaw();
 void drawBRTCBus();
+void drawCNG();
 
 /* ==========================================================
    INIT FUNCTION
@@ -309,6 +310,7 @@ void display()
     /* ---- Vehicles (Road Layer) ---- */
     drawRickshaw();
   drawBRTCBus();
+  drawCNG();
     /* ---- Foreground fauna ---- */
     drawButterfly();
 
@@ -5336,6 +5338,338 @@ void drawBRTCBus() {
     glDisable(GL_BLEND);
     glPopMatrix();
 }
+
+#include <GL/glut.h>
+#include <math.h>
+
+// Global position variables for CNG (Positioned far behind bus for 4-second delay)
+float cngX = 2200.0f;
+float cngWheelAngle = 0.0f;
+bool isCngTimerStarted = false;
+
+// Helper function to draw circles
+static void drawCngCircle(float cx, float cy, float r, int num_segments) {
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(cx, cy);
+    for (int i = 0; i <= num_segments; i++) {
+        float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);
+        float x = r * cosf(theta);
+        float y = r * sinf(theta);
+        glVertex2f(cx + x, cy + y);
+    }
+    glEnd();
+}
+
+// Timer for CNG Movement (Moves from Right to Left with 4s Delay behind Bus)
+void internalCngTimer(int value) {
+    float currentSpeed = 2.5f;
+
+    // Speed breaker zone alignment (X = 305 to 460)
+    bool isOnSpeedBreaker = (cngX >= 305.0f && cngX <= 460.0f);
+
+    if (isOnSpeedBreaker) {
+        currentSpeed = 0.7f; // Slow down over speed breaker
+    }
+
+    cngX -= currentSpeed;
+    cngWheelAngle += currentSpeed * 6.0f; // Wheel rotation
+
+    // Reset loop with 4-second offset (~600px delay behind screen edge)
+    if (cngX < -300.0f) {
+        cngX = 2200.0f;
+    }
+
+    glutPostRedisplay();
+    glutTimerFunc(16, internalCngTimer, 0);
+}
+
+// Compact CNG Wheel
+void drawCngWheel(float wx, float wy, float radius) {
+    // Tire Rubber
+    glColor3f(0.12f, 0.12f, 0.12f);
+    drawCngCircle(wx, wy, radius, 20);
+
+    // Rim
+    glColor3f(0.75f, 0.75f, 0.78f);
+    drawCngCircle(wx, wy, radius * 0.55f, 14);
+
+    // Inner Cap
+    glColor3f(0.2f, 0.2f, 0.2f);
+    drawCngCircle(wx, wy, radius * 0.25f, 10);
+
+    // Rotating Spokes
+    glColor3f(0.35f, 0.35f, 0.35f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        for (int i = 0; i < 4; i++) {
+            float rad = (-cngWheelAngle + i * 45.0f) * 3.14159f / 180.0f;
+            glVertex2f(wx + cos(rad) * (radius * 0.25f), wy + sin(rad) * (radius * 0.25f));
+            glVertex2f(wx + cos(rad) * (radius * 0.55f), wy + sin(rad) * (radius * 0.55f));
+        }
+    glEnd();
+}
+
+// Driver inside Boxy CNG
+void drawCngDriver(float baseX, float baseY) {
+    float dx = baseX + 18.0f;
+    float dy = baseY - 32.0f;
+
+    // Driver Cap
+    glColor3f(0.15f, 0.15f, 0.2f);
+    glBegin(GL_QUADS);
+        glVertex2f(dx - 5.0f, dy + 11.0f);
+        glVertex2f(dx + 5.0f, dy + 11.0f);
+        glVertex2f(dx + 4.0f, dy + 13.5f);
+        glVertex2f(dx - 5.0f, dy + 13.5f);
+    glEnd();
+
+    // Driver Head
+    glColor3f(0.8f, 0.55f, 0.4f);
+    drawCngCircle(dx, dy + 6.5f, 4.0f, 12);
+
+    // Driver Shirt
+    glColor3f(0.2f, 0.45f, 0.75f);
+    glBegin(GL_QUADS);
+        glVertex2f(dx - 5.0f, dy - 10.0f);
+        glVertex2f(dx + 5.0f, dy - 10.0f);
+        glVertex2f(dx + 4.0f, dy + 2.0f);
+        glVertex2f(dx - 4.0f, dy + 2.0f);
+    glEnd();
+
+    // Handlebar & Hands
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(dx - 10.0f, dy - 2.0f);
+        glVertex2f(dx - 1.0f, dy - 4.0f);
+    glEnd();
+}
+
+// Passengers in rear seat
+void drawCngPassengers(float baseX, float baseY) {
+    float px1 = baseX + 56.0f;
+    float py1 = baseY - 30.0f;
+
+    // Passenger Head
+    glColor3f(0.75f, 0.5f, 0.38f);
+    drawCngCircle(px1, py1 + 6.5f, 3.8f, 12);
+
+    // Passenger Shirt
+    glColor3f(0.85f, 0.25f, 0.25f);
+    glBegin(GL_QUADS);
+        glVertex2f(px1 - 4.5f, py1 - 10.0f);
+        glVertex2f(px1 + 4.5f, py1 - 10.0f);
+        glVertex2f(px1 + 3.8f, py1 + 2.0f);
+        glVertex2f(px1 - 3.8f, py1 + 2.0f);
+    glEnd();
+
+    float px2 = baseX + 68.0f;
+    float py2 = baseY - 30.0f;
+
+    // Second Passenger
+    glColor3f(0.7f, 0.48f, 0.35f);
+    drawCngCircle(px2, py2 + 6.5f, 3.8f, 12);
+
+    glColor3f(0.2f, 0.65f, 0.3f);
+    glBegin(GL_QUADS);
+        glVertex2f(px2 - 4.5f, py2 - 10.0f);
+        glVertex2f(px2 + 4.5f, py2 - 10.0f);
+        glVertex2f(px2 + 3.8f, py2 + 2.0f);
+        glVertex2f(px2 - 3.8f, py2 + 2.0f);
+    glEnd();
+}
+
+// Metal Mesh Grill
+void drawCngGrillMesh(float x1, float y1, float x2, float y2) {
+    glColor3f(0.25f, 0.3f, 0.25f);
+    glLineWidth(1.2f);
+
+    for (float x = x1 + 4.0f; x < x2; x += 5.0f) {
+        glBegin(GL_LINES);
+            glVertex2f(x, y1);
+            glVertex2f(x, y2);
+        glEnd();
+    }
+
+    for (float y = y1 + 4.0f; y < y2; y += 5.0f) {
+        glBegin(GL_LINES);
+            glVertex2f(x1, y);
+            glVertex2f(x2, y);
+        glEnd();
+    }
+}
+
+// Main CNG Function (Box Type Ratio 10:7)
+void drawCNG() {
+    if (!isCngTimerStarted) {
+        glutTimerFunc(16, internalCngTimer, 0);
+        isCngTimerStarted = true;
+    }
+
+    float basePositionY = 845.0f;
+
+    // Speed breaker bump effect
+    if (cngX >= 305.0f && cngX <= 460.0f) {
+        float bumpPhase = (cngX - 305.0f) / 155.0f * 3.14159f * 2.0f;
+        basePositionY += sinf(bumpPhase) * 4.0f;
+    }
+
+    glPushMatrix();
+    glTranslatef(cngX, basePositionY, 0.0f);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // 1. Ground Shadow
+    glColor4f(0.0f, 0.0f, 0.0f, 0.35f);
+    glBegin(GL_QUADS);
+        glVertex2f(-10.0f, 6.0f);
+        glVertex2f(90.0f, 6.0f);
+        glVertex2f(80.0f, 15.0f);
+        glVertex2f(-18.0f, 15.0f);
+    glEnd();
+
+    // 2. Black Canvas Top (Compact Box Shape, Aspect Ratio 10:7)
+    glColor3f(0.18f, 0.22f, 0.2f);
+    glBegin(GL_POLYGON);
+        glVertex2f(32.0f, -68.0f);
+        glVertex2f(82.0f, -68.0f);
+        glVertex2f(84.0f, -22.0f);
+        glVertex2f(52.0f, -22.0f);
+        glVertex2f(32.0f, -48.0f);
+    glEnd();
+
+    // 3. Green Metallic Body
+    glColor3f(0.08f, 0.52f, 0.28f);
+    glBegin(GL_POLYGON);
+        glVertex2f(-4.0f, -22.0f);
+        glVertex2f(8.0f, -54.0f);
+        glVertex2f(32.0f, -54.0f);
+        glVertex2f(82.0f, -54.0f);
+        glVertex2f(84.0f, -2.0f);
+        glVertex2f(-4.0f, -2.0f);
+    glEnd();
+
+    // 4. Yellow & White Stripes
+    glColor3f(0.95f, 0.8f, 0.1f);
+    glBegin(GL_QUADS);
+        glVertex2f(4.0f, -24.0f);
+        glVertex2f(82.0f, -24.0f);
+        glVertex2f(82.0f, -20.0f);
+        glVertex2f(4.0f, -20.0f);
+    glEnd();
+
+    glColor3f(0.9f, 0.9f, 0.9f);
+    glBegin(GL_QUADS);
+        glVertex2f(4.0f, -20.0f);
+        glVertex2f(82.0f, -20.0f);
+        glVertex2f(82.0f, -17.0f);
+        glVertex2f(4.0f, -17.0f);
+    glEnd();
+
+    // 5. Driver & Passengers
+    drawCngDriver(0.0f, 0.0f);
+    drawCngPassengers(0.0f, 0.0f);
+
+    // 6. Front Windshield Glass
+    glColor4f(0.7f, 0.85f, 0.9f, 0.6f);
+    glBegin(GL_QUADS);
+        glVertex2f(0.0f, -26.0f);
+        glVertex2f(10.0f, -50.0f);
+        glVertex2f(22.0f, -50.0f);
+        glVertex2f(16.0f, -26.0f);
+    glEnd();
+
+    // Windshield Frame
+    glColor3f(0.15f, 0.15f, 0.15f);
+    glLineWidth(1.8f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(0.0f, -26.0f);
+        glVertex2f(10.0f, -50.0f);
+        glVertex2f(22.0f, -50.0f);
+        glVertex2f(16.0f, -26.0f);
+    glEnd();
+
+    // 7. Door Openings & Protective Mesh
+    // Driver side opening
+    glColor3f(0.05f, 0.35f, 0.18f);
+    glBegin(GL_QUADS);
+        glVertex2f(22.0f, -48.0f);
+        glVertex2f(40.0f, -48.0f);
+        glVertex2f(40.0f, -26.0f);
+        glVertex2f(22.0f, -26.0f);
+    glEnd();
+    drawCngGrillMesh(22.0f, -48.0f, 40.0f, -26.0f);
+
+    // Passenger side opening
+    glBegin(GL_QUADS);
+        glVertex2f(44.0f, -48.0f);
+        glVertex2f(78.0f, -48.0f);
+        glVertex2f(78.0f, -26.0f);
+        glVertex2f(44.0f, -26.0f);
+    glEnd();
+    drawCngGrillMesh(44.0f, -48.0f, 78.0f, -26.0f);
+
+    // 8. Door Frame Borders
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(22.0f, -48.0f);
+        glVertex2f(40.0f, -48.0f);
+        glVertex2f(40.0f, -26.0f);
+        glVertex2f(22.0f, -26.0f);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(44.0f, -48.0f);
+        glVertex2f(78.0f, -48.0f);
+        glVertex2f(78.0f, -26.0f);
+        glVertex2f(44.0f, -26.0f);
+    glEnd();
+
+    // 9. Side Mirror & Front Unlit Headlight
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glBegin(GL_LINES);
+        glVertex2f(-1.0f, -24.0f);
+        glVertex2f(-6.0f, -22.0f);
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(-8.0f, -26.0f);
+        glVertex2f(-5.0f, -26.0f);
+        glVertex2f(-5.0f, -20.0f);
+        glVertex2f(-8.0f, -20.0f);
+    glEnd();
+
+    // Headlight (Unlit Housing)
+    glColor3f(0.35f, 0.35f, 0.38f);
+    drawCngCircle(-3.0f, -14.0f, 3.2f, 10);
+    glColor3f(0.85f, 0.45f, 0.1f);
+    glBegin(GL_QUADS);
+        glVertex2f(-2.0f, -9.0f);
+        glVertex2f(2.0f, -9.0f);
+        glVertex2f(2.0f, -6.0f);
+        glVertex2f(-2.0f, -6.0f);
+    glEnd();
+
+    // Rear Bumper Guard
+    glColor3f(0.75f, 0.75f, 0.78f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        glVertex2f(82.0f, -12.0f);
+        glVertex2f(90.0f, -12.0f);
+        glVertex2f(82.0f, -6.0f);
+        glVertex2f(90.0f, -6.0f);
+        glVertex2f(88.0f, -14.0f);
+        glVertex2f(88.0f, -4.0f);
+    glEnd();
+
+    // 10. Wheels Setup
+    drawCngWheel(8.0f, 3.5f, 11.0f);   // Front Wheel
+    drawCngWheel(68.0f, 3.5f, 12.0f);  // Rear Wheel
+
+    glDisable(GL_BLEND);
+    glPopMatrix();
+}
+
 
 /* ==========================================================
    MAIN FUNCTION
