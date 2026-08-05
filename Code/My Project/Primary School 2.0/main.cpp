@@ -285,15 +285,13 @@ void display()
     /* ---- Boundary & Gate Layer ---- */
     drawBoundaryWall();
     drawGate();
+    drawFootpath();
     drawNoticeBoard();
     drawLampPost();
     drawBench();
     drawWaterStation();
     drawCycleParking();
     drawDustbin();
-
-    /* ---- Footpath Layer ---- */
-    drawFootpath();
 
     /* ---- Road Layer ---- */
     drawRoad();
@@ -3808,43 +3806,144 @@ void drawLampPost()
     }
     glLineWidth(1.0f);
 }
-// 5. WOODEN PARK BENCH (Left side near Wall at X: 220 to 280)
+// ============================================================================
+// REALISTIC PARK BENCH (Low-Height Straight Legs, Wide Seating & Armrests)
+// Based on Modern Public Park Bench Reference
+// Footpath Alignment: Touches Ground Line properly without high stretch
+// ============================================================================
+
 void drawBench()
 {
-    float bx = 220.0f;
-    float by = 672.0f;
+    float bx = 210.0f;          // Bench Start X Position
+    float bWidth = 130.0f;      // Bench Width
+    float groundY = 715.0f;     // Footpath Surface Height
+    float seatY = 675.0f;       // Seat Level (Realistic low height: 30 units legs)
 
-    // Metal Legs (Cast Iron)
-    glColor3f(0.2f, 0.2f, 0.2f);
-    glLineWidth(3.0f);
-    glBegin(GL_LINES);
-        glVertex2f(bx + 5.0f, by); glVertex2f(bx + 5.0f, by + 28.0f);
-        glVertex2f(bx + 55.0f, by); glVertex2f(bx + 55.0f, by + 28.0f);
-        // Backrest supports
-        glVertex2f(bx + 2.0f, by - 12.0f); glVertex2f(bx + 5.0f, by + 18.0f);
-        glVertex2f(bx + 58.0f, by - 12.0f); glVertex2f(bx + 55.0f, by + 18.0f);
+    // ------------------------------------------------------------------------
+    // 1. DROP SHADOW ON FOOTPATH SURFACE
+    // ------------------------------------------------------------------------
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.10f, 0.10f, 0.10f, 0.30f);
+    glBegin(GL_POLYGON);
+        glVertex2f(bx - 10.0f, groundY + 3.0f);
+        glVertex2f(bx + bWidth + 10.0f, groundY + 3.0f);
+        glVertex2f(bx + bWidth + 5.0f, groundY - 1.0f);
+        glVertex2f(bx - 5.0f, groundY - 1.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // ------------------------------------------------------------------------
+    // 2. SHORT VERTICAL METAL LEGS (Front & Back Straight Frame)
+    // ------------------------------------------------------------------------
+    glColor3f(0.20f, 0.22f, 0.25f); // Steel / Dark Iron Metallic Tone
+
+    // Left Front Leg
+    glBegin(GL_QUADS);
+        glVertex2f(bx + 10.0f, seatY + 12.0f);
+        glVertex2f(bx + 16.0f, seatY + 12.0f);
+        glVertex2f(bx + 16.0f, groundY);
+        glVertex2f(bx + 10.0f, groundY);
     glEnd();
 
-    // Wooden Slats (Seating Area)
-    glColor3f(0.60f, 0.32f, 0.12f); // Wood Tone
-    for(float offset = 0.0f; offset <= 12.0f; offset += 4.0f) {
+    // Left Rear Leg
+    glBegin(GL_QUADS);
+        glVertex2f(bx + 22.0f, seatY);
+        glVertex2f(bx + 27.0f, seatY);
+        glVertex2f(bx + 27.0f, groundY);
+        glVertex2f(bx + 22.0f, groundY);
+    glEnd();
+
+    // Right Front Leg
+    glBegin(GL_QUADS);
+        glVertex2f(bx + bWidth - 16.0f, seatY + 12.0f);
+        glVertex2f(bx + bWidth - 10.0f, seatY + 12.0f);
+        glVertex2f(bx + bWidth - 10.0f, groundY);
+        glVertex2f(bx + bWidth - 16.0f, groundY);
+    glEnd();
+
+    // Right Rear Leg
+    glBegin(GL_QUADS);
+        glVertex2f(bx + bWidth - 27.0f, seatY);
+        glVertex2f(bx + bWidth - 22.0f, seatY);
+        glVertex2f(bx + bWidth - 22.0f, groundY);
+        glVertex2f(bx + bWidth - 27.0f, groundY);
+    glEnd();
+
+    // Vertical Backrest Frame Rods (Behind Wooden Slats)
+    glLineWidth(4.0f);
+    glBegin(GL_LINES);
+        glVertex2f(bx + 24.0f, seatY);
+        glVertex2f(bx + 24.0f, seatY - 32.0f);
+
+        glVertex2f(bx + bWidth - 24.0f, seatY);
+        glVertex2f(bx + bWidth - 24.0f, seatY - 32.0f);
+    glEnd();
+    // ------------------------------------------------------------------------
+    // 3. BACKREST WOODEN SLATS (Top Section)
+    // ------------------------------------------------------------------------
+    float backOffsetY[] = { -30.0f, -22.0f, -14.0f, -6.0f };
+
+    for (int i = 0; i < 4; i++) {
+        float y = seatY + backOffsetY[i];
+
+        // Dark Wood Edge Shadow
+        glColor3f(0.28f, 0.15f, 0.08f);
         glBegin(GL_QUADS);
-            glVertex2f(bx, by + offset);
-            glVertex2f(bx + 60.0f, by + offset);
-            glVertex2f(bx + 60.0f, by + offset + 2.5f);
-            glVertex2f(bx, by + offset + 2.5f);
+            glVertex2f(bx + 4.0f, y);
+            glVertex2f(bx + bWidth - 4.0f, y);
+            glVertex2f(bx + bWidth - 4.0f, y + 6.0f);
+            glVertex2f(bx + 4.0f, y + 6.0f);
+        glEnd();
+
+        // Main Mahogany Wood Body
+        glColor3f(0.58f, 0.32f, 0.16f);
+        glBegin(GL_QUADS);
+            glVertex2f(bx + 5.0f, y + 0.8f);
+            glVertex2f(bx + bWidth - 5.0f, y + 0.8f);
+            glVertex2f(bx + bWidth - 5.0f, y + 5.2f);
+            glVertex2f(bx + 5.0f, y + 5.2f);
+        glEnd();
+
+        // Top Highlight Rim
+        glColor3f(0.72f, 0.44f, 0.22f);
+        glLineWidth(1.2f);
+        glBegin(GL_LINES);
+            glVertex2f(bx + 5.0f, y + 5.2f);
+            glVertex2f(bx + bWidth - 5.0f, y + 5.2f);
         glEnd();
     }
 
-    // Wooden Slats (Backrest Area)
-    for(float offset = -12.0f; offset <= -2.0f; offset += 4.0f) {
-        glBegin(GL_QUADS);
-            glVertex2f(bx, by + offset);
-            glVertex2f(bx + 60.0f, by + offset);
-            glVertex2f(bx + 60.0f, by + offset + 2.5f);
-            glVertex2f(bx, by + offset + 2.5f);
-        glEnd();
-    }
+    // ------------------------------------------------------------------------
+    // 4. MAIN SEATING SURFACE (Thick Horizontal Slab)
+    // ------------------------------------------------------------------------
+    // Base Under-Shadow
+    glColor3f(0.22f, 0.12f, 0.05f);
+    glBegin(GL_QUADS);
+        glVertex2f(bx, seatY);
+        glVertex2f(bx + bWidth, seatY);
+        glVertex2f(bx + bWidth, seatY + 12.0f);
+        glVertex2f(bx, seatY + 12.0f);
+    glEnd();
+
+    // Front Thick Wood Face
+    glColor3f(0.52f, 0.28f, 0.14f);
+    glBegin(GL_QUADS);
+        glVertex2f(bx + 1.0f, seatY + 1.0f);
+        glVertex2f(bx + bWidth - 1.0f, seatY + 1.0f);
+        glVertex2f(bx + bWidth - 1.0f, seatY + 11.0f);
+        glVertex2f(bx + 1.0f, seatY + 11.0f);
+    glEnd();
+
+    // Top Surface Light Highlight
+    glColor3f(0.68f, 0.38f, 0.20f);
+    glBegin(GL_QUADS);
+        glVertex2f(bx + 1.0f, seatY + 1.0f);
+        glVertex2f(bx + bWidth - 1.0f, seatY + 1.0f);
+        glVertex2f(bx + bWidth - 1.0f, seatY + 4.0f);
+        glVertex2f(bx + 1.0f, seatY + 4.0f);
+    glEnd();
+
     glLineWidth(1.0f);
 }
 
