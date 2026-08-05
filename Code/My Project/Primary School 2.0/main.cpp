@@ -7299,6 +7299,51 @@ void drawBRTCBus() {
     glPopMatrix();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Compact CNG Wheel
 void drawCngWheel(float wx, float wy, float radius) {
     glColor3f(0.12f, 0.12f, 0.12f);
