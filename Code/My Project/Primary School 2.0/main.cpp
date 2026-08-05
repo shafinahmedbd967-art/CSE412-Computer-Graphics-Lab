@@ -3867,7 +3867,177 @@ void drawDustbin()
 }
 
 /* ---- Footpath Layer ---- */
-void drawFootpath() { }
+// ============================================================================
+// HIGHLY DETAILED & REALISTIC FOOTPATH / SIDEWALK LAYER
+// Extended Depth with Curbstones, Interlocking Pavement Tiles & Gate Ramp
+// ============================================================================
+
+void drawFootpath()
+{
+    float topY = 715.0f;       // Connects seamlessly to Boundary Wall Base
+    float bottomY = 745.0f;    // Extends down to the Main Road Edge
+    float curbHeight = 6.0f;   // Raised Curbstone Edge Height
+
+    float leftPillarX = 720.0f;
+    float rightPillarX = 880.0f;
+
+    // ------------------------------------------------------------------------
+    // 1. FOOTPATH BASE SLAB (Main Walkway Surface Tone)
+    // ------------------------------------------------------------------------
+    glColor3f(0.72f, 0.72f, 0.70f); // Light Ash Concrete Pavement Tone
+    glBegin(GL_QUADS);
+        // Left Walkway Surface
+        glVertex2f(0.0f, topY);
+        glVertex2f(leftPillarX, topY);
+        glVertex2f(leftPillarX, bottomY - curbHeight);
+        glVertex2f(0.0f, bottomY - curbHeight);
+
+        // Right Walkway Surface
+        glVertex2f(rightPillarX, topY);
+        glVertex2f(1600.0f, topY);
+        glVertex2f(1600.0f, bottomY - curbHeight);
+        glVertex2f(rightPillarX, bottomY - curbHeight);
+
+        // Gate Center Ramp / Driveway Connection Area
+        glVertex2f(leftPillarX, topY);
+        glVertex2f(rightPillarX, topY);
+        glVertex2f(rightPillarX, bottomY);
+        glVertex2f(leftPillarX, bottomY);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 2. INTERLOCKING PAVEMENT TILE GRID (Horizontal & Vertical Joints)
+    // ------------------------------------------------------------------------
+    glColor3f(0.62f, 0.62f, 0.60f); // Tile Joint Groove Color
+    glLineWidth(1.0f);
+
+    // Horizontal Tile Joint Lines
+    glBegin(GL_LINES);
+    for (float y = topY + 6.0f; y < bottomY - curbHeight; y += 6.0f) {
+        // Left Side Tiles
+        glVertex2f(0.0f, y);
+        glVertex2f(leftPillarX, y);
+
+        // Right Side Tiles
+        glVertex2f(rightPillarX, y);
+        glVertex2f(1600.0f, y);
+    }
+    glEnd();
+
+    // Staggered Vertical Tile Joint Lines
+    int rowCounter = 0;
+    glBegin(GL_LINES);
+    for (float y = topY; y < bottomY - curbHeight; y += 6.0f) {
+        float xShift = (rowCounter % 2 == 0) ? 0.0f : 10.0f;
+
+        // Left Walkway Grid
+        for (float x = xShift; x < leftPillarX; x += 20.0f) {
+            glVertex2f(x, y);
+            glVertex2f(x, y + 6.0f);
+        }
+        // Right Walkway Grid
+        for (float x = rightPillarX + xShift; x < 1600.0f; x += 20.0f) {
+            glVertex2f(x, y);
+            glVertex2f(x, y + 6.0f);
+        }
+        rowCounter++;
+    }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. GATE ENTRANCE TILE RAMP (Tactile Pattern for Gate Opening)
+    // ------------------------------------------------------------------------
+    // Darker Asphalt/Paver Blend for Entrance Ramp
+    glColor3f(0.65f, 0.65f, 0.63f);
+    glBegin(GL_QUADS);
+        glVertex2f(leftPillarX + 2.0f, topY);
+        glVertex2f(rightPillarX - 2.0f, topY);
+        glVertex2f(rightPillarX - 2.0f, bottomY);
+        glVertex2f(leftPillarX + 2.0f, bottomY);
+    glEnd();
+
+    // Ramp Horizontal Tread Texture Lines
+    glColor3f(0.55f, 0.55f, 0.53f);
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+    for (float y = topY + 5.0f; y < bottomY; y += 5.0f) {
+        glVertex2f(leftPillarX + 2.0f, y);
+        glVertex2f(rightPillarX - 2.0f, y);
+    }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. 3D FRONT CURBSTONES (Border Blocks along Road Edge)
+    // ------------------------------------------------------------------------
+    // Alternating Dual-Tone Concrete Curb Blocks
+    for (float x = 0.0f; x < 1600.0f; x += 40.0f) {
+        // Skip Curb for Gate Entrance Ramp Area
+        if (x >= leftPillarX - 10.0f && x < rightPillarX) continue;
+
+        // Alternate Block Color (Light Grey / Charcoal Grey Concrete)
+        if (((int)(x / 40.0f)) % 2 == 0) {
+            glColor3f(0.80f, 0.80f, 0.78f); // Light Concrete Block
+        } else {
+            glColor3f(0.45f, 0.45f, 0.45f); // Dark Charcoal Block
+        }
+
+        // Top Face of Curbstone
+        glBegin(GL_QUADS);
+            glVertex2f(x, bottomY - curbHeight);
+            glVertex2f(x + 39.0f, bottomY - curbHeight);
+            glVertex2f(x + 39.0f, bottomY - 2.0f);
+            glVertex2f(x, bottomY - 2.0f);
+        glEnd();
+
+        // Front Bevel Face of Curbstone (3D Perspective Shadow)
+        glColor3f(0.32f, 0.32f, 0.32f);
+        glBegin(GL_QUADS);
+            glVertex2f(x, bottomY - 2.0f);
+            glVertex2f(x + 39.0f, bottomY - 2.0f);
+            glVertex2f(x + 39.0f, bottomY);
+            glVertex2f(x, bottomY);
+        glEnd();
+    }
+
+    // Curbstone Vertical Separation Grooves
+    glColor3f(0.20f, 0.20f, 0.20f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+    for (float x = 0.0f; x <= 1600.0f; x += 40.0f) {
+        if (x > leftPillarX && x < rightPillarX) continue;
+        glVertex2f(x, bottomY - curbHeight);
+        glVertex2f(x, bottomY);
+    }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 5. SHADOW & HIGHLIGHT LINES FOR REALISTIC DEPTH
+    // ------------------------------------------------------------------------
+    // Boundary Wall Base Contact Shadow (Top Edge)
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.1f, 0.1f, 0.1f, 0.35f);
+    glBegin(GL_QUADS);
+        glVertex2f(0.0f, topY);
+        glVertex2f(1600.0f, topY);
+        glVertex2f(1600.0f, topY + 3.0f);
+        glVertex2f(0.0f, topY + 3.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // Curb Top Edge Highlight Line
+    glColor3f(0.90f, 0.90f, 0.88f);
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, bottomY - curbHeight);
+        glVertex2f(leftPillarX, bottomY - curbHeight);
+
+        glVertex2f(rightPillarX, bottomY - curbHeight);
+        glVertex2f(1600.0f, bottomY - curbHeight);
+    glEnd();
+
+    glLineWidth(1.0f);
+}
 
 /* ---- Road Layer ---- */
 void drawRoad() { }
