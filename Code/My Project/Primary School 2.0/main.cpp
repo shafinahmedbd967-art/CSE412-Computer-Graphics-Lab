@@ -23,6 +23,8 @@
 
 bool isPassingActive = true;
 bool isGateOpen = false;
+bool isLampOn = false;   // Lamp Light toggle
+
 /* ==========================================================
    WINDOW CONSTANTS
    ========================================================== */
@@ -357,36 +359,64 @@ void timer(int value)
     glutTimerFunc(16, timer, 0); // ~60 FPS
 }
 
-/* ==========================================================
-   KEYBOARD FUNCTION
-   ========================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
 void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
     {
+    case 'g':
+    case 'G':
+        isGateOpen = !isGateOpen;
+        break;
+
+    case 'l':
+    case 'L':
+        isLampOn = !isLampOn;
+        break;
+
     case 'p':
     case 'P':
         isPassingActive = !isPassingActive;
-        break;
-
-    case 'g':
-    case 'G':
-        isGateOpen = !isGateOpen; // Gate Open/Close toggle
         break;
 
     case 27: // ESC key
         exit(0);
         break;
 
-    case ' ': // Spacebar toggles animation
+    case ' ':
         isAnimating = !isAnimating;
         break;
 
     default:
         break;
     }
-    glutPostRedisplay();
+    glutPostRedisplay(); // Screen Redraw Force
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ==========================================================
    SPECIAL KEYS FUNCTION (arrow keys, reserved for future use)
    ========================================================== */
@@ -4759,7 +4789,7 @@ void drawBoundaryWall()
 // ----------------------------------------------------------------------------
 // GLOBAL VARIABLES FOR GATE
 // ----------------------------------------------------------------------------
-float gateOpenFactor = 0.0f;   
+float gateOpenFactor = 0.0f;
 
 // ----------------------------------------------------------------------------
 // UPDATE ANIMATION FUNCTION
@@ -5181,6 +5211,21 @@ void drawNoticeBoard()
 
 
 
+// ----------------------------------------------------------------------------
+// GLOBAL VARIABLES FOR LAMP POST
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+// KEYBOARD HANDLER FOR LAMP POST
+// ----------------------------------------------------------------------------
+void handleLampKeyboard(unsigned char key, int x, int y)
+{
+    if (key == 'l' || key == 'L')
+    {
+        isLampOn = !isLampOn;
+        glutPostRedisplay();
+    }
+}
 
 // ============================================================================
 // HIGHLY DETAILED VINTAGE CLASSIC LAMP POSTS
@@ -5285,22 +5330,33 @@ void drawLampPost()
         // --------------------------------------------------------------------
         // 4. SOFT RADIAL LIGHT GLOW / AURA (Translucent)
         // --------------------------------------------------------------------
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(1.0f, 0.88f, 0.35f, 0.15f); // Soft Warm Yellow Aura
-        glBegin(GL_POLYGON);
-            glVertex2f(lx - 22.0f, 565.0f);
-            glVertex2f(lx + 22.0f, 565.0f);
-            glVertex2f(lx + 35.0f, 615.0f);
-            glVertex2f(lx - 35.0f, 615.0f);
-        glEnd();
-        glDisable(GL_BLEND);
+        if (isLampOn)
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glColor4f(1.0f, 0.88f, 0.35f, 0.15f); // Soft Warm Yellow Aura
+            glBegin(GL_POLYGON);
+                glVertex2f(lx - 22.0f, 565.0f);
+                glVertex2f(lx + 22.0f, 565.0f);
+                glVertex2f(lx + 35.0f, 615.0f);
+                glVertex2f(lx - 35.0f, 615.0f);
+            glEnd();
+            glDisable(GL_BLEND);
+        }
 
         // --------------------------------------------------------------------
         // 5. GLOWING LANTERN HOUSING & GLASS PANELS
         // --------------------------------------------------------------------
-        // Warm Yellow Glowing Core Bulb
-        glColor3f(1.0f, 0.90f, 0.40f);
+        // Core Bulb (Dynamic On/Off State)
+        if (isLampOn)
+        {
+            glColor3f(1.0f, 0.90f, 0.40f); // Bright Warm Yellow (ON)
+        }
+        else
+        {
+            glColor3f(0.25f, 0.25f, 0.25f); // Dark Grey (OFF)
+        }
+
         glBegin(GL_QUADS);
             glVertex2f(lx - 6.0f, 572.0f);
             glVertex2f(lx + 6.0f, 572.0f);
@@ -5345,8 +5401,6 @@ void drawLampPost()
     }
     glLineWidth(1.0f);
 }
-
-
 
 
 
@@ -6492,6 +6546,49 @@ void drawTrafficSign()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---- People ---- */
 void drawStudent() { }
 void drawTeacher() { }
@@ -6500,6 +6597,38 @@ void drawSecurityGuard() { }
 void drawGardener() { }
 void drawAssemblyStudents() { }
 void drawWalkingStudents() { }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- Vehicles ---- */
 
@@ -6789,6 +6918,37 @@ void drawSchoolBus() {
     glDisable(GL_BLEND);
     glPopMatrix();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /// BRTC BUS
 #include <GL/glut.h>
@@ -7395,6 +7555,30 @@ void drawCNG() {
     glDisable(GL_BLEND);
     glPopMatrix();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ==========================================================
    MAIN FUNCTION
    ========================================================== */
@@ -7408,15 +7592,15 @@ int main(int argc, char** argv)
 
     init();
 
-    // Start Metro Rail Animation Loop
-    glutTimerFunc(0, updateMetroRail, 0);
-    //Bus Timer
-    glutTimerFunc(0, schoolBusTimer, 0);
-    //glutTimerFunc(0, updateTimer, 0);
+    // Register Callbacks
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
-    glutKeyboardFunc(keyboard);
+    glutKeyboardFunc(keyboard);       // Duplicate line removed
     glutSpecialFunc(specialKeys);
+
+    // Timers
+    glutTimerFunc(0, updateMetroRail, 0);
+    glutTimerFunc(0, schoolBusTimer, 0);
     glutTimerFunc(0, timer, 0);
 
     glutMainLoop();
