@@ -21,7 +21,7 @@
 #include <GL/glut.h>
 #include <cmath>
 
-bool isPassingActive = true; 
+bool isPassingActive = true;
 /* ==========================================================
    WINDOW CONSTANTS
    ========================================================== */
