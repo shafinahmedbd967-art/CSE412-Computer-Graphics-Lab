@@ -5522,11 +5522,10 @@ void drawSwing()
 
 
 
-
 // ----------------------------------------------------------------------------
 // HIGHLY DETAILED 3D-REALISTIC PLAYGROUND SLIDE WITH ANIMATED STUDENT
 // Position: X = 345.0f, Y = 495.0f
-// Note: Extra artifacts removed and sliding orientation corrected facing left.
+// Note: Extra artifacts removed, sliding orientation corrected, speed halved.
 // ----------------------------------------------------------------------------
 
 void drawSlide()
@@ -5548,7 +5547,7 @@ void drawSlide()
     // 1. BASE ANCHORS
     // ------------------------------------------------------------------------
 
-    // Metallic Base Plates / Concrete Footings (Unwanted ground artifacts removed)
+    // Metallic Base Plates / Concrete Footings
     glColor3f(0.35f, 0.35f, 0.38f);
     glRectf(ladderX - 4.0f, groundY - 1.0f, ladderX + 10.0f, groundY + 2.0f);
     glRectf(slideEndX - 6.0f, groundY - 1.0f, slideEndX + 4.0f, groundY + 2.0f);
@@ -5675,30 +5674,31 @@ void drawSlide()
     glEnd();
 
     // ------------------------------------------------------------------------
-    // 4. ANIMATED STUDENT
+    // 4. ANIMATED STUDENT (SPEED HALVED)
     // ------------------------------------------------------------------------
 
-    float animTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-   animTime = fmod(animTime, 3.0f);
+    // Speed halved: Divided by 2000.0f instead of 1000.0f
+    float animTime = glutGet(GLUT_ELAPSED_TIME) / 2000.0f;
+    animTime = fmod(animTime, 3.0f);
     if (animTime > 3.0f) animTime = 0.0f;
 
     float px = 0.0f, py = 0.0f;
     bool isSliding = false;
 
-    // Phase 1: Climbing Ladder (0.0s to 1.0s)
+    // Phase 1: Climbing Ladder (0.0s to 1.0s in animation time)
     if (animTime <= 1.0f) {
         float t = animTime / 1.0f;
         px = (ladderX + 3.0f) * (1.0f - t) + (topPlatformX + 3.0f) * t;
         py = groundY * (1.0f - t) + topY * t;
     }
-    // Phase 2: Sliding Down (1.0s to 2.0s)
+    // Phase 2: Sliding Down (1.0s to 2.0s in animation time)
     else if (animTime <= 2.0f) {
         float t = (animTime - 1.0f) / 1.0f;
         px = topPlatformX * (1.0f - t) + slideEndX * t;
         py = (topY + 1.0f) * (1.0f - t) + (groundY - 3.0f) * t;
         isSliding = true;
     }
-    // Phase 3: Walking back to Ladder (2.0s to 3.0s)
+    // Phase 3: Walking back to Ladder (2.0s to 3.0s in animation time)
     else {
         float t = (animTime - 2.0f) / 1.0f;
         px = slideEndX * (1.0f - t) + (ladderX + 3.0f) * t;
@@ -5710,7 +5710,7 @@ void drawSlide()
     glTranslatef(px, py, 0.0f);
 
     if (isSliding) {
-        // Corrected Seated Sliding Motion State (Facing Left Towards Slide Direction)
+        // Seated Sliding Motion State (Facing Left)
 
         // Extended Seated Legs Pointing Left
         glColor3f(0.92f, 0.74f, 0.60f);
@@ -5732,11 +5732,11 @@ void drawSlide()
         glColor3f(0.96f, 0.96f, 0.98f);
         glRectf(-1.5f, -11.0f, 3.5f, -3.0f);
 
-        // Red Tie Detail on Chest (Facing Left)
+        // Red Tie Detail on Chest
         glColor3f(0.85f, 0.15f, 0.15f);
         glRectf(-1.2f, -10.0f, -0.2f, -5.5f);
 
-        // Forearm holding side safety rail towards front
+        // Forearm holding side safety rail
         glColor3f(0.92f, 0.74f, 0.60f);
         glLineWidth(2.2f);
         glBegin(GL_LINES);
@@ -5773,8 +5773,8 @@ void drawSlide()
     else {
         // Standing / Climbing Motion State
 
-        // Alternating Walking Legs Animation Offset
-        float legOffset = sinf(animTime * 25.0f) * 1.5f;
+        // Adjusted leg walking animation frequency to match halved speed
+        float legOffset = sinf(animTime * 12.5f) * 1.5f;
 
         // Navy Uniform Shorts
         glColor3f(0.12f, 0.22f, 0.50f);
@@ -5830,11 +5830,9 @@ void drawSlide()
 
     glPopMatrix();
 
-
-
+    // Continuous frame update
+    glutPostRedisplay();
 }
-
-
 
 
 
@@ -5860,7 +5858,7 @@ void drawSeesaw()
 {
     // Frame Timing & Animation Logic
     static float seeSawAngle = 0.0f;
-    seeSawAngle += 0.005f; // Speed komano hoyeche (0.02f -> 0.005f)
+    seeSawAngle += 0.012f; // Speed barano hoyeche (0.005f -> 0.012f)
 
     // Smooth rotation angle for see-saw plank (-12 to +12 degrees)
     float currentAngle = sinf(seeSawAngle) * 12.0f;
@@ -6089,6 +6087,13 @@ void drawSeesaw()
     // Force frame redraw for continuous smooth animation
     glutPostRedisplay();
 }
+
+
+
+
+
+
+
 
 
 
