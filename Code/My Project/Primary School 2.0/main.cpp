@@ -4237,48 +4237,127 @@ void drawCycleParking()
 
     glLineWidth(1.0f);
 }
-// 8. RECYCLING DUSTBINS (Placed near Wall X: 520 & 1060)
+// ============================================================================
+// 8. REALISTIC RECYCLING DUSTBINS WITH 3D SHADING & LID (Aligned to Platform)
+// ============================================================================
+
 void drawDustbin()
 {
+    // X Positions: Left Green Bin & Right Blue Bin
     float binX[] = { 520.0f, 1060.0f };
 
     for(int i = 0; i < 2; i++) {
         float bx = binX[i];
-        float by = 675.0f;
+        // Aligned with the Walkway Platform floor level (same as lamp posts / notice board)
+        float by = 706.0f;
 
-        // Green Bin (Bio Waste) / Blue Bin (Recycle)
-        if(i == 0) glColor3f(0.12f, 0.65f, 0.25f); // Green
-        else glColor3f(0.15f, 0.45f, 0.85f);       // Blue
-
-        // 3D Cylinder Body
+        // --------------------------------------------------------------------
+        // 1. GROUND DROP SHADOW (On Platform Surface)
+        // --------------------------------------------------------------------
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.08f, 0.08f, 0.08f, 0.35f);
         glBegin(GL_POLYGON);
-            glVertex2f(bx, by);
-            glVertex2f(bx + 18.0f, by);
-            glVertex2f(bx + 15.0f, by + 26.0f);
-            glVertex2f(bx + 3.0f, by + 26.0f);
+            glVertex2f(bx - 3.0f, by + 1.0f);
+            glVertex2f(bx + 21.0f, by + 1.0f);
+            glVertex2f(bx + 23.0f, by - 3.0f);
+            glVertex2f(bx - 1.0f, by - 3.0f);
+        glEnd();
+        glDisable(GL_BLEND);
+
+        // --------------------------------------------------------------------
+        // 2. MAIN BIN BODY (Tapered 3D Plastic Container)
+        // --------------------------------------------------------------------
+        // Base Color: Green for Bio-Waste, Blue for Recycling
+        if (i == 0) glColor3f(0.12f, 0.68f, 0.28f); // Vivid Bio Green
+        else        glColor3f(0.12f, 0.48f, 0.88f); // Vivid Recycle Blue
+
+        // Main Bin Body (Wider at Top, Slightly Narrower at Base)
+        glBegin(GL_POLYGON);
+            glVertex2f(bx + 2.0f, by);          // Bottom Left
+            glVertex2f(bx + 16.0f, by);         // Bottom Right
+            glVertex2f(bx + 18.0f, by - 24.0f); // Top Right
+            glVertex2f(bx, by - 24.0f);         // Top Left
         glEnd();
 
-        // Bin Cap / Lid
-        glColor3f(0.2f, 0.2f, 0.2f);
-        glBegin(GL_QUADS);
-            glVertex2f(bx - 2.0f, by - 4.0f);
-            glVertex2f(bx + 20.0f, by - 4.0f);
-            glVertex2f(bx + 19.0f, by);
-            glVertex2f(bx - 1.0f, by);
+        // 3D Side Shadow Gradient (Gives Curved Cylinder Depth)
+        glColor3f(0.05f, 0.25f, 0.10f); // Shadow Overlay Color
+        if (i == 1) glColor3f(0.05f, 0.20f, 0.45f);
+
+        glBegin(GL_POLYGON);
+            glVertex2f(bx + 12.0f, by);
+            glVertex2f(bx + 16.0f, by);
+            glVertex2f(bx + 18.0f, by - 24.0f);
+            glVertex2f(bx + 14.0f, by - 24.0f);
         glEnd();
 
-        // Recycle Symbol Icon (White Mark)
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glLineWidth(1.5f);
+        // Front Rim / Mold Line Shading
+        glColor3f(0.0f, 0.0f, 0.0f);
+        glLineWidth(1.0f);
         glBegin(GL_LINE_LOOP);
-            glVertex2f(bx + 9.0f, by + 8.0f);
-            glVertex2f(bx + 14.0f, by + 16.0f);
-            glVertex2f(bx + 4.0f, by + 16.0f);
+            glVertex2f(bx + 2.0f, by);
+            glVertex2f(bx + 16.0f, by);
+            glVertex2f(bx + 18.0f, by - 24.0f);
+            glVertex2f(bx, by - 24.0f);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // 3. DUSTBIN LID / CAP & HANDLE (Heavy Duty Plastic Lid)
+        // --------------------------------------------------------------------
+        // Lid Base Overhang Lip
+        glColor3f(0.18f, 0.18f, 0.20f); // Dark Slate Gray Cap
+        glBegin(GL_POLYGON);
+            glVertex2f(bx - 2.0f, by - 24.0f);
+            glVertex2f(bx + 20.0f, by - 24.0f);
+            glVertex2f(bx + 19.0f, by - 28.0f);
+            glVertex2f(bx - 1.0f, by - 28.0f);
+        glEnd();
+
+        // Lid Top Dome / Raised Center
+        glColor3f(0.28f, 0.28f, 0.32f);
+        glBegin(GL_POLYGON);
+            glVertex2f(bx + 1.0f, by - 28.0f);
+            glVertex2f(bx + 17.0f, by - 28.0f);
+            glVertex2f(bx + 15.0f, by - 31.0f);
+            glVertex2f(bx + 3.0f, by - 31.0f);
+        glEnd();
+
+        // Lid Top Grab Handle
+        glColor3f(0.10f, 0.10f, 0.12f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(bx + 6.0f, by - 31.0f);
+            glVertex2f(bx + 6.0f, by - 33.5f);
+            glVertex2f(bx + 12.0f, by - 33.5f);
+            glVertex2f(bx + 12.0f, by - 31.0f);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // 4. RECYCLE / BIO ICON (Solid White Emblem)
+        // --------------------------------------------------------------------
+        glColor3f(0.95f, 0.98f, 1.0f); // Pure Bright White
+
+        // Filled Recycle Triangle Emblem
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx + 9.0f, by - 18.0f);  // Top Peak
+            glVertex2f(bx + 5.0f, by - 8.0f);   // Bottom Left
+            glVertex2f(bx + 13.0f, by - 8.0f);  // Bottom Right
+        glEnd();
+
+        // Inner Cutout to form Arrow Hole Look
+        if (i == 0) glColor3f(0.12f, 0.68f, 0.28f);
+        else        glColor3f(0.12f, 0.48f, 0.88f);
+
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx + 9.0f, by - 15.5f);
+            glVertex2f(bx + 7.0f, by - 10.0f);
+            glVertex2f(bx + 11.0f, by - 10.0f);
         glEnd();
     }
+
+    // Reset Line Width
     glLineWidth(1.0f);
 }
-
 /* ---- Footpath Layer ---- */
 // ============================================================================
 // HIGHLY DETAILED & REALISTIC FOOTPATH / SIDEWALK LAYER
