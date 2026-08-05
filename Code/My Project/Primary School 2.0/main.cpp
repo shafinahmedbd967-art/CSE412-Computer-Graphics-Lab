@@ -4117,6 +4117,56 @@ void drawCricketPitch()
         glVertex2f(fStumpBaseX + 3.2f, fStumpBaseY - 10.0f);
     glEnd();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // HIGHLY DETAILED 3D-REALISTIC 2D SWING SET WITH THREE ANIMATED STUDENTS
 // Scaled down to 0.60x size (60% of original scale).
@@ -4388,8 +4438,365 @@ void drawSwing()
     glutPostRedisplay();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void drawSlide() { }
-void drawSeesaw() { }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------------
+// HIGHLY DETAILED 3D-REALISTIC SEESAW WITH TWO ANIMATED KIDS
+// Positioned at X = 245.0f (Swing 145.0f + 100.0f) and Y = 505.0f (495.0f + 10.0f)
+// Smooth see-saw rotation with detailed layered 3D depth and seated students.
+// ----------------------------------------------------------------------------
+
+void drawSeesaw()
+{
+    // Frame Timing & Animation Logic
+    static float seeSawAngle = 0.0f;
+    seeSawAngle += 0.02f; // Oscillation speed
+
+    // Smooth rotation angle for see-saw plank (-12 to +12 degrees)
+    float currentAngle = sinf(seeSawAngle) * 12.0f;
+
+    // Shifted Positioning Parameters
+    float centerX = 245.0f; // Shifted further along X
+    float groundY = 505.0f; // Shifted down along Y
+
+    // Base dimensions matching scale
+    float baseHeight = 18.0f;
+    float baseWidth = 14.0f;
+    float pivotY = groundY - baseHeight;
+    float plankLength = 65.0f;
+    float plankThickness = 3.5f;
+
+    // ------------------------------------------------------------------------
+    // 1. GROUND SHADOW & 3D FULCRUM STAND
+    // ------------------------------------------------------------------------
+
+    // Ground Perspective Oval Shadow
+    glColor4f(0.1f, 0.15f, 0.1f, 0.35f);
+    glBegin(GL_POLYGON);
+        for (int i = 0; i < 16; i++) {
+            float rad = i * 2.0f * 3.14159f / 16.0f;
+            glVertex2f(centerX + cosf(rad) * 28.0f, groundY + 4.0f + sinf(rad) * 2.5f);
+        }
+    glEnd();
+
+    // Concrete Footing Base Pad
+    glColor3f(0.48f, 0.48f, 0.52f);
+    glRectf(centerX - 11.0f, groundY - 1.5f, centerX + 11.0f, groundY + 1.5f);
+    glColor3f(0.60f, 0.60f, 0.65f); // Top Highlight Edge
+    glRectf(centerX - 11.0f, groundY - 1.5f, centerX + 11.0f, groundY - 0.5f);
+
+    // Back Support Leg (3D Depth Shadow Layer)
+    glColor3f(0.55f, 0.28f, 0.10f);
+    glBegin(GL_POLYGON);
+        glVertex2f(centerX - baseWidth / 2.0f + 2.5f, groundY - 1.5f);
+        glVertex2f(centerX + baseWidth / 2.0f + 2.5f, groundY - 1.5f);
+        glVertex2f(centerX + 3.5f, pivotY);
+        glVertex2f(centerX - 2.5f, pivotY);
+    glEnd();
+
+    // Front Main Triangular Support Stand
+    glColor3f(0.85f, 0.45f, 0.18f); // Metallic Orange/Wood Tone
+    glBegin(GL_TRIANGLES);
+        glVertex2f(centerX - baseWidth / 2.0f, groundY - 1.5f);
+        glVertex2f(centerX + baseWidth / 2.0f, groundY - 1.5f);
+        glVertex2f(centerX, pivotY);
+    glEnd();
+
+    // Stand Left Bright Edge Highlight
+    glColor3f(0.96f, 0.58f, 0.25f);
+    glLineWidth(2.2f);
+    glBegin(GL_LINES);
+        glVertex2f(centerX - baseWidth / 2.0f, groundY - 1.5f);
+        glVertex2f(centerX, pivotY);
+    glEnd();
+
+    // Central Axis Pivot Bearing Assembly
+    glColor3f(0.20f, 0.20f, 0.22f); // Outer Housing Ring
+    glBegin(GL_POLYGON);
+        for (int i = 0; i < 16; i++) {
+            float rad = i * 2.0f * 3.14159f / 16.0f;
+            glVertex2f(centerX + cosf(rad) * 3.2f, pivotY + sinf(rad) * 3.2f);
+        }
+    glEnd();
+
+    glColor3f(0.75f, 0.75f, 0.80f); // Inner Metal Bolt Cap
+    glBegin(GL_POLYGON);
+        for (int i = 0; i < 16; i++) {
+            float rad = i * 2.0f * 3.14159f / 16.0f;
+            glVertex2f(centerX + cosf(rad) * 1.6f, pivotY + sinf(rad) * 1.6f);
+        }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 2. DYNAMIC ROTATING PLANK, HANDLES & SEATS
+    // ------------------------------------------------------------------------
+
+    glPushMatrix();
+    glTranslatef(centerX, pivotY, 0.0f);
+    glRotatef(currentAngle, 0.0f, 0.0f, 1.0f); // Rotate around pivot point
+
+    // Plank 3D Bottom/Side Shadow Edge
+    glColor3f(0.55f, 0.28f, 0.10f);
+    glRectf(-plankLength / 2.0f, 0.0f, plankLength / 2.0f, plankThickness + 1.5f);
+
+    // Main Upper Wooden Plank
+    glColor3f(0.82f, 0.48f, 0.18f);
+    glRectf(-plankLength / 2.0f, -plankThickness, plankLength / 2.0f, 0.0f);
+
+    // Plank Top Bright Highlight Strip
+    glColor3f(0.92f, 0.58f, 0.28f);
+    glRectf(-plankLength / 2.0f, -plankThickness, plankLength / 2.0f, -plankThickness + 0.6f);
+
+    // Underneath Rubber Safety Bumpers
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glRectf(-plankLength / 2.0f + 1.0f, plankThickness + 0.5f, -plankLength / 2.0f + 5.0f, plankThickness + 2.5f);
+    glRectf( plankLength / 2.0f - 5.0f, plankThickness + 0.5f,  plankLength / 2.0f - 1.0f, plankThickness + 2.5f);
+
+    // Handle Bars (T-Shaped Metal Tubes for both ends)
+    for (int side = -1; side <= 1; side += 2) {
+        float hx = side * (plankLength / 2.0f - 8.0f);
+
+        // Mounting Plate on Plank
+        glColor3f(0.30f, 0.30f, 0.32f);
+        glRectf(hx - 1.8f, -plankThickness - 0.6f, hx + 1.8f, -plankThickness);
+
+        // Vertical Bar Pipe
+        glColor3f(0.78f, 0.15f, 0.15f); // Crimson Metallic Red
+        glLineWidth(2.5f);
+        glBegin(GL_LINES);
+            glVertex2f(hx, -plankThickness);
+            glVertex2f(hx, -plankThickness - 7.5f);
+        glEnd();
+
+        // Horizontal Grip Bar
+        glLineWidth(3.2f);
+        glBegin(GL_LINES);
+            glVertex2f(hx - 2.8f, -plankThickness - 7.5f);
+            glVertex2f(hx + 2.8f, -plankThickness - 7.5f);
+        glEnd();
+
+        // Rubber End Grips
+        glColor3f(0.15f, 0.15f, 0.15f);
+        glPointSize(3.5f);
+        glBegin(GL_POINTS);
+            glVertex2f(hx - 2.8f, -plankThickness - 7.5f);
+            glVertex2f(hx + 2.8f, -plankThickness - 7.5f);
+        glEnd();
+    }
+
+    // ------------------------------------------------------------------------
+    // 3. TWO DETAILED SEATED KIDS (LEFT & RIGHT)
+    // ------------------------------------------------------------------------
+
+    float seatX[2] = { -plankLength / 2.0f + 4.0f, plankLength / 2.0f - 4.0f };
+
+    for (int k = 0; k < 2; k++) {
+        float kx = seatX[k];
+        float direction = (k == 0) ? 1.0f : -1.0f; // Facing inner center
+
+        // 1. Thighs & Seated Lower Body
+        glColor3f(0.12f, 0.22f, 0.50f); // Navy Blue Uniform Pants/Skirt
+        glRectf(kx - 2.2f, -plankThickness - 2.2f, kx + 2.2f, -plankThickness);
+        glRectf(kx + (direction * 0.8f), -plankThickness, kx + (direction * 5.2f), -plankThickness + 3.8f);
+
+        // Skin Lower Leg (Hanging down)
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glRectf(kx + (direction * 3.6f), -plankThickness + 3.8f, kx + (direction * 5.6f), -plankThickness + 7.8f);
+
+        // Socks (White for both kids)
+        glColor3f(0.95f, 0.95f, 0.95f);
+        glRectf(kx + (direction * 3.6f), -plankThickness + 6.2f, kx + (direction * 5.6f), -plankThickness + 7.8f);
+
+        // Black Shoes
+        glColor3f(0.10f, 0.10f, 0.10f);
+        glRectf(kx + (direction * 3.0f), -plankThickness + 7.8f, kx + (direction * 6.6f), -plankThickness + 9.3f);
+
+        // 2. Torso Shirt
+        if (k == 0) glColor3f(0.95f, 0.35f, 0.35f); // Red/Pink Casual Top (Girl)
+        else        glColor3f(0.96f, 0.96f, 0.98f); // White School Shirt (Boy)
+
+        glRectf(kx - 2.6f, -plankThickness - 9.8f, kx + 2.6f, -plankThickness - 2.0f);
+
+        // Uniform Tie Detail for Boy
+        if (k == 1) {
+            glColor3f(0.12f, 0.22f, 0.50f);
+            glBegin(GL_TRIANGLES);
+                glVertex2f(kx, -plankThickness - 7.8f);
+                glVertex2f(kx - 1.1f, -plankThickness - 9.8f);
+                glVertex2f(kx + 1.1f, -plankThickness - 9.8f);
+            glEnd();
+        }
+
+        // 3. Sleeves & Arms Reaching to Handle
+        if (k == 0) glColor3f(0.95f, 0.35f, 0.35f);
+        else        glColor3f(0.96f, 0.96f, 0.98f);
+        glRectf(kx - 1.0f, -plankThickness - 8.8f, kx + 1.8f, -plankThickness - 6.6f);
+
+        // Forearm Skin
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glLineWidth(2.2f);
+        glBegin(GL_LINES);
+            glVertex2f(kx + direction * 0.5f, -plankThickness - 7.5f);
+            glVertex2f(kx + direction * 4.2f, -plankThickness - 7.5f);
+        glEnd();
+
+        // 4. Head & Facial Features Structure
+        float headY = -plankThickness - 12.2f;
+        glColor3f(0.92f, 0.74f, 0.60f); // Skin Tone Face Polygon
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 16; i++) {
+                float rad = i * 2.0f * 3.14159f / 16.0f;
+                glVertex2f(kx + cosf(rad) * 2.5f, headY + sinf(rad) * 2.5f);
+            }
+        glEnd();
+
+        // Eye Dots Facing Direction
+        glColor3f(0.15f, 0.10f, 0.10f);
+        glPointSize(2.0f);
+        glBegin(GL_POINTS);
+            glVertex2f(kx + direction * 1.2f, headY - 0.2f);
+        glEnd();
+
+        // 5. Hair & Accessories
+        glColor3f(0.15f, 0.09f, 0.05f); // Dark Brown Hair Tone
+        if (k == 0) { // Left Girl Hair Styling
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 10; i++) {
+                    float rad = 3.14159f + i * 3.14159f / 10.0f;
+                    glVertex2f(kx + cosf(rad) * 2.7f, headY + sinf(rad) * 2.7f);
+                }
+            glEnd();
+            // Side Hair Lock
+            glRectf(kx - 2.9f, headY - 1.0f, kx - 1.6f, headY + 3.2f);
+
+            // Pink Bow Clip
+            glColor3f(0.95f, 0.40f, 0.65f);
+            glRectf(kx - 3.0f, headY - 1.2f, kx - 1.8f, headY - 0.2f);
+        }
+        else { // Right Boy Neat Crop Hair
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 10; i++) {
+                    float rad = 3.14159f + i * 3.14159f / 10.0f;
+                    glVertex2f(kx + cosf(rad) * 2.6f, headY + sinf(rad) * 2.5f);
+                }
+            glEnd();
+        }
+    }
+
+    glPopMatrix(); // End plank rotation matrix
+
+    // Force frame redraw for continuous smooth animation
+    glutPostRedisplay();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // 3D REALISTIC MONKEY BARS WITH STUDENTS (Shifted X +30, Y +30)
 // Base Ground Level: Y = 620. Top Beam Level: Y = 538.
@@ -4607,6 +5014,39 @@ void drawMonkeyBars()
     drawStudentBodyDetailed(1412.0f, 575.0f, 0.85f, false, false);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---- Boundary & Gate Layer ---- */
 // ============================================================================
 // REALISTIC FRONT BOUNDARY WALL (Color Matched with Background Wall)
@@ -4770,6 +5210,28 @@ void drawBoundaryWall()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5030,6 +5492,28 @@ void drawGate()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // HIGHLY DETAILED NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
 // Adjusted for New Boundary Height (Y: 610 to 715) with Pins, Notices & 3D Frame
@@ -5195,6 +5679,21 @@ void drawNoticeBoard()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5421,6 +5920,39 @@ void drawLampPost()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // REALISTIC PARK BENCH (Low-Height Straight Legs, Wide Seating & Armrests)
 // Based on Modern Public Park Bench Reference
@@ -5563,6 +6095,63 @@ void drawBench()
     glLineWidth(1.0f);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // REFINED WALL-MOUNTED DRINKING WATER STATION (Realistic Tile & Basin Detail)
 // Kept exact original structure (X: 360 to 410) with realistic textures/shading
@@ -5697,6 +6286,49 @@ void drawWaterStation()
     // Reset Line Width
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // 7. BICYCLE PARKING STAND & CYCLES (Aligned to Notice Board & Lamp Post Base)
 // ============================================================================
@@ -5852,6 +6484,36 @@ void drawCycleParking()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // 8. REALISTIC RECYCLING DUSTBINS WITH 3D SHADING & LID (Aligned to Platform)
 // ============================================================================
@@ -5973,6 +6635,40 @@ void drawDustbin()
     // Reset Line Width
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---- Footpath Layer ---- */
 // ============================================================================
 // HIGHLY DETAILED & REALISTIC FOOTPATH / SIDEWALK LAYER
@@ -6146,6 +6842,41 @@ void drawFootpath()
     glLineWidth(1.0f);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---- Road Layer ---- */
 // ============================================================================
 // ROAD & TRAFFIC ELEMENTS (Screen Resolution: 1600 x 900)
@@ -6196,6 +6927,31 @@ void drawRoad()
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // 1. ROAD DIVIDER & REFLECTOR STUDS (Centered at Y = 815.0f)
 // ----------------------------------------------------------------------------
@@ -6244,6 +7000,35 @@ void drawRoadDivider()
         glEnd();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ----------------------------------------------------------------------------
 // 2. REALISTIC PERSPECTIVE ZEBRA CROSSING (Weathered Paint, Depth & Shadows)
@@ -6326,6 +7111,43 @@ void drawZebraCrossing()
 
     glDisable(GL_BLEND);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // 3. REALISTIC 3D SPEED BREAKER (Aligned Angle with Zebra Crossing Perspective)
 // ----------------------------------------------------------------------------
@@ -6428,6 +7250,35 @@ void drawSpeedBreaker()
     glLineWidth(1.0f);
     glDisable(GL_BLEND);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // 5. TRAFFIC SIGN BOARD (Speed Hump Warning Sign - Moved Near Gate & Enhanced)
 // ============================================================================
@@ -6951,13 +7802,22 @@ void drawSchoolBus() {
 
 
 /// BRTC BUS
+/// BRTC BUS WITH SOUND EFFECTS
 #include <GL/glut.h>
 #include <math.h>
+#include <windows.h>   // Windows API support for sound
+#include <mmsystem.h>  // Multimedia functions support
+
+// Link Windows Multimedia Library
+#pragma comment(lib, "winmm.lib")
 
 // Global position variables
 float busX = 1200.0f;
 float busWheelAngle = 0.0f;
 bool isTimerStarted = false;
+
+// Sound State Control
+bool isSoundPlaying = false;
 
 // CNG position set strictly behind Bus & adjusted Y position
 float cngX = 1800.0f; // Bus baseline distance + 600 units gap
@@ -6965,7 +7825,7 @@ float cngWheelAngle = 0.0f;
 
 // Y-Coordinates aligned to the upper two lanes of 780 to 900 road range
 float busY_Base = 870.0f; // Upper Lane (Bus)
-float cngY_Base = 825.0f; // Middle Lane (CNG) - Lower Lane (780-815) reserved for future use
+float cngY_Base = 825.0f; // Middle Lane (CNG)
 
 // Helper function to draw circles
 void drawCircleShape(float cx, float cy, float r, int num_segments) {
@@ -6980,8 +7840,28 @@ void drawCircleShape(float cx, float cy, float r, int num_segments) {
     glEnd();
 }
 
+// Function to start bus engine audio in loop
+void playBusSound() {
+    if (!isSoundPlaying) {
+        // Plays sound asynchronously and continuously loops
+        PlaySound(TEXT("bus_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+        isSoundPlaying = true;
+    }
+}
+
+// Function to stop bus audio
+void stopBusSound() {
+    if (isSoundPlaying) {
+        PlaySound(NULL, 0, 0); // Stops all active played sounds
+        isSoundPlaying = false;
+    }
+}
+
 // Unified Auto Movement Timer for both Bus and CNG
 void internalTrafficTimer(int value) {
+    // Start playing bus sound when traffic timer begins
+    playBusSound();
+
     // 1. Bus Movement Update
     float busSpeed = 2.5f;
     if (busX >= 305.0f && busX <= 460.0f) {
@@ -6995,7 +7875,7 @@ void internalTrafficTimer(int value) {
         busX = 1700.0f;
     }
 
-    // 2. CNG Movement Update (Synchronized with Bus speed and same relative logic)
+    // 2. CNG Movement Update (Synchronized with Bus speed)
     float cngSpeed = 2.5f;
     if (cngX >= 305.0f && cngX <= 460.0f) {
         cngSpeed = 0.7f; // Slow down over speed breaker
@@ -7003,7 +7883,7 @@ void internalTrafficTimer(int value) {
     cngX -= cngSpeed;
     cngWheelAngle += cngSpeed * 6.0f;
 
-    // Reset CNG Position always maintaining safe distance behind the Bus
+    // Reset CNG Position maintaining safe distance behind the Bus
     if (cngX < -350.0f) {
         cngX = busX + 600.0f;
     }
@@ -7298,7 +8178,6 @@ void drawBRTCBus() {
     glDisable(GL_BLEND);
     glPopMatrix();
 }
-
 
 
 
