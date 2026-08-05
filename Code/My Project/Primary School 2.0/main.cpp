@@ -430,10 +430,50 @@ void specialKeys(int key, int x, int y)
     glutPostRedisplay();
 }
 
-/* ==========================================================
-   EMPTY DRAWING FUNCTION DEFINITIONS
-   (To be implemented in later phases - blueprint locked)
-   ========================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ---- Sky Layer ---- */
 // ============================================================================
@@ -463,6 +503,40 @@ void drawSky()
 
     glEnd();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawSun
 // Description: Renders a realistic 11 AM sun with a bright core and soft radial glow effect.
@@ -514,6 +588,45 @@ void drawSun()
     }
     glEnd();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawSingleCloud
 // Description: Keeps the clean original shape, but trims the lower bulge to make
@@ -587,39 +700,58 @@ void drawSingleCloud(float startX, float startY, float scale)
 
 void drawCloud()
 {
-    // 1. Update movement offsets (5 clouds with slightly varying speeds)
-    cloud1OffsetX += 0.35f; // Small cloud 1 speed
-    cloud2OffsetX += 0.55f; // Medium cloud 2 speed
-    cloud3OffsetX += 0.45f; // Large cloud 3 speed
-    cloud4OffsetX += 0.60f; // Fast small cloud 4 speed
-    cloud5OffsetX += 0.40f; // Medium-high cloud 5 speed
+    // Real time based constant movement logic
+    float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f; // Conversion to seconds
 
-    // 2. Loop clouds smoothly back when they leave the right side (X = 1600)
-    if (cloud1OffsetX > 1600.0f) cloud1OffsetX = -300.0f;
-    if (cloud2OffsetX > 1600.0f) cloud2OffsetX = -700.0f;
-    if (cloud3OffsetX > 1600.0f) cloud3OffsetX = -1100.0f;
-    if (cloud4OffsetX > 1600.0f) cloud4OffsetX = -500.0f;
-    if (cloud5OffsetX > 1600.0f) cloud5OffsetX = -1300.0f;
+    // Calculate fixed smooth positions based on real time
+    float cloud1OffsetX = fmod(currentTime * 20.0f, 1900.0f) - 300.0f;
+    float cloud2OffsetX = fmod(currentTime * 35.0f, 2300.0f) - 700.0f;
+    float cloud3OffsetX = fmod(currentTime * 25.0f, 2700.0f) - 1100.0f;
+    float cloud4OffsetX = fmod(currentTime * 40.0f, 2100.0f) - 500.0f;
+    float cloud5OffsetX = fmod(currentTime * 30.0f, 2900.0f) - 1300.0f;
 
     // ---------------------------------------------------------
     // Render 5 Clouds across different Y positions and scales
     // ---------------------------------------------------------
 
-    // Cloud 1 - Far Left Sky (Small Size: 0.70x)
+    // Cloud 1 - Far Left Sky
     drawSingleCloud(150.0f + cloud1OffsetX, 110.0f, 2.70f);
 
-    // Cloud 2 - Mid Left Sky (Fast & Tiny: 0.55x) -> NEW CLOUD 4
+    // Cloud 2 - Mid Left Sky
     drawSingleCloud(450.0f + cloud4OffsetX, 60.0f, 1.55f);
 
-    // Cloud 3 - Center Sky (Medium Size: 0.95x)
+    // Cloud 3 - Center Sky
     drawSingleCloud(750.0f + cloud2OffsetX, 95.0f, 0.95f);
 
-    // Cloud 4 - Mid Right Sky (Higher up, Medium: 0.80x)
+    // Cloud 4 - Mid Right Sky
     drawSingleCloud(1050.0f + cloud5OffsetX, 50.0f, 0.80f);
 
-    // Cloud 5 - Far Right Sky (Large Size: 1.15x)
+    // Cloud 5 - Far Right Sky
     drawSingleCloud(1350.0f + cloud3OffsetX, 130.0f, 1.15f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ============================================================================
 // FUNCTION: drawSingleBird
@@ -691,6 +823,19 @@ void drawBird()
     drawSingleBird(455.0f + birdOffsetX, 95.0f,  10.0f, time + 2.1f);
     drawSingleBird(490.0f + birdOffsetX, 115.0f, 7.5f,  time + 2.8f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Helper function to draw a single small butterfly
 void drawSingleButterfly(float x, float y, float scale, float wingAngle, float r, float g, float b)
 {
@@ -4627,8 +4772,8 @@ void drawSlide()
     // 4. ANIMATED STUDENT
     // ------------------------------------------------------------------------
 
-    static float animTime = 0.0f;
-    animTime += 0.0075f;
+    float animTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+   animTime = fmod(animTime, 3.0f);
     if (animTime > 3.0f) animTime = 0.0f;
 
     float px = 0.0f, py = 0.0f;
@@ -4778,9 +4923,6 @@ void drawSlide()
     }
 
     glPopMatrix();
-
-    // Trigger continuous frame redraw for OpenGL
-    glutPostRedisplay();
 
 
 
