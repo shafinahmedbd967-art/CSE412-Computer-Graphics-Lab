@@ -4082,54 +4082,161 @@ void drawWaterStation()
     // Reset Line Width
     glLineWidth(1.0f);
 }
-// 7. BICYCLE PARKING STAND & CYCLES (Right Wall X: 1120 to 1220)
+// ============================================================================
+// 7. BICYCLE PARKING STAND & CYCLES (Aligned to Notice Board & Lamp Post Base)
+// ============================================================================
+
+#include <cmath>
+
 void drawCycleParking()
 {
     float cx = 1120.0f;
-    float cy = 680.0f;
+    // Adjusted Y coordinate: Aligned perfectly with Notice Board & Lamp Post Base Level
+    float cy = 712.0f;
+    const float PI = 3.14159265f;
 
-    // Metal Rack Stand
-    glColor3f(0.4f, 0.45f, 0.5f);
-    glLineWidth(3.0f);
-    glBegin(GL_LINES);
-        glVertex2f(cx, cy + 15.0f); glVertex2f(cx + 90.0f, cy + 15.0f);
-        for(float x = cx + 10.0f; x <= cx + 80.0f; x += 15.0f) {
-            glVertex2f(x, cy + 15.0f);
-            glVertex2f(x - 5.0f, cy + 32.0f);
+    // ------------------------------------------------------------------------
+    // 1. GROUND DROP SHADOW (On Platform Walkway Surface)
+    // ------------------------------------------------------------------------
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.08f, 0.08f, 0.08f, 0.35f);
+    glBegin(GL_POLYGON);
+        glVertex2f(cx - 5.0f, cy + 2.0f);
+        glVertex2f(cx + 95.0f, cy + 2.0f);
+        glVertex2f(cx + 98.0f, cy - 3.0f);
+        glVertex2f(cx - 2.0f, cy - 3.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // ------------------------------------------------------------------------
+    // 2. PARKING RACK (Base directly sits on the Walkway Surface)
+    // ------------------------------------------------------------------------
+    // Horizontal Ground Bar
+    glColor3f(0.40f, 0.43f, 0.48f);
+    glBegin(GL_QUADS);
+        glVertex2f(cx, cy);
+        glVertex2f(cx + 90.0f, cy);
+        glVertex2f(cx + 90.0f, cy + 3.0f);
+        glVertex2f(cx, cy + 3.0f);
+    glEnd();
+
+    // Steel Arch Slots
+    for (float x = cx + 8.0f; x <= cx + 80.0f; x += 18.0f) {
+        glColor3f(0.30f, 0.32f, 0.36f);
+        glLineWidth(3.0f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(x, cy);
+            glVertex2f(x + 2.0f, cy - 22.0f);
+            glVertex2f(x + 8.0f, cy - 22.0f);
+            glVertex2f(x + 10.0f, cy);
+        glEnd();
+
+        glColor3f(0.70f, 0.73f, 0.78f);
+        glLineWidth(1.2f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(x + 0.5f, cy);
+            glVertex2f(x + 2.5f, cy - 21.5f);
+            glVertex2f(x + 7.5f, cy - 21.5f);
+        glEnd();
+    }
+
+    // ------------------------------------------------------------------------
+    // Helper Function to Draw Bicycle
+    // ------------------------------------------------------------------------
+    auto drawBicycle = [&](float bx, float rR, float rG, float rB) {
+        float radius = 10.0f;
+        float rearWheelX = bx;
+        float frontWheelX = bx + 32.0f;
+        float wheelY = cy - radius + 1.0f; // Wheels aligned with rack base
+
+        // --- WHEELS & SPOKES ---
+        float wheelsX[] = { rearWheelX, frontWheelX };
+        for (int w = 0; w < 2; w++) {
+            float wx = wheelsX[w];
+
+            // Rubber Tire
+            glColor3f(0.12f, 0.12f, 0.14f);
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 20; i++) {
+                    float a = i * 2.0f * PI / 20.0f;
+                    glVertex2f(wx + radius * cos(a), wheelY + radius * sin(a));
+                }
+            glEnd();
+
+            // Inner Silver Rim
+            glColor3f(0.75f, 0.78f, 0.82f);
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 20; i++) {
+                    float a = i * 2.0f * PI / 20.0f;
+                    glVertex2f(wx + (radius - 2.5f) * cos(a), wheelY + (radius - 2.5f) * sin(a));
+                }
+            glEnd();
+
+            // Spokes
+            glColor3f(0.35f, 0.38f, 0.42f);
+            glLineWidth(1.0f);
+            glBegin(GL_LINES);
+                for (int i = 0; i < 8; i++) {
+                    float a = i * 2.0f * PI / 8.0f;
+                    glVertex2f(wx, wheelY);
+                    glVertex2f(wx + (radius - 3.0f) * cos(a), wheelY + (radius - 3.0f) * sin(a));
+                }
+            glEnd();
+
+            // Axle Hub
+            glColor3f(0.1f, 0.1f, 0.1f);
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 8; i++) {
+                    float a = i * 2.0f * PI / 8.0f;
+                    glVertex2f(wx + 1.5f * cos(a), wheelY + 1.5f * sin(a));
+                }
+            glEnd();
         }
-    glEnd();
 
-    // Parked Bicycle 1 (Red Frame)
-    float b1x = cx + 20.0f;
-    glColor3f(0.85f, 0.15f, 0.15f); // Red Body
-    glLineWidth(2.0f);
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(b1x, cy + 12.0f);
-        glVertex2f(b1x + 12.0f, cy + 12.0f);
-        glVertex2f(b1x + 7.0f, cy + 2.0f);
-    glEnd();
-    // Bicycle Wheels
-    glColor3f(0.1f, 0.1f, 0.1f);
-    glLineWidth(1.5f);
-    glBegin(GL_LINE_LOOP); // Back Wheel
-        for(int i=0; i<12; i++) {
-            float a = i * 2.0f * 3.14159f / 12.0f;
-            glVertex2f(b1x - 3.0f + 7.0f*cos(a), cy + 15.0f + 7.0f*sin(a));
-        }
-    glEnd();
+        // --- DIAMOND FRAME ---
+        float bbX = bx + 12.0f, bbY = wheelY;
+        float seatX = bx + 8.0f, seatY = wheelY - 16.0f;
+        float headX = bx + 26.0f, headY = wheelY - 17.0f;
 
-    // Parked Bicycle 2 (Blue Frame)
-    float b2x = cx + 55.0f;
-    glColor3f(0.15f, 0.35f, 0.85f); // Blue Body
-    glLineWidth(2.0f);
-    glBegin(GL_LINE_LOOP);
-        glVertex2f(b2x, cy + 12.0f);
-        glVertex2f(b2x + 12.0f, cy + 12.0f);
-        glVertex2f(b2x + 7.0f, cy + 2.0f);
-    glEnd();
+        glColor3f(rR, rG, rB);
+        glLineWidth(2.5f);
+        glBegin(GL_LINES);
+            glVertex2f(rearWheelX, wheelY); glVertex2f(seatX, seatY);
+            glVertex2f(rearWheelX, wheelY); glVertex2f(bbX, bbY);
+            glVertex2f(seatX, seatY);       glVertex2f(bbX, bbY);
+            glVertex2f(seatX, seatY);       glVertex2f(headX, headY);
+            glVertex2f(bbX, bbY);           glVertex2f(headX, headY);
+            glVertex2f(headX, headY);       glVertex2f(frontWheelX, wheelY);
+        glEnd();
+
+        // --- HANDLEBAR & SADDLE ---
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINES);
+            glVertex2f(headX, headY);
+            glVertex2f(headX + 1.0f, headY - 4.0f);
+            glVertex2f(headX - 3.0f, headY - 4.0f);
+            glVertex2f(headX + 4.0f, headY - 4.0f);
+        glEnd();
+
+        glColor3f(0.1f, 0.1f, 0.1f);
+        glBegin(GL_POLYGON);
+            glVertex2f(seatX - 4.0f, seatY - 2.5f);
+            glVertex2f(seatX + 3.0f, seatY - 2.5f);
+            glVertex2f(seatX + 4.0f, seatY - 1.0f);
+            glVertex2f(seatX - 3.0f, seatY - 1.0f);
+        glEnd();
+    };
+
+    // ------------------------------------------------------------------------
+    // 3. DRAW PARKED BICYCLES
+    // ------------------------------------------------------------------------
+    drawBicycle(cx + 12.0f, 0.85f, 0.15f, 0.15f); // Red
+    drawBicycle(cx + 48.0f, 0.15f, 0.40f, 0.88f); // Blue
+
     glLineWidth(1.0f);
 }
-
 // 8. RECYCLING DUSTBINS (Placed near Wall X: 520 & 1060)
 void drawDustbin()
 {
