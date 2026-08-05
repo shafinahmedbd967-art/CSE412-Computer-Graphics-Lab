@@ -21,6 +21,7 @@
 #include <GL/glut.h>
 #include <cmath>
 
+bool isPassingActive = true; 
 /* ==========================================================
    WINDOW CONSTANTS
    ========================================================== */
@@ -362,6 +363,10 @@ void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
     {
+    case 'p':
+        case 'P':
+            isPassingActive = !isPassingActive;
+            break;
     case 27: // ESC key
         exit(0);
         break;
@@ -3337,7 +3342,6 @@ void drawPlayground() { }
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
-
 // ----------------------------------------------------------------------------
 // GLOBAL ANIMATION VARIABLES (Positioned in front of Shaheed Minar Lawn)
 // Coordinates: X = 1000 to 1400, Y = 510 to 600
@@ -3358,6 +3362,7 @@ float ballRotation = 0.0f;
 
 // Unique Pass Speeds
 float speedVector[7] = { 0.020f, 0.025f, 0.022f, 0.028f, 0.024f, 0.019f, 0.023f };
+
 
 void updateFootballAnimation()
 {
@@ -3511,29 +3516,25 @@ void drawGoalPost()
 // ----------------------------------------------------------------------------
 void drawFootballField()
 {
-    // Compute Kick Angle for passer and receiver based on current passState
     float kickAngles[7] = { 0.0f };
     float idleOffsets[7] = { 0.0f };
 
     int passerIdx = passState - 1;
     int receiverIdx = passState % 7;
 
-    // Passer leg swings back and kicks forward as ball leaves
-    if (ballProgress < 0.35f) {
-        kickAngles[passerIdx] = sinf((ballProgress / 0.35f) * M_PI) * -35.0f;
+    if (isPassingActive) {
+        if (ballProgress < 0.35f) {
+            kickAngles[passerIdx] = sinf((ballProgress / 0.35f) * M_PI) * -35.0f;
+        }
+        if (ballProgress > 0.7f) {
+            kickAngles[receiverIdx] = sinf(((ballProgress - 0.7f) / 0.3f) * M_PI) * 20.0f;
+        }
+        for (int i = 0; i < 7; i++) {
+            idleOffsets[i] = sinf(ballProgress * M_PI * 2.0f + i) * 0.8f;
+        }
     }
 
-    // Receiver anticipates and lifts foot slightly near arrival
-    if (ballProgress > 0.7f) {
-        kickAngles[receiverIdx] = sinf(((ballProgress - 0.7f) / 0.3f) * M_PI) * 20.0f;
-    }
-
-    // Idle subtle body bounce for all players
-    for (int i = 0; i < 7; i++) {
-        idleOffsets[i] = sinf(ballProgress * M_PI * 2.0f + i) * 0.8f;
-    }
-
-    // 1. DRAW 7 PLAYERS WITH KICK & IDLE ANIMATION
+    // 1. Draw 7 Players
     drawDetailedPlayer(p1X, p1Y, true,  0.95f, 0.95f, 0.95f,  0.15f, 0.35f, 0.75f,  0.1f, 0.1f, 0.1f, kickAngles[0], idleOffsets[0]);
     drawDetailedPlayer(p2X, p2Y, true,  0.85f, 0.15f, 0.15f,  0.15f, 0.15f, 0.15f,  0.4f, 0.2f, 0.1f, kickAngles[1], idleOffsets[1]);
     drawDetailedPlayer(p3X, p3Y, true,  0.95f, 0.85f, 0.10f,  0.10f, 0.55f, 0.20f,  0.1f, 0.1f, 0.1f, kickAngles[2], idleOffsets[2]);
@@ -3542,10 +3543,12 @@ void drawFootballField()
     drawDetailedPlayer(p6X, p6Y, false, 0.20f, 0.65f, 0.25f,  0.90f, 0.90f, 0.90f,  0.1f, 0.1f, 0.1f, kickAngles[5], idleOffsets[5]);
     drawDetailedPlayer(p7X, p7Y, true,  0.55f, 0.20f, 0.75f,  0.15f, 0.15f, 0.15f,  0.3f, 0.15f, 0.05f, kickAngles[6], idleOffsets[6]);
 
-    // 2. UPDATE PASSING ANIMATION
-    updateFootballAnimation();
+    // 2. Update Position Only If Active
+    if (isPassingActive) {
+        updateFootballAnimation();
+    }
 
-    // 3. DRAW FOOTBALL WITH SPIN EFFECT & DYNAMIC SHADOW
+    // 3. Draw Football and Shadow
     glColor4f(0.1f, 0.15f, 0.1f, 0.35f);
     glBegin(GL_TRIANGLE_FAN);
         for(int i=0; i<12; i++){
@@ -3554,7 +3557,6 @@ void drawFootballField()
         }
     glEnd();
 
-    // Rotating Football Body
     glPushMatrix();
     glTranslatef(ballX, ballY, 0.0f);
     glRotatef(ballRotation, 0.0f, 0.0f, 1.0f);
@@ -3567,7 +3569,6 @@ void drawFootballField()
         }
     glEnd();
 
-    // Football Pentagons / Spin Pattern
     glColor3f(0.1f, 0.1f, 0.1f);
     glBegin(GL_TRIANGLES);
         glVertex2f(0.0f, 0.0f);
@@ -3581,7 +3582,6 @@ void drawFootballField()
 
     glPopMatrix();
 }
-
 
 void drawBasketballHoop() { }
 void drawCricketPitch() { }
