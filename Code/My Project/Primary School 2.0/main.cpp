@@ -3944,17 +3944,25 @@ void drawBench()
         glVertex2f(bx + 1.0f, seatY + 4.0f);
     glEnd();
 
+
     glLineWidth(1.0f);
 }
 
-// 6. REFRESHING WATER DRINKING STATION (Left Wall X: 360 to 410)
+// ============================================================================
+// REFINED WALL-MOUNTED DRINKING WATER STATION (Realistic Tile & Basin Detail)
+// Kept exact original structure (X: 360 to 410) with realistic textures/shading
+// ============================================================================
+
 void drawWaterStation()
 {
     float wx = 360.0f;
     float wy = 665.0f;
 
-    // Tiled Wall Backing
-    glColor3f(0.80f, 0.90f, 0.95f); // Light Cyan Tiles
+    // ------------------------------------------------------------------------
+    // 1. TILED WALL BACKING (Light Cyan Tiles with Grid Lines)
+    // ------------------------------------------------------------------------
+    // Main Tile Surface
+    glColor3f(0.82f, 0.92f, 0.96f); // Soft Cyan Ceramic Tone
     glBegin(GL_QUADS);
         glVertex2f(wx, wy - 30.0f);
         glVertex2f(wx + 50.0f, wy - 30.0f);
@@ -3962,8 +3970,42 @@ void drawWaterStation()
         glVertex2f(wx, wy + 25.0f);
     glEnd();
 
-    // Stainless Steel Basin
-    glColor3f(0.70f, 0.72f, 0.75f);
+    // Tile Grout Grid Lines (Creates realistic ceramic tile effect)
+    glColor3f(0.70f, 0.82f, 0.88f);
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+        // Vertical Grout Lines
+        glVertex2f(wx + 16.6f, wy - 30.0f); glVertex2f(wx + 16.6f, wy + 25.0f);
+        glVertex2f(wx + 33.3f, wy - 30.0f); glVertex2f(wx + 33.3f, wy + 25.0f);
+        // Horizontal Grout Lines
+        glVertex2f(wx, wy - 12.0f); glVertex2f(wx + 50.0f, wy - 12.0f);
+        glVertex2f(wx, wy + 6.0f);  glVertex2f(wx + 50.0f, wy + 6.0f);
+    glEnd();
+
+    // Tile Wall Border Outer Line
+    glColor3f(0.55f, 0.68f, 0.75f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(wx, wy - 30.0f);
+        glVertex2f(wx + 50.0f, wy - 30.0f);
+        glVertex2f(wx + 50.0f, wy + 25.0f);
+        glVertex2f(wx, wy + 25.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 2. STAINLESS STEEL BASIN (With Metallic 3D Shading & Drain)
+    // ------------------------------------------------------------------------
+    // Basin Outer Rim Shadow
+    glColor3f(0.45f, 0.48f, 0.52f);
+    glBegin(GL_POLYGON);
+        glVertex2f(wx + 4.0f, wy + 4.0f);
+        glVertex2f(wx + 46.0f, wy + 4.0f);
+        glVertex2f(wx + 41.0f, wy + 19.5f);
+        glVertex2f(wx + 9.0f, wy + 19.5f);
+    glEnd();
+
+    // Main Metallic Basin Face
+    glColor3f(0.75f, 0.78f, 0.82f); // Stainless Steel Silver
     glBegin(GL_POLYGON);
         glVertex2f(wx + 5.0f, wy + 5.0f);
         glVertex2f(wx + 45.0f, wy + 5.0f);
@@ -3971,20 +4013,75 @@ void drawWaterStation()
         glVertex2f(wx + 10.0f, wy + 18.0f);
     glEnd();
 
-    // Water Taps (Metallic Silver)
-    glColor3f(0.3f, 0.3f, 0.35f);
-    glLineWidth(3.0f);
-    glBegin(GL_LINES);
-        // Tap 1
-        glVertex2f(wx + 15.0f, wy - 10.0f); glVertex2f(wx + 15.0f, wy + 2.0f);
-        glVertex2f(wx + 15.0f, wy + 2.0f); glVertex2f(wx + 18.0f, wy + 2.0f);
-        // Tap 2
-        glVertex2f(wx + 35.0f, wy - 10.0f); glVertex2f(wx + 35.0f, wy + 2.0f);
-        glVertex2f(wx + 35.0f, wy + 2.0f); glVertex2f(wx + 38.0f, wy + 2.0f);
+    // Inner Basin Curved Shading (Depth Gradient)
+    glColor3f(0.62f, 0.65f, 0.70f);
+    glBegin(GL_POLYGON);
+        glVertex2f(wx + 8.0f, wy + 7.0f);
+        glVertex2f(wx + 42.0f, wy + 7.0f);
+        glVertex2f(wx + 38.0f, wy + 14.0f);
+        glVertex2f(wx + 12.0f, wy + 14.0f);
     glEnd();
+
+    // Drain Holes in Basin
+    glColor3f(0.20f, 0.22f, 0.25f);
+    glBegin(GL_QUADS);
+        glVertex2f(wx + 23.0f, wy + 9.0f);
+        glVertex2f(wx + 27.0f, wy + 9.0f);
+        glVertex2f(wx + 27.0f, wy + 11.0f);
+        glVertex2f(wx + 23.0f, wy + 11.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. REALISTIC CHROME FAUCETS / TAPS & WATER DROPS
+    // ------------------------------------------------------------------------
+    float tapX[] = { wx + 15.0f, wx + 35.0f };
+
+    for (int i = 0; i < 2; i++) {
+        float tx = tapX[i];
+
+        // Wall Mount Base Ring
+        glColor3f(0.40f, 0.42f, 0.46f);
+        glBegin(GL_QUADS);
+            glVertex2f(tx - 3.0f, wy - 11.0f);
+            glVertex2f(tx + 3.0f, wy - 11.0f);
+            glVertex2f(tx + 3.0f, wy - 8.0f);
+            glVertex2f(tx - 3.0f, wy - 8.0f);
+        glEnd();
+
+        // Curved Gooseneck Tap Pipe
+        glColor3f(0.28f, 0.30f, 0.35f); // Chrome Steel Tone
+        glLineWidth(3.5f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(tx, wy - 10.0f);
+            glVertex2f(tx, wy + 1.0f);
+            glVertex2f(tx + 4.0f, wy + 3.0f);
+            glVertex2f(tx + 4.0f, wy + 6.0f);
+        glEnd();
+
+        // Metallic Highlight on Pipe
+        glColor3f(0.85f, 0.88f, 0.92f);
+        glLineWidth(1.2f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(tx - 0.8f, wy - 10.0f);
+            glVertex2f(tx - 0.8f, wy + 0.5f);
+            glVertex2f(tx + 3.2f, wy + 2.5f);
+        glEnd();
+
+        // Water Drop (Blue Glassy Effect)
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.20f, 0.60f, 0.95f, 0.75f);
+        glBegin(GL_POLYGON);
+            glVertex2f(tx + 4.0f, wy + 8.0f);
+            glVertex2f(tx + 5.0f, wy + 11.0f);
+            glVertex2f(tx + 3.0f, wy + 11.0f);
+        glEnd();
+        glDisable(GL_BLEND);
+    }
+
+    // Reset Line Width
     glLineWidth(1.0f);
 }
-
 // 7. BICYCLE PARKING STAND & CYCLES (Right Wall X: 1120 to 1220)
 void drawCycleParking()
 {
