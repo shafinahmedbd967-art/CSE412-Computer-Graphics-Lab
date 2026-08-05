@@ -3080,12 +3080,20 @@ void drawSingleBananaTree(float x, float y, float scale)
 // ============================================================================
 void drawRightSideForest()
 {
-    // Ground Y = 460 ~ 465
-    drawSingleBananaTree(1190.0f, 480.0f, 0.85f);
-    drawSingleMangoTree(1450.0f, 475.0f, 0.85f);
-    drawSingleCoconutTree(1570.0f, 480.0f, 130.0f);
-    drawSinglePalmTree(1250.0f, 470.0f, 125.0f);
-    drawSingleTree(1350.0f, 465.0f, 0.80f);
+    // Ground Y = 460 ~ 480 (Right Side Forest Expansion)
+
+    // Existing Trees
+    drawSingleBananaTree(1480.0f, 475.0f, 0.85f);
+    //drawSinglePalmTree(1250.0f, 470.0f, 125.0f);
+    drawSingleTree(1590.0f, 470.0f, 0.80f);
+    drawSingleMangoTree(1200.0f, 475.0f, 0.85f);
+    drawSingleCoconutTree(1400.0f, 470.0f, 130.0f);
+
+    // Newly Added Trees (Filling the gaps & extending coverage)
+    drawSingleMangoTree(5.0f, 470.0f, 0.82f);     // Gap between 1250 and 1350
+    drawSingleTree(400.0f, 468.0f, 0.85f);          // Gap between 1350 and 1450
+    drawSinglePalmTree(230.0f, 468.0f, 120.0f);     // Gap between 1450 and 1570
+    drawSingleCoconutTree(630.0f, 478.0f, 125.0f);  // Extension beyond 1570
 }
 //Decorative tree
 void drawSingleDecorativeTree(float x, float y, float scale)
@@ -3878,35 +3886,44 @@ void drawSwing() { }
 void drawSlide() { }
 void drawSeesaw() { }
 // ----------------------------------------------------------------------------
-// 3D REALISTIC MONKEY BARS WITH STUDENTS (X: 1300 to 1400, Y: 500 to 600)
-// Features depth shading, ground cast shadows, and 4 active kids playing
+// 3D REALISTIC MONKEY BARS WITH STUDENTS (Shifted X +30, Y +30)
+// Base Ground Level: Y = 620. Top Beam Level: Y = 538.
+// Features attached ground shadows, metallic joints, and 3D depth details.
 // ----------------------------------------------------------------------------
 
-void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
+void drawStudentBodyDetailed(float x, float y, float scale, bool isSitting, bool armsUp)
 {
     glPushMatrix();
     glTranslatef(x, y, 0.0f);
     glScalef(scale, scale, 1.0f);
 
-    // 1. Shoes & Socks
+    // 1. Shoes with Soles
     glColor3f(0.12f, 0.12f, 0.12f);
     if (isSitting) {
         glRectf(-2.5f, 18.0f, -0.5f, 20.0f);
         glRectf(0.5f, 18.0f, 2.5f, 20.0f);
+        glColor3f(0.85f, 0.85f, 0.85f); // Sole
+        glRectf(-2.5f, 19.5f, -0.5f, 20.2f);
+        glRectf(0.5f, 19.5f, 2.5f, 20.2f);
+
         // Socks
-        glColor3f(0.90f, 0.90f, 0.90f);
+        glColor3f(0.92f, 0.92f, 0.92f);
         glRectf(-2.0f, 14.0f, -1.0f, 18.0f);
         glRectf(1.0f, 14.0f, 2.0f, 18.0f);
     } else {
         glRectf(-2.2f, 22.0f, -0.5f, 24.0f);
         glRectf(0.5f, 22.0f, 2.2f, 24.0f);
+        glColor3f(0.85f, 0.85f, 0.85f); // Sole
+        glRectf(-2.2f, 23.5f, -0.5f, 24.2f);
+        glRectf(0.5f, 23.5f, 2.2f, 24.2f);
+
         // Socks
-        glColor3f(0.90f, 0.90f, 0.90f);
+        glColor3f(0.92f, 0.92f, 0.92f);
         glRectf(-1.8f, 18.0f, -0.9f, 22.0f);
         glRectf(0.9f, 18.0f, 1.8f, 22.0f);
     }
 
-    // 2. Legs
+    // 2. Legs (Skin Tone)
     glColor3f(0.92f, 0.75f, 0.62f);
     if (isSitting) {
         glRectf(-1.8f, 10.0f, -1.0f, 14.0f);
@@ -3919,16 +3936,19 @@ void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
     // 3. Blue Uniform Shorts
     glColor3f(0.15f, 0.35f, 0.75f);
     glRectf(-2.2f, 8.0f, 2.2f, 13.0f);
+    glColor3f(0.95f, 0.95f, 0.95f); // Side Stripe Detail
+    glRectf(-2.2f, 8.0f, -1.9f, 13.0f);
 
-    // 4. White Uniform Shirt
+    // 4. White Uniform Shirt & Collar Detail
     glColor3f(0.95f, 0.95f, 0.95f);
     glRectf(-2.5f, -2.0f, 2.5f, 8.0f);
 
-    // Shirt Collar & Tie
-    glColor3f(0.15f, 0.35f, 0.75f);
+    glColor3f(0.15f, 0.35f, 0.75f); // V-Collar
     glLineWidth(1.5f);
     glBegin(GL_LINES);
         glVertex2f(0.0f, -1.0f); glVertex2f(0.0f, 3.5f);
+        glVertex2f(-1.0f, -1.0f); glVertex2f(0.0f, 1.0f);
+        glVertex2f(1.0f, -1.0f); glVertex2f(0.0f, 1.0f);
     glEnd();
 
     // 5. Head, Hair & Face Details
@@ -3940,7 +3960,7 @@ void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
         }
     glEnd();
 
-    // Dark Hair
+    // Dark Hair Layer
     glColor3f(0.12f, 0.12f, 0.12f);
     glBegin(GL_TRIANGLE_FAN);
         for(int i = 0; i < 12; i++) {
@@ -3949,7 +3969,7 @@ void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
         }
     glEnd();
 
-    // Eyes
+    // Eye Detail
     glColor3f(0.10f, 0.10f, 0.10f);
     glPointSize(2.0f);
     glBegin(GL_POINTS);
@@ -3960,11 +3980,9 @@ void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
     // 6. Arms & Hands
     glColor3f(0.92f, 0.75f, 0.62f);
     if (armsUp) {
-        // Raised arms (Cheering or holding top bars)
         glRectf(-3.5f, -8.0f, -2.2f, 0.0f);
         glRectf(2.2f, -8.0f, 3.5f, 0.0f);
     } else {
-        // Normal side/holding arms
         glRectf(-3.6f, -1.0f, -2.3f, 5.0f);
         glRectf(2.3f, -1.0f, 3.6f, 5.0f);
     }
@@ -3974,107 +3992,114 @@ void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
 
 void drawMonkeyBars()
 {
-    // ------------------------------------------------------------------------
-    // 1. GROUND CAST SHADOWS (3D Depth Projection)
-    // ------------------------------------------------------------------------
-    glColor4f(0.10f, 0.12f, 0.10f, 0.35f);
+    // Ground Y level: 620, Base X positions shifted by +30
+    float fLeftX1 = 1332.0f, fLeftX2 = 1348.0f;
+    float fRightX1 = 1402.0f, fRightX2 = 1418.0f;
+    float bLeftX = 1342.0f, bRightX = 1412.0f;
+    float groundY = 620.0f;
 
-    // Structure Frame Shadow
+    // ------------------------------------------------------------------------
+    // 1. ATTACHED GROUND CAST SHADOWS (Connected directly to post bases)
+    // ------------------------------------------------------------------------
+    glColor4f(0.08f, 0.10f, 0.08f, 0.40f);
+
+    // Main Wooden Frame Base Projection Shadow
     glBegin(GL_POLYGON);
-        glVertex2f(1310.0f, 595.0f);
-        glVertex2f(1395.0f, 595.0f);
-        glVertex2f(1405.0f, 602.0f);
-        glVertex2f(1320.0f, 602.0f);
+        glVertex2f(fLeftX1, groundY);
+        glVertex2f(fRightX2, groundY);
+        glVertex2f(fRightX2 + 25.0f, groundY + 12.0f);
+        glVertex2f(fLeftX1 + 25.0f, groundY + 12.0f);
     glEnd();
 
-    // Center Student Shadow
+    // Ground Center Jumping Student Shadow
     glBegin(GL_TRIANGLE_FAN);
         for(int i = 0; i < 12; i++) {
             float a = i * 2.0f * M_PI / 12.0f;
-            glVertex2f(1350.0f + cosf(a) * 6.0f, 592.0f + sinf(a) * 2.0f);
+            glVertex2f(1380.0f + cosf(a) * 7.0f, groundY - 2.0f + sinf(a) * 2.2f);
         }
     glEnd();
 
-    // ------------------------------------------------------------------------
-    // 2. BACK VERTICAL LADDER & FRAME (3D Depth)
-    // ------------------------------------------------------------------------
-    glColor3f(0.40f, 0.25f, 0.12f); // Darker Wood for Back Frame
+    // Concrete Footing Pads at Base of Posts
+    glColor3f(0.50f, 0.52f, 0.55f);
+    glRectf(fLeftX1 - 2.0f, groundY - 2.0f, fLeftX1 + 7.0f, groundY + 2.0f);
+    glRectf(fLeftX2 - 2.0f, groundY - 2.0f, fLeftX2 + 7.0f, groundY + 2.0f);
+    glRectf(fRightX1 - 2.0f, groundY - 2.0f, fRightX1 + 7.0f, groundY + 2.0f);
+    glRectf(fRightX2 - 2.0f, groundY - 2.0f, fRightX2 + 7.0f, groundY + 2.0f);
 
-    // Back Left Pillar
-    glRectf(1312.0f, 505.0f, 1316.0f, 585.0f);
-    // Back Right Pillar
-    glRectf(1382.0f, 505.0f, 1386.0f, 585.0f);
+    // ------------------------------------------------------------------------
+    // 2. BACK VERTICAL FRAME (3D Depth)
+    // ------------------------------------------------------------------------
+    glColor3f(0.38f, 0.22f, 0.10f); // Darker Wood for Back Posts
+    glRectf(bLeftX, 535.0f, bLeftX + 5.0f, groundY - 2.0f);
+    glRectf(bRightX, 535.0f, bRightX + 5.0f, groundY - 2.0f);
 
     // Back Horizontal Bars
     for(int i = 0; i < 5; i++) {
-        float yStep = 518.0f + (i * 13.0f);
-        glRectf(1312.0f, yStep, 1386.0f, yStep + 2.5f);
+        float yStep = 548.0f + (i * 13.0f);
+        glRectf(bLeftX, yStep, bRightX + 5.0f, yStep + 2.5f);
     }
 
     // ------------------------------------------------------------------------
-    // 3. FRONT MAIN WOODEN FRAME
+    // 3. FRONT MAIN WOODEN FRAME & HIGHLIGHTS
     // ------------------------------------------------------------------------
-    // Front Left Posts
-    glColor3f(0.55f, 0.35f, 0.18f); // Main Wood Tone
-    glRectf(1302.0f, 510.0f, 1307.0f, 590.0f);
-    glRectf(1318.0f, 510.0f, 1323.0f, 590.0f);
+    // Front Posts
+    glColor3f(0.55f, 0.35f, 0.18f); // Base Wood Tone
+    glRectf(fLeftX1, 540.0f, fLeftX1 + 5.0f, groundY);
+    glRectf(fLeftX2, 540.0f, fLeftX2 + 5.0f, groundY);
+    glRectf(fRightX1, 540.0f, fRightX1 + 5.0f, groundY);
+    glRectf(fRightX2, 540.0f, fRightX2 + 5.0f, groundY);
 
-    // Front Right Posts
-    glRectf(1372.0f, 510.0f, 1377.0f, 590.0f);
-    glRectf(1388.0f, 510.0f, 1393.0f, 590.0f);
+    // 3D Bevel Highlights
+    glColor3f(0.72f, 0.48f, 0.25f);
+    glRectf(fLeftX1, 540.0f, fLeftX1 + 1.5f, groundY);
+    glRectf(fLeftX2, 540.0f, fLeftX2 + 1.5f, groundY);
+    glRectf(fRightX1, 540.0f, fRightX1 + 1.5f, groundY);
+    glRectf(fRightX2, 540.0f, fRightX2 + 1.5f, groundY);
 
-    // Wood Highlights (3D Edge Lighting)
-    glColor3f(0.70f, 0.45f, 0.25f);
-    glRectf(1302.0f, 510.0f, 1303.5f, 590.0f);
-    glRectf(1318.0f, 510.0f, 1319.5f, 590.0f);
-    glRectf(1372.0f, 510.0f, 1373.5f, 590.0f);
-    glRectf(1388.0f, 510.0f, 1389.5f, 590.0f);
-
-    // Left Ladder Rungs
-    glColor3f(0.48f, 0.30f, 0.15f);
+    // Left & Right Ladder Rungs
+    glColor3f(0.46f, 0.28f, 0.13f);
     for(int i = 0; i < 5; i++) {
-        float yStep = 522.0f + (i * 13.0f);
-        glRectf(1307.0f, yStep, 1318.0f, yStep + 3.0f);
+        float yStep = 552.0f + (i * 13.0f);
+        glRectf(fLeftX1 + 5.0f, yStep, fLeftX2, yStep + 3.0f);
+        glRectf(fRightX1 + 5.0f, yStep, fRightX2, yStep + 3.0f);
     }
 
-    // Right Ladder Rungs
-    for(int i = 0; i < 5; i++) {
-        float yStep = 522.0f + (i * 13.0f);
-        glRectf(1377.0f, yStep, 1388.0f, yStep + 3.0f);
-    }
-
-    // Top Main Overhead Beams
+    // Top Main Beams
     glColor3f(0.58f, 0.38f, 0.20f);
-    glRectf(1302.0f, 508.0f, 1393.0f, 514.0f);
-    glRectf(1312.0f, 502.0f, 1386.0f, 508.0f); // Back Top Beam
+    glRectf(fLeftX1, 538.0f, fRightX2 + 5.0f, 544.0f);
+    glRectf(bLeftX, 532.0f, bRightX + 5.0f, 538.0f);
 
-    // Overhead Crossing Monkey Bars
-    glColor3f(0.45f, 0.28f, 0.14f);
+    // Metallic Joint Plates
+    glColor3f(0.25f, 0.25f, 0.28f);
+    glRectf(fLeftX1 - 1.0f, 537.0f, fLeftX1 + 6.0f, 545.0f);
+    glRectf(fRightX2 - 1.0f, 537.0f, fRightX2 + 6.0f, 545.0f);
+
+    // Overhead Crossing Monkey Bars (Perspective Angled)
+    glColor3f(0.42f, 0.25f, 0.11f);
     for(int i = 0; i < 9; i++) {
-        float xStep = 1310.0f + (i * 8.5f);
+        float xStep = 1340.0f + (i * 8.5f);
         glBegin(GL_POLYGON);
-            glVertex2f(xStep, 514.0f);
-            glVertex2f(xStep + 3.0f, 514.0f);
-            glVertex2f(xStep + 8.0f, 504.0f);
-            glVertex2f(xStep + 5.0f, 504.0f);
+            glVertex2f(xStep, 544.0f);
+            glVertex2f(xStep + 3.0f, 544.0f);
+            glVertex2f(xStep + 8.0f, 534.0f);
+            glVertex2f(xStep + 5.0f, 534.0f);
         glEnd();
     }
 
     // ------------------------------------------------------------------------
-    // 4. FOUR STUDENTS PLAYING & ENJOYING
+    // 4. STUDENTS ENJOYING (Positions shifted X +30, Y +30)
     // ------------------------------------------------------------------------
-
     // Student 1: Climbing Left Ladder
-    drawStudentBody(1312.0f, 540.0f, 0.85f, false, true);
+    drawStudentBodyDetailed(1342.0f, 570.0f, 0.85f, false, true);
 
     // Student 2: Sitting On Top Overhead Ladder
-    drawStudentBody(1348.0f, 498.0f, 0.85f, true, false);
+    drawStudentBodyDetailed(1378.0f, 528.0f, 0.85f, true, false);
 
-    // Student 3: Cheering/Jumping On Ground (Center)
-    drawStudentBody(1350.0f, 565.0f, 0.90f, false, true);
+    // Student 3: Cheering On Ground (Center)
+    drawStudentBodyDetailed(1380.0f, 595.0f, 0.90f, false, true);
 
-    // Student 4: Climbing Up Right Ladder
-    drawStudentBody(1382.0f, 545.0f, 0.85f, false, false);
+    // Student 4: Climbing Right Ladder
+    drawStudentBodyDetailed(1412.0f, 575.0f, 0.85f, false, false);
 }
 
 /* ---- Boundary & Gate Layer ---- */
