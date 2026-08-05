@@ -4079,7 +4079,277 @@ void drawCricketPitch()
         glVertex2f(fStumpBaseX + 3.2f, fStumpBaseY - 10.0f);
     glEnd();
 }
-void drawSwing() { }
+// ----------------------------------------------------------------------------
+// HIGHLY DETAILED 3D-REALISTIC 2D SWING SET WITH THREE ANIMATED STUDENTS
+// Scaled down to 0.60x size (60% of original scale).
+// Animation FIXED to swing FORWARD/BACKWARD (depth oscillation).
+// Smooth animation using static variable update and glutPostRedisplay().
+// ----------------------------------------------------------------------------
+
+void drawSwing()
+{
+    // Frame Timing & Animation Logic
+    static float angleTime = 0.0f;
+    angleTime += 0.04f; // Speed of swing oscillation
+
+    // Updated Positioning & 0.60 Scale Parameters
+    float centerX = 145.0f;     // Center X position
+    float groundY = 495.0f;     // Base ground Y position
+
+    // Scale factor applied to dimensions:
+    float frameHeight = 36.0f;  // 60.0f * 0.60
+    float topY = groundY - frameHeight; // Top crossbeam position
+    float frameWidth = 72.0f;   // 120.0f * 0.60
+    float legSpread = 8.4f;     // 14.0f * 0.60
+
+    // ------------------------------------------------------------------------
+    // 1. A-FRAME SIDE SUPPORTS & CROSSBEAM (3D Metallic/Steel Tube Effect)
+    // ------------------------------------------------------------------------
+
+    // Back Legs (Darker shade for depth perspective)
+    glColor3f(0.35f, 0.38f, 0.42f); // Steel Shadow Gray
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        // Left Back Leg
+        glVertex2f(centerX - frameWidth / 2.0f - legSpread, groundY - 3.6f);
+        glVertex2f(centerX - frameWidth / 2.0f, topY);
+        // Right Back Leg
+        glVertex2f(centerX + frameWidth / 2.0f - legSpread, groundY - 3.6f);
+        glVertex2f(centerX + frameWidth / 2.0f, topY);
+    glEnd();
+
+    // Ground Concrete Footings (Base Pads)
+    glColor3f(0.55f, 0.55f, 0.58f);
+    glRectf(centerX - frameWidth / 2.0f - legSpread - 2.4f, groundY - 1.2f, centerX - frameWidth / 2.0f - legSpread + 2.4f, groundY + 1.2f);
+    glRectf(centerX + frameWidth / 2.0f - legSpread - 2.4f, groundY - 1.2f, centerX + frameWidth / 2.0f - legSpread + 2.4f, groundY + 1.2f);
+    glRectf(centerX - frameWidth / 2.0f + legSpread - 2.4f, groundY + 2.4f, centerX - frameWidth / 2.0f + legSpread + 2.4f, groundY + 4.8f);
+    glRectf(centerX + frameWidth / 2.0f + legSpread - 2.4f, groundY + 2.4f, centerX + frameWidth / 2.0f + legSpread + 2.4f, groundY + 4.8f);
+
+    // Front Legs (Main bright metallic frame)
+    glColor3f(0.65f, 0.68f, 0.72f); // Metallic Silver Gray
+    glLineWidth(3.0f);
+    glBegin(GL_LINES);
+        // Left Front Leg
+        glVertex2f(centerX - frameWidth / 2.0f + legSpread, groundY + 3.6f);
+        glVertex2f(centerX - frameWidth / 2.0f, topY);
+        // Right Front Leg
+        glVertex2f(centerX + frameWidth / 2.0f + legSpread, groundY + 3.6f);
+        glVertex2f(centerX + frameWidth / 2.0f, topY);
+    glEnd();
+
+    // Side A-Frame Horizontal Braces
+    glColor3f(0.50f, 0.53f, 0.58f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        // Left A-Frame Brace
+        glVertex2f(centerX - frameWidth / 2.0f - legSpread * 0.4f, topY + frameHeight * 0.6f);
+        glVertex2f(centerX - frameWidth / 2.0f + legSpread * 0.4f, topY + frameHeight * 0.6f);
+        // Right A-Frame Brace
+        glVertex2f(centerX + frameWidth / 2.0f - legSpread * 0.4f, topY + frameHeight * 0.6f);
+        glVertex2f(centerX + frameWidth / 2.0f + legSpread * 0.4f, topY + frameHeight * 0.6f);
+    glEnd();
+
+    // Top Main Horizontal Crossbeam
+    glColor3f(0.75f, 0.78f, 0.82f); // Bright Steel Top Beam
+    glLineWidth(4.2f);
+    glBegin(GL_LINES);
+        glVertex2f(centerX - frameWidth / 2.0f - 3.6f, topY);
+        glVertex2f(centerX + frameWidth / 2.0f + 3.6f, topY);
+    glEnd();
+
+    // Corner Support Triangular Gusset Plates
+    glColor3f(0.45f, 0.48f, 0.52f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(centerX - frameWidth / 2.0f, topY);
+        glVertex2f(centerX - frameWidth / 2.0f + 6.0f, topY);
+        glVertex2f(centerX - frameWidth / 2.0f, topY + 6.0f);
+
+        glVertex2f(centerX + frameWidth / 2.0f, topY);
+        glVertex2f(centerX + frameWidth / 2.0f - 6.0f, topY);
+        glVertex2f(centerX + frameWidth / 2.0f, topY + 6.0f);
+    glEnd();
+
+
+    // ------------------------------------------------------------------------
+    // 2. THREE DYNAMICALLY ANIMATED SWINGS WITH STUDENTS (Scaled 0.60x)
+    // ------------------------------------------------------------------------
+
+    // Swing Positions along crossbeam
+    float swingX[3] = { centerX - 21.6f, centerX, centerX + 21.6f };
+    float ropeLength = 21.6f;  // 36.0f * 0.60
+    float seatWidth = 8.4f;    // 14.0f * 0.60
+
+    for (int s = 0; s < 3; s++)
+    {
+        float sx = swingX[s];
+
+        // Top Mounting Rings / Clamps
+        glColor3f(0.3f, 0.3f, 0.3f);
+        glRectf(sx - seatWidth / 2.0f - 0.6f, topY - 0.6f, sx - seatWidth / 2.0f + 0.6f, topY + 1.8f);
+        glRectf(sx + seatWidth / 2.0f - 0.6f, topY - 0.6f, sx + seatWidth / 2.0f + 0.6f, topY + 1.8f);
+
+        // Phase offsets for natural asynchronous motion
+        float phaseOffset = (s == 1) ? 0.4f : (s == 2 ? -0.3f : 0.0f);
+
+        // --- FORWARD/BACKWARD SWING LOGIC ---
+        // We use sine to modulate the Y-offset (depth) to simulate swinging out of the 2D plane.
+        // It creates a "squash and stretch" effect vertically on the ropes and student.
+        float sinFactor = sinf(angleTime + phaseOffset);
+        float currentRopeLength = ropeLength * (1.0f + 0.25f * sinFactor); // +/- 25% length change
+
+        // Push matrix for local positioning around top pivot point (sx, topY)
+        glPushMatrix();
+        glTranslatef(sx, topY, 0.0f);
+
+        // Chain / Suspension Ropes
+        glColor3f(0.40f, 0.40f, 0.42f);
+        glLineWidth(1.2f);
+        glBegin(GL_LINES);
+            glVertex2f(-seatWidth / 2.0f, 1.2f);
+            glVertex2f(-seatWidth / 2.0f, currentRopeLength);
+            glVertex2f( seatWidth / 2.0f, 1.2f);
+            glVertex2f( seatWidth / 2.0f, currentRopeLength);
+        glEnd();
+
+        // Chain Links (Dotted detail)
+        glColor3f(0.80f, 0.80f, 0.85f);
+        glPointSize(1.5f);
+        glBegin(GL_POINTS);
+        for (float cy = 2.4f; cy < currentRopeLength; cy += 2.1f) {
+            glVertex2f(-seatWidth / 2.0f, cy);
+            glVertex2f( seatWidth / 2.0f, cy);
+        }
+        glEnd();
+
+        // Wooden Seat Board (Perspective change with swing depth)
+        glColor3f(0.70f, 0.25f, 0.15f); // Reddish Wood / Coated Seat
+        // Seat board gets thinner when swinging "away"
+        float seatThickness = 2.1f * (1.0f - 0.4f * fabsf(sinFactor));
+        glRectf(-seatWidth / 2.0f - 1.2f, currentRopeLength, seatWidth / 2.0f + 1.2f, currentRopeLength + seatThickness);
+        // Highlight Edge
+        glColor3f(0.85f, 0.40f, 0.25f);
+        glLineWidth(1.0f);
+        glBegin(GL_LINES);
+            glVertex2f(-seatWidth / 2.0f - 1.2f, currentRopeLength);
+            glVertex2f( seatWidth / 2.0f + 1.2f, currentRopeLength);
+        glEnd();
+
+        // --------------------------------------------------------------------
+        // STUDENT DRAWING (Scaled relative to local seat origin)
+        // --------------------------------------------------------------------
+
+        float localSeatY = currentRopeLength;
+        // The student torso/head needs to scale slightly to simulate depth
+        float studentScaleDepth = 1.0f + 0.15f * sinFactor; // +/- 15% vertical scale
+        float baseStudentHeight = 10.8f; // 18.0f * 0.60 original
+        float currentHeadY = localSeatY - baseStudentHeight * studentScaleDepth;
+
+        // 1. Legs (Hanging down from seat)
+        if (s == 1) { // Girl with Navy Blue Skirt & White Socks
+            glColor3f(0.12f, 0.22f, 0.50f); // Navy Skirt
+            glRectf(-3.0f, localSeatY + 1.2f, 3.0f, localSeatY + 4.2f);
+
+            // Skin Legs
+            glColor3f(0.92f, 0.74f, 0.60f);
+            glRectf(-2.4f, localSeatY + 4.2f, -0.9f, localSeatY + 7.8f);
+            glRectf( 0.9f, localSeatY + 4.2f,  2.4f, localSeatY + 7.8f);
+
+            // White Socks
+            glColor3f(0.95f, 0.95f, 0.95f);
+            glRectf(-2.4f, localSeatY + 7.8f, -0.9f, localSeatY + 9.6f);
+            glRectf( 0.9f, localSeatY + 7.8f,  2.4f, localSeatY + 9.6f);
+
+            // Black Shoes
+            glColor3f(0.10f, 0.10f, 0.10f);
+            glRectf(-2.7f, localSeatY + 9.6f, -0.6f, localSeatY + 10.8f);
+            glRectf( 0.6f, localSeatY + 9.6f,  2.7f, localSeatY + 10.8f);
+        }
+        else { // Boys with Navy Blue Pants
+            glColor3f(0.12f, 0.22f, 0.50f); // Navy Pants
+            glRectf(-2.7f, localSeatY + 1.2f, -0.6f, localSeatY + 8.4f);
+            glRectf( 0.6f, localSeatY + 1.2f,  2.7f, localSeatY + 8.4f);
+
+            // Black Shoes
+            glColor3f(0.10f, 0.10f, 0.10f);
+            glRectf(-3.0f, localSeatY + 8.4f, -0.3f, localSeatY + 9.9f);
+            glRectf( 0.3f, localSeatY + 8.4f,  3.0f, localSeatY + 9.9f);
+        }
+
+        // 2. Torso (White School Shirt - Scaled for depth)
+        glColor3f(0.96f, 0.96f, 0.98f);
+        glRectf(-2.7f, currentHeadY + 3.0f * studentScaleDepth, 2.7f, localSeatY);
+
+        // Collar & Tie detail
+        glColor3f(0.12f, 0.22f, 0.50f); // Navy Collar / Tie Accent
+        glBegin(GL_TRIANGLES);
+            glVertex2f( 0.0f, currentHeadY + 5.4f * studentScaleDepth);
+            glVertex2f(-1.2f, currentHeadY + 3.0f * studentScaleDepth);
+            glVertex2f( 1.2f, currentHeadY + 3.0f * studentScaleDepth);
+        glEnd();
+
+        // 3. Arms holding chain
+        glColor3f(0.96f, 0.96f, 0.98f); // Sleeves
+        glRectf(-3.9f, currentHeadY + 3.3f * studentScaleDepth, -2.7f, currentHeadY + 5.4f * studentScaleDepth);
+        glRectf( 2.7f, currentHeadY + 3.3f * studentScaleDepth,  3.9f, currentHeadY + 5.4f * studentScaleDepth);
+
+        glColor3f(0.92f, 0.74f, 0.60f); // Forearms reaching to chain
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            glVertex2f(-3.3f, currentHeadY + 4.8f * studentScaleDepth);
+            glVertex2f(-seatWidth / 2.0f, currentHeadY + 1.2f * studentScaleDepth);
+            glVertex2f( 3.3f, currentHeadY + 4.8f * studentScaleDepth);
+            glVertex2f( seatWidth / 2.0f, currentHeadY + 1.2f * studentScaleDepth);
+        glEnd();
+
+        // 4. Head & Face (Scale and position changes)
+        glColor3f(0.92f, 0.74f, 0.60f); // Skin tone
+        glBegin(GL_POLYGON);
+        float faceRadiusY = 2.4f * studentScaleDepth;
+        float faceRadiusX = 2.28f * (1.0f + 0.05f * sinFactor); // Slight squash/stretch horizontally
+        for (int i = 0; i < 16; i++) {
+            float angle = i * 2.0f * 3.14159f / 16.0f;
+            glVertex2f(cosf(angle) * faceRadiusX, currentHeadY + sinf(angle) * faceRadiusY);
+        }
+        glEnd();
+
+        // 5. Hair & Accessories (Updates with head)
+        glColor3f(0.12f, 0.08f, 0.05f); // Dark Hair
+        if (s == 1) { // Girl's Long Hair with Red Ribbons
+            glBegin(GL_POLYGON); // Hair top
+            float hairRadiusX = 2.52f * (1.0f + 0.05f * sinFactor);
+            float hairRadiusY = 2.4f * studentScaleDepth;
+            for (int i = 0; i < 10; i++) {
+                float angle = 3.14159f + i * 3.14159f / 10.0f;
+                glVertex2f(cosf(angle) * hairRadiusX, currentHeadY - 0.3f * studentScaleDepth + sinf(angle) * hairRadiusY);
+            }
+            glEnd();
+            // Side Ponytails
+            glRectf(-3.6f, currentHeadY - 0.6f * studentScaleDepth, -faceRadiusX, currentHeadY + 3.6f * studentScaleDepth);
+            glRectf( faceRadiusX, currentHeadY - 0.6f * studentScaleDepth,  3.6f, currentHeadY + 3.6f * studentScaleDepth);
+
+            // Red Ribbons
+            glColor3f(0.85f, 0.15f, 0.15f);
+            glRectf(-3.72f, currentHeadY - 0.9f * studentScaleDepth, -2.16f, currentHeadY);
+            glRectf( 2.16f, currentHeadY - 0.9f * studentScaleDepth,  3.72f, currentHeadY);
+        }
+        else { // Boys' Neat Hair
+            glBegin(GL_POLYGON);
+            float hairRadiusX = 2.46f * (1.0f + 0.05f * sinFactor);
+            float hairRadiusY = 2.28f * studentScaleDepth;
+            for (int i = 0; i < 10; i++) {
+                float angle = 3.14159f + i * 3.14159f / 10.0f;
+                glVertex2f(cosf(angle) * hairRadiusX, currentHeadY + sinf(angle) * hairRadiusY);
+            }
+            glEnd();
+        }
+
+        glPopMatrix(); // End depth oscillation transformation
+    }
+
+    // Force frame redraw for smooth continuous animation
+    glutPostRedisplay();
+}
+
 void drawSlide() { }
 void drawSeesaw() { }
 // ----------------------------------------------------------------------------
