@@ -4472,44 +4472,319 @@ void drawSwing()
 
 
 
+// ----------------------------------------------------------------------------
+// HIGHLY DETAILED 3D-REALISTIC PLAYGROUND SLIDE WITH ANIMATED STUDENT
+// Position: X = 345.0f, Y = 495.0f
+// Note: Extra artifacts removed and sliding orientation corrected facing left.
+// ----------------------------------------------------------------------------
+
+void drawSlide()
+{
+    // Position Parameters
+    float centerX = 345.0f;
+    float groundY = 495.0f;
+
+    // Slide Structural Dimensions
+    float slideHeight = 45.0f;
+    float topY = groundY - slideHeight;
+
+    // Key Anchor Coordinates
+    float ladderX = centerX + 22.0f;
+    float topPlatformX = centerX + 18.0f;
+    float slideEndX = centerX - 33.0f;
+
+    // ------------------------------------------------------------------------
+    // 1. BASE ANCHORS
+    // ------------------------------------------------------------------------
+
+    // Metallic Base Plates / Concrete Footings (Unwanted ground artifacts removed)
+    glColor3f(0.35f, 0.35f, 0.38f);
+    glRectf(ladderX - 4.0f, groundY - 1.0f, ladderX + 10.0f, groundY + 2.0f);
+    glRectf(slideEndX - 6.0f, groundY - 1.0f, slideEndX + 4.0f, groundY + 2.0f);
+
+    // ------------------------------------------------------------------------
+    // 2. REAR CLIMBING LADDER (3D Metallic Pipes & Bolts)
+    // ------------------------------------------------------------------------
+
+    // Back Ladder Legs
+    glColor3f(0.52f, 0.54f, 0.58f);
+    glLineWidth(3.5f);
+    glBegin(GL_LINES);
+        glVertex2f(ladderX - 4.0f, groundY);
+        glVertex2f(topPlatformX - 2.0f, topY);
+        glVertex2f(ladderX + 6.0f, groundY);
+        glVertex2f(topPlatformX + 4.0f, topY);
+    glEnd();
+
+    // Front Ladder Legs (Bright Metallic Silver Pipe)
+    glColor3f(0.75f, 0.78f, 0.82f);
+    glLineWidth(4.0f);
+    glBegin(GL_LINES);
+        glVertex2f(ladderX - 2.0f, groundY);
+        glVertex2f(topPlatformX, topY);
+        glVertex2f(ladderX + 8.0f, groundY);
+        glVertex2f(topPlatformX + 6.0f, topY);
+    glEnd();
+
+    // Detailed Ladder Rungs & Steel Fasteners
+    for (int i = 1; i <= 6; i++) {
+        float t = i / 7.0f;
+        float rx1 = (ladderX - 2.0f) * (1.0f - t) + topPlatformX * t;
+        float ry1 = groundY * (1.0f - t) + topY * t;
+        float rx2 = (ladderX + 8.0f) * (1.0f - t) + (topPlatformX + 6.0f) * t;
+        float ry2 = groundY * (1.0f - t) + topY * t;
+
+        // Rung Bar
+        glColor3f(0.85f, 0.88f, 0.92f);
+        glLineWidth(2.5f);
+        glBegin(GL_LINES);
+            glVertex2f(rx1, ry1);
+            glVertex2f(rx2, ry2);
+        glEnd();
+
+        // Joint Bolt Caps
+        glColor3f(0.20f, 0.20f, 0.22f);
+        glPointSize(3.0f);
+        glBegin(GL_POINTS);
+            glVertex2f(rx1, ry1);
+            glVertex2f(rx2, ry2);
+        glEnd();
+    }
+
+    // Curved Safety Handrails (Red Metallic Powder-Coated Finish)
+    glColor3f(0.85f, 0.15f, 0.15f);
+    glLineWidth(3.5f);
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(topPlatformX - 5.0f, topY + 2.0f);
+        glVertex2f(topPlatformX - 5.0f, topY - 7.0f);
+        glVertex2f(topPlatformX + 7.0f, topY - 7.0f);
+        glVertex2f(topPlatformX + 7.0f, topY + 2.0f);
+    glEnd();
+
+    // Inner Railing Bar Support
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(topPlatformX + 1.0f, topY);
+        glVertex2f(topPlatformX + 1.0f, topY - 7.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. SLIDE CHUTE & SIDE GUARDS
+    // ------------------------------------------------------------------------
+
+    // Underneath Structural Frame
+    glColor3f(0.55f, 0.15f, 0.15f);
+    glBegin(GL_POLYGON);
+        glVertex2f(topPlatformX + 1.0f, topY - 1.0f);
+        glVertex2f(slideEndX - 2.0f, groundY - 2.0f);
+        glVertex2f(slideEndX - 2.0f, groundY - 4.0f);
+        glVertex2f(topPlatformX + 1.0f, topY + 2.0f);
+    glEnd();
+
+    // Inner Metallic Chute Surface (Stainless Steel)
+    glColor3f(0.82f, 0.85f, 0.88f);
+    glBegin(GL_POLYGON);
+        glVertex2f(topPlatformX, topY + 2.0f);
+        glVertex2f(topPlatformX - 6.0f, topY + 2.0f);
+        glVertex2f(slideEndX, groundY - 2.0f);
+        glVertex2f(slideEndX + 6.0f, groundY - 2.0f);
+    glEnd();
+
+    // Metallic Reflection Highlights along Chute
+    glColor3f(0.96f, 0.98f, 1.00f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(topPlatformX - 2.0f, topY + 2.0f);
+        glVertex2f(slideEndX + 4.0f, groundY - 2.0f);
+    glEnd();
+
+    // Bright Red Curved Side Guard Rails
+    glColor3f(0.88f, 0.18f, 0.18f);
+    glLineWidth(5.5f);
+    glBegin(GL_LINES);
+        // Outer Top Guard Rail
+        glVertex2f(topPlatformX + 1.0f, topY - 1.0f);
+        glVertex2f(slideEndX - 2.0f, groundY - 4.0f);
+
+        // Exit Flare Curved Lip
+        glVertex2f(slideEndX - 2.0f, groundY - 4.0f);
+        glVertex2f(slideEndX - 8.0f, groundY);
+
+        // Inner Guard Rail
+        glVertex2f(topPlatformX - 5.0f, topY + 4.0f);
+        glVertex2f(slideEndX + 4.0f, groundY + 1.0f);
+    glEnd();
+
+    // Guard Rail Top Edge Bright Specular Highlight
+    glColor3f(0.98f, 0.45f, 0.45f);
+    glLineWidth(1.8f);
+    glBegin(GL_LINES);
+        glVertex2f(topPlatformX + 1.0f, topY - 2.2f);
+        glVertex2f(slideEndX - 2.0f, groundY - 5.2f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 4. ANIMATED STUDENT
+    // ------------------------------------------------------------------------
+
+    static float animTime = 0.0f;
+    animTime += 0.0075f;
+    if (animTime > 3.0f) animTime = 0.0f;
+
+    float px = 0.0f, py = 0.0f;
+    bool isSliding = false;
+
+    // Phase 1: Climbing Ladder (0.0s to 1.0s)
+    if (animTime <= 1.0f) {
+        float t = animTime / 1.0f;
+        px = (ladderX + 3.0f) * (1.0f - t) + (topPlatformX + 3.0f) * t;
+        py = groundY * (1.0f - t) + topY * t;
+    }
+    // Phase 2: Sliding Down (1.0s to 2.0s)
+    else if (animTime <= 2.0f) {
+        float t = (animTime - 1.0f) / 1.0f;
+        px = topPlatformX * (1.0f - t) + slideEndX * t;
+        py = (topY + 1.0f) * (1.0f - t) + (groundY - 3.0f) * t;
+        isSliding = true;
+    }
+    // Phase 3: Walking back to Ladder (2.0s to 3.0s)
+    else {
+        float t = (animTime - 2.0f) / 1.0f;
+        px = slideEndX * (1.0f - t) + (ladderX + 3.0f) * t;
+        py = groundY;
+    }
+
+    // --- DRAWING THE STUDENT ---
+    glPushMatrix();
+    glTranslatef(px, py, 0.0f);
+
+    if (isSliding) {
+        // Corrected Seated Sliding Motion State (Facing Left Towards Slide Direction)
+
+        // Extended Seated Legs Pointing Left
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glRectf(-5.0f, -1.0f, 1.0f, 2.0f);
+
+        // Socks
+        glColor3f(0.95f, 0.95f, 0.95f);
+        glRectf(-5.0f, -1.0f, -3.5f, 2.0f);
+
+        // Shoes Pointing Left
+        glColor3f(0.10f, 0.10f, 0.10f);
+        glRectf(-7.5f, -1.5f, -5.0f, 2.0f);
+
+        // Navy Uniform Shorts
+        glColor3f(0.12f, 0.22f, 0.50f);
+        glRectf(-1.0f, -3.0f, 4.0f, 3.0f);
+
+        // White Shirt (Torso)
+        glColor3f(0.96f, 0.96f, 0.98f);
+        glRectf(-1.5f, -11.0f, 3.5f, -3.0f);
+
+        // Red Tie Detail on Chest (Facing Left)
+        glColor3f(0.85f, 0.15f, 0.15f);
+        glRectf(-1.2f, -10.0f, -0.2f, -5.5f);
+
+        // Forearm holding side safety rail towards front
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glLineWidth(2.2f);
+        glBegin(GL_LINES);
+            glVertex2f(1.0f, -8.0f);
+            glVertex2f(-4.0f, -5.0f);
+        glEnd();
+
+        // Detailed Head Structure
+        float headY = -13.5f;
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 16; i++) {
+                float rad = i * 2.0f * 3.14159f / 16.0f;
+                glVertex2f(cosf(rad) * 2.5f, headY + sinf(rad) * 2.5f);
+            }
+        glEnd();
+
+        // Facial Eye Dot (Facing Left)
+        glColor3f(0.12f, 0.10f, 0.10f);
+        glPointSize(2.2f);
+        glBegin(GL_POINTS);
+            glVertex2f(-1.5f, headY - 0.2f);
+        glEnd();
+
+        // Dark Hair Styling
+        glColor3f(0.15f, 0.09f, 0.05f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 10; i++) {
+                float rad = 3.14159f + i * 3.14159f / 10.0f;
+                glVertex2f(cosf(rad) * 2.6f, headY + sinf(rad) * 2.4f);
+            }
+        glEnd();
+    }
+    else {
+        // Standing / Climbing Motion State
+
+        // Alternating Walking Legs Animation Offset
+        float legOffset = sinf(animTime * 25.0f) * 1.5f;
+
+        // Navy Uniform Shorts
+        glColor3f(0.12f, 0.22f, 0.50f);
+        glRectf(-2.0f, -5.0f, 2.0f, 0.0f);
+
+        // Skin Legs
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glRectf(-1.8f + legOffset, -2.0f, -0.2f + legOffset, 3.0f);
+        glRectf(0.2f - legOffset, -2.0f, 1.8f - legOffset, 3.0f);
+
+        // Shoes
+        glColor3f(0.10f, 0.10f, 0.10f);
+        glRectf(-2.2f + legOffset, 3.0f, -0.1f + legOffset, 4.5f);
+        glRectf(0.1f - legOffset, 3.0f, 2.2f - legOffset, 4.5f);
+
+        // White Shirt Torso
+        glColor3f(0.96f, 0.96f, 0.98f);
+        glRectf(-2.5f, -12.0f, 2.5f, -5.0f);
+
+        // Uniform Tie
+        glColor3f(0.85f, 0.15f, 0.15f);
+        glRectf(-0.5f, -11.0f, 0.5f, -7.0f);
+
+        // Posed Arms
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glLineWidth(2.2f);
+        glBegin(GL_LINES);
+            glVertex2f(-2.5f, -10.0f);
+            glVertex2f(-4.5f - legOffset, -5.0f);
+            glVertex2f(2.5f, -10.0f);
+            glVertex2f(4.5f + legOffset, -5.0f);
+        glEnd();
+
+        // Head Structure
+        float headY = -14.5f;
+        glColor3f(0.92f, 0.74f, 0.60f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 16; i++) {
+                float rad = i * 2.0f * 3.14159f / 16.0f;
+                glVertex2f(cosf(rad) * 2.5f, headY + sinf(rad) * 2.5f);
+            }
+        glEnd();
+
+        // Dark Hair Top
+        glColor3f(0.15f, 0.09f, 0.05f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 10; i++) {
+                float rad = 3.14159f + i * 3.14159f / 10.0f;
+                glVertex2f(cosf(rad) * 2.6f, headY + sinf(rad) * 2.5f);
+            }
+        glEnd();
+    }
+
+    glPopMatrix();
+
+    // Trigger continuous frame redraw for OpenGL
+    glutPostRedisplay();
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void drawSlide() { }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 
 
