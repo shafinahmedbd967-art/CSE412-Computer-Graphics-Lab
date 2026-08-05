@@ -197,10 +197,9 @@ void drawWalkingStudents();
 /* ==========================================================
    FUNCTION PROTOTYPES - VEHICLES
    ========================================================== */
-void drawRickshaw();
-void drawBRTCBus();
+void drawSchoolBus();
 void drawCNG();
-
+void drawBRTCBus();
 /* ==========================================================
    INIT FUNCTION
    ========================================================== */
@@ -308,9 +307,9 @@ void display()
     drawStudent();
 
     /* ---- Vehicles (Road Layer) ---- */
-    drawRickshaw();
-  drawBRTCBus();
-  drawCNG();
+    drawSchoolBus();
+    drawCNG();
+    drawBRTCBus();
     /* ---- Foreground fauna ---- */
     drawButterfly();
 
@@ -4999,7 +4998,296 @@ void drawAssemblyStudents() { }
 void drawWalkingStudents() { }
 
 /* ---- Vehicles ---- */
-void drawRickshaw() { }
+
+/////// SCHOOL BUS WITH DETAILED PASSENGERS, DRIVER & REAR-WHEEL BUMP PHYSICS
+#include <GL/glut.h>
+#include <math.h>
+
+// Global Variables
+float schoolBusX = -350.0f;
+float schoolBusWheelAngle = 0.0f;
+float schoolBusY_Base = 765.0f;
+float schoolBusY_Offset = 0.0f;  // Vertical bump/bounce offset
+
+// Pause & Physics Logic
+int busPauseCounter = 0;
+bool isBusPaused = false;
+
+// Helper Circle Function
+void drawBusCircle(float cx, float cy, float r, int num_segments) {
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(cx, cy);
+    for (int i = 0; i <= num_segments; i++) {
+        float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);
+        float x = r * cosf(theta);
+        float y = r * sinf(theta);
+        glVertex2f(cx + x, cy + y);
+    }
+    glEnd();
+}
+
+// Timer Function with Speed Breaker Physics
+void schoolBusTimer(int value) {
+    float currentSpeed = 1.6f; // Slow, natural school bus speed
+
+    // Rear wheel hits speed breaker when schoolBusX reaches around 480.0f
+    float rearWheelOnBreakerX = 485.0f;
+
+    // 1. Front Wheel Bump (Halkka Jhaki)
+    if (schoolBusX >= 340.0f && schoolBusX < 380.0f) {
+        float frontBump = (schoolBusX - 340.0f) / 40.0f;
+        schoolBusY_Offset = -sinf(frontBump * 3.14159f) * 3.5f; // Light bounce
+    }
+    // 2. STOP EXACTLY WHEN 2ND (REAR) WHEEL IS ON SPEED BREAKER
+    else if (schoolBusX >= rearWheelOnBreakerX - 10.0f && schoolBusX <= rearWheelOnBreakerX + 15.0f && !isBusPaused) {
+        if (busPauseCounter < 25) { // Stop for ~0.4s
+            currentSpeed = 0.0f;    // FULL STOP
+            busPauseCounter++;
+            schoolBusY_Offset = -7.0f; // Big height jump (Rear wheel on top of bump)
+        } else {
+            isBusPaused = true;     // Resume driving
+            currentSpeed = 1.0f;
+        }
+    }
+    // 3. Coming Down to Straight Road (Soja Rastay Jhaki Effect)
+    else if (schoolBusX > rearWheelOnBreakerX + 15.0f && schoolBusX <= rearWheelOnBreakerX + 80.0f) {
+        currentSpeed = 1.2f;
+        float settleProgress = (schoolBusX - (rearWheelOnBreakerX + 15.0f)) / 65.0f;
+
+        // Downward bounce effect while landing back on straight road
+        schoolBusY_Offset = -sinf(settleProgress * 3.14159f) * 5.0f + sinf(settleProgress * 6.28318f) * 1.5f;
+    }
+    else {
+        currentSpeed = 1.6f;
+        schoolBusY_Offset = 0.0f; // Back to normal flat road
+    }
+
+    // Update position and wheel angle
+    schoolBusX += currentSpeed;
+    if (currentSpeed > 0.0f) {
+        schoolBusWheelAngle -= currentSpeed * 4.0f;
+    }
+
+    // Reset Off-screen Loop
+    if (schoolBusX > 1300.0f) {
+        schoolBusX = -350.0f;
+        isBusPaused = false;
+        busPauseCounter = 0;
+        schoolBusY_Offset = 0.0f;
+    }
+
+    glutPostRedisplay();
+    glutTimerFunc(16, schoolBusTimer, 0);
+}
+
+// ---------------------------------------------------------
+// BUS INTERIOR: STUDENTS & DRIVER (DETAILED)
+// ---------------------------------------------------------
+void drawBusPassengers(float baseX, float baseY) {
+    // 1. Draw 5 Students Sitting by the Windows
+    for (int i = 0; i < 5; i++) {
+        float sx = baseX + 32.0f + (i * 30.0f);
+        float sy = baseY + 24.0f;
+
+        // Student Head / Skin
+        glColor3f(0.88f, 0.68f, 0.52f);
+        drawBusCircle(sx, sy + 8.0f, 4.0f, 10);
+
+        // Hair (Black/Dark Brown)
+        glColor3f(0.12f, 0.1f, 0.1f);
+        drawBusCircle(sx + 0.3f, sy + 10.0f, 4.0f, 8);
+
+        // Uniform Shirt (Alternating Blue and Red school uniform)
+        if (i % 2 == 0) glColor3f(0.15f, 0.45f, 0.85f);
+        else glColor3f(0.85f, 0.2f, 0.2f);
+
+        glBegin(GL_QUADS);
+            glVertex2f(sx - 4.5f, sy);
+            glVertex2f(sx + 4.5f, sy);
+            glVertex2f(sx + 4.0f, sy + 7.0f);
+            glVertex2f(sx - 4.0f, sy + 7.0f);
+        glEnd();
+
+        // School Bag Strap Detail
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            glVertex2f(sx - 2.5f, sy + 7.0f);
+            glVertex2f(sx - 1.0f, sy);
+        glEnd();
+    }
+
+    // 2. Draw Driver
+    float dx = baseX + 184.0f;
+    float dy = baseY + 24.0f;
+
+    // Driver Head & Cap
+    glColor3f(0.78f, 0.55f, 0.4f);
+    drawBusCircle(dx, dy + 8.0f, 4.2f, 10);
+
+    // Driver Uniform (Navy Blue)
+    glColor3f(0.08f, 0.15f, 0.35f);
+    glBegin(GL_QUADS);
+        glVertex2f(dx - 5.0f, dy);
+        glVertex2f(dx + 5.0f, dy);
+        glVertex2f(dx + 4.0f, dy + 7.0f);
+        glVertex2f(dx - 4.0f, dy + 7.0f);
+    glEnd();
+
+    // Driver Cap
+    glColor3f(0.05f, 0.08f, 0.2f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(dx - 5.0f, dy + 11.0f);
+        glVertex2f(dx + 6.0f, dy + 11.0f);
+        glVertex2f(dx, dy + 15.0f);
+    glEnd();
+
+    // Steering Wheel
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINE_LOOP);
+        for (int i = 0; i < 12; i++) {
+            float rad = i * 2.0f * 3.14159f / 12.0f;
+            glVertex2f(dx + 6.0f + cos(rad) * 4.0f, dy + 5.0f + sin(rad) * 4.0f);
+        }
+    glEnd();
+}
+
+// ---------------------------------------------------------
+// MAIN SCHOOL BUS DRAW FUNCTION
+// ---------------------------------------------------------
+void drawSchoolBus() {
+    glPushMatrix();
+
+    // Position bus with dynamic bump/bounce Y-offset
+    glTranslatef(schoolBusX, schoolBusY_Base + schoolBusY_Offset, 0.0f);
+
+    // Flip Y-axis to render correctly
+    glScalef(1.0f, -1.0f, 1.0f);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // 1. Road Shadow
+    glColor4f(0.0f, 0.0f, 0.0f, 0.35f);
+    glBegin(GL_QUADS);
+        glVertex2f(-15.0f, 2.0f);
+        glVertex2f(220.0f, 2.0f);
+        glVertex2f(210.0f, -4.0f);
+        glVertex2f(-25.0f, -4.0f);
+    glEnd();
+
+    // 2. Main Yellow Body
+    glColor3f(0.98f, 0.75f, 0.05f);
+    glBegin(GL_POLYGON);
+        glVertex2f(-10.0f, 10.0f);
+        glVertex2f(202.0f, 10.0f);
+        glVertex2f(210.0f, 25.0f);
+        glVertex2f(210.0f, 48.0f);
+        glVertex2f(195.0f, 52.0f);
+        glVertex2f(-10.0f, 52.0f);
+    glEnd();
+
+    // Black Side Stripe
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glBegin(GL_QUADS);
+        glVertex2f(-10.0f, 15.0f);
+        glVertex2f(205.0f, 15.0f);
+        glVertex2f(205.0f, 18.0f);
+        glVertex2f(-10.0f, 18.0f);
+    glEnd();
+
+    // "SCHOOL BUS" Top Signboard Frame
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glBegin(GL_QUADS);
+        glVertex2f(45.0f, 52.0f);
+        glVertex2f(145.0f, 52.0f);
+        glVertex2f(145.0f, 60.0f);
+        glVertex2f(45.0f, 60.0f);
+    glEnd();
+
+    // Yellow Sign Inside Box
+    glColor3f(0.98f, 0.75f, 0.05f);
+    glBegin(GL_QUADS);
+        glVertex2f(47.0f, 53.5f);
+        glVertex2f(143.0f, 53.5f);
+        glVertex2f(143.0f, 58.5f);
+        glVertex2f(47.0f, 58.5f);
+    glEnd();
+
+    // 3. DRAW INTERIOR PASSENGERS BEFORE WINDOW GLASS
+    drawBusPassengers(0.0f, 0.0f);
+
+    // 4. GLASS WINDOWS (Semi-transparent so passengers are visible)
+    glColor4f(0.65f, 0.85f, 0.95f, 0.45f); // Transparent Tint
+    for (int i = 0; i < 5; i++) {
+        float winX = 22.0f + (i * 30.0f);
+        glBegin(GL_QUADS);
+            glVertex2f(winX, 22.0f);
+            glVertex2f(winX + 24.0f, 22.0f);
+            glVertex2f(winX + 24.0f, 44.0f);
+            glVertex2f(winX, 44.0f);
+        glEnd();
+
+        // Window Frame Outlines
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(winX, 22.0f);
+            glVertex2f(winX + 24.0f, 22.0f);
+            glVertex2f(winX + 24.0f, 44.0f);
+            glVertex2f(winX, 44.0f);
+        glEnd();
+        glColor4f(0.65f, 0.85f, 0.95f, 0.45f); // Reset glass color
+    }
+
+    // Driver Windshield
+    glBegin(GL_QUADS);
+        glVertex2f(178.0f, 22.0f);
+        glVertex2f(204.0f, 22.0f);
+        glVertex2f(204.0f, 44.0f);
+        glVertex2f(178.0f, 44.0f);
+    glEnd();
+
+    // 5. Headlight & Tail Lights
+    glColor3f(1.0f, 0.95f, 0.6f);
+    drawBusCircle(208.0f, 18.0f, 3.8f, 10); // Front Light
+
+    glColor3f(0.85f, 0.1f, 0.1f);
+    glBegin(GL_QUADS);
+        glVertex2f(-12.0f, 22.0f);
+        glVertex2f(-10.0f, 22.0f);
+        glVertex2f(-10.0f, 32.0f);
+        glVertex2f(-12.0f, 32.0f);
+    glEnd();
+
+    // Front Bumper
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glBegin(GL_QUADS);
+        glVertex2f(202.0f, 8.0f);
+        glVertex2f(212.0f, 8.0f);
+        glVertex2f(212.0f, 14.0f);
+        glVertex2f(202.0f, 14.0f);
+    glEnd();
+
+    // 6. WHEELS (1st Wheel at X=162, 2nd Rear Wheel at X=32)
+    // Front Wheel (1st Wheel)
+    glColor3f(0.12f, 0.12f, 0.12f);
+    drawBusCircle(162.0f, 10.0f, 13.5f, 22);
+    glColor3f(0.82f, 0.82f, 0.85f);
+    drawBusCircle(162.0f, 10.0f, 7.5f, 14);
+
+    // Rear Wheel (2nd Wheel)
+    glColor3f(0.12f, 0.12f, 0.12f);
+    drawBusCircle(32.0f, 10.0f, 13.5f, 22);
+    glColor3f(0.82f, 0.82f, 0.85f);
+    drawBusCircle(32.0f, 10.0f, 7.5f, 14);
+
+    glDisable(GL_BLEND);
+    glPopMatrix();
+}
+
+/// BRTC BUS
 #include <GL/glut.h>
 #include <math.h>
 
@@ -5007,6 +5295,14 @@ void drawRickshaw() { }
 float busX = 1200.0f;
 float busWheelAngle = 0.0f;
 bool isTimerStarted = false;
+
+// CNG position set strictly behind Bus & adjusted Y position
+float cngX = 1800.0f; // Bus baseline distance + 600 units gap
+float cngWheelAngle = 0.0f;
+
+// Y-Coordinates aligned to the upper two lanes of 780 to 900 road range
+float busY_Base = 870.0f; // Upper Lane (Bus)
+float cngY_Base = 825.0f; // Middle Lane (CNG) - Lower Lane (780-815) reserved for future use
 
 // Helper function to draw circles
 void drawCircleShape(float cx, float cy, float r, int num_segments) {
@@ -5021,31 +5317,39 @@ void drawCircleShape(float cx, float cy, float r, int num_segments) {
     glEnd();
 }
 
-// Auto movement timer function with adjusted Speed Breaker Timing
+// Unified Auto Movement Timer for both Bus and CNG
 void internalTrafficTimer(int value) {
-    float currentSpeed = 2.5f;
-
-    // Adjusted Speed breaker X-range (X = 305 to 460)
-    bool isOnSpeedBreaker = (busX >= 305.0f && busX <= 460.0f);
-
-    if (isOnSpeedBreaker) {
-        currentSpeed = 0.7f; // Speed breaker-e bus slow hobe
+    // 1. Bus Movement Update
+    float busSpeed = 2.5f;
+    if (busX >= 305.0f && busX <= 460.0f) {
+        busSpeed = 0.7f; // Slow down over speed breaker
     }
+    busX -= busSpeed;
+    busWheelAngle += busSpeed * 4.0f;
 
-    busX -= currentSpeed; // Bus movement speed
-
-    // Wheel rotation direction based on actual movement speed
-    busWheelAngle += currentSpeed * 4.0f;
-
-    // Reset bus position after moving out of screen
+    // Reset Bus Position
     if (busX < -350.0f) {
         busX = 1300.0f;
+    }
+
+    // 2. CNG Movement Update (Synchronized with Bus speed and same relative logic)
+    float cngSpeed = 2.5f;
+    if (cngX >= 305.0f && cngX <= 460.0f) {
+        cngSpeed = 0.7f; // Slow down over speed breaker
+    }
+    cngX -= cngSpeed;
+    cngWheelAngle += cngSpeed * 6.0f;
+
+    // Reset CNG Position always maintaining safe distance behind the Bus
+    if (cngX < -350.0f) {
+        cngX = busX + 600.0f;
     }
 
     glutPostRedisplay();
     glutTimerFunc(16, internalTrafficTimer, 0);
 }
-// Draw Passengers inside windows
+
+// Draw Passengers inside Bus windows
 void drawDetailedPassengers(float baseX, float baseY) {
     // Upper deck passengers
     for (int i = 0; i < 5; i++) {
@@ -5086,7 +5390,7 @@ void drawDetailedPassengers(float baseX, float baseY) {
     }
 }
 
-// Detailed Driver Function
+// Detailed Driver Function for Bus
 void drawDetailedDriver(float baseX, float baseY) {
     float dx = baseX + 2.0f;
     float dy = baseY - 28.0f;
@@ -5131,21 +5435,17 @@ void drawDetailedDriver(float baseX, float baseY) {
     drawCircleShape(dx - 9.0f, dy - 1.0f, 4.0f, 10);
 }
 
-// Wheel with rotating spokes
+// Wheel with rotating spokes for Bus
 void drawDetailedWheel(float wx, float wy, float radius) {
-    // Outer Rubber Tire
     glColor3f(0.1f, 0.1f, 0.1f);
     drawCircleShape(wx, wy, radius, 24);
 
-    // Rim Outer
     glColor3f(0.75f, 0.75f, 0.78f);
     drawCircleShape(wx, wy, radius * 0.55f, 16);
 
-    // Inner Cap
     glColor3f(0.25f, 0.25f, 0.25f);
     drawCircleShape(wx, wy, radius * 0.25f, 12);
 
-    // Rotating Spokes
     glColor3f(0.3f, 0.3f, 0.3f);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
@@ -5164,15 +5464,15 @@ void drawBRTCBus() {
         isTimerStarted = true;
     }
 
-    float basePositionY = 845.0f;
+    float currentPositionY = busY_Base;
 
-    // Up-down bounce effect aligned with new speed breaker zone (X = 305 to 460)
     if (busX >= 305.0f && busX <= 460.0f) {
         float bumpPhase = (busX - 305.0f) / 155.0f * 3.14159f * 2.0f;
-        basePositionY += sinf(bumpPhase) * 5.0f;
+        currentPositionY += sinf(bumpPhase) * 5.0f;
     }
+
     glPushMatrix();
-    glTranslatef(busX, basePositionY, 0.0f);
+    glTranslatef(busX, currentPositionY, 0.0f);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -5226,7 +5526,6 @@ void drawBRTCBus() {
     // 6. Glass Windows
     glColor4f(0.65f, 0.85f, 0.95f, 0.55f);
 
-    // Upper Deck Windows
     for (int i = 0; i < 6; i++) {
         float winX = 22.0f + (i * 35.0f);
         glBegin(GL_QUADS);
@@ -5237,7 +5536,6 @@ void drawBRTCBus() {
         glEnd();
     }
 
-    // Lower Deck Windows
     for (int i = 0; i < 6; i++) {
         float winX = 22.0f + (i * 35.0f);
         glBegin(GL_QUADS);
@@ -5248,7 +5546,6 @@ void drawBRTCBus() {
         glEnd();
     }
 
-    // Front Main Windshields
     glBegin(GL_QUADS);
         glVertex2f(-12.0f, -95.0f);
         glVertex2f(13.0f, -95.0f);
@@ -5339,65 +5636,17 @@ void drawBRTCBus() {
     glPopMatrix();
 }
 
-#include <GL/glut.h>
-#include <math.h>
-
-// Global position variables for CNG (Positioned far behind bus for 4-second delay)
-float cngX = 2200.0f;
-float cngWheelAngle = 0.0f;
-bool isCngTimerStarted = false;
-
-// Helper function to draw circles
-static void drawCngCircle(float cx, float cy, float r, int num_segments) {
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(cx, cy);
-    for (int i = 0; i <= num_segments; i++) {
-        float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);
-        float x = r * cosf(theta);
-        float y = r * sinf(theta);
-        glVertex2f(cx + x, cy + y);
-    }
-    glEnd();
-}
-
-// Timer for CNG Movement (Moves from Right to Left with 4s Delay behind Bus)
-void internalCngTimer(int value) {
-    float currentSpeed = 2.5f;
-
-    // Speed breaker zone alignment (X = 305 to 460)
-    bool isOnSpeedBreaker = (cngX >= 305.0f && cngX <= 460.0f);
-
-    if (isOnSpeedBreaker) {
-        currentSpeed = 0.7f; // Slow down over speed breaker
-    }
-
-    cngX -= currentSpeed;
-    cngWheelAngle += currentSpeed * 6.0f; // Wheel rotation
-
-    // Reset loop with 4-second offset (~600px delay behind screen edge)
-    if (cngX < -300.0f) {
-        cngX = 2200.0f;
-    }
-
-    glutPostRedisplay();
-    glutTimerFunc(16, internalCngTimer, 0);
-}
-
 // Compact CNG Wheel
 void drawCngWheel(float wx, float wy, float radius) {
-    // Tire Rubber
     glColor3f(0.12f, 0.12f, 0.12f);
-    drawCngCircle(wx, wy, radius, 20);
+    drawCircleShape(wx, wy, radius, 20);
 
-    // Rim
     glColor3f(0.75f, 0.75f, 0.78f);
-    drawCngCircle(wx, wy, radius * 0.55f, 14);
+    drawCircleShape(wx, wy, radius * 0.55f, 14);
 
-    // Inner Cap
     glColor3f(0.2f, 0.2f, 0.2f);
-    drawCngCircle(wx, wy, radius * 0.25f, 10);
+    drawCircleShape(wx, wy, radius * 0.25f, 10);
 
-    // Rotating Spokes
     glColor3f(0.35f, 0.35f, 0.35f);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
@@ -5414,7 +5663,6 @@ void drawCngDriver(float baseX, float baseY) {
     float dx = baseX + 18.0f;
     float dy = baseY - 32.0f;
 
-    // Driver Cap
     glColor3f(0.15f, 0.15f, 0.2f);
     glBegin(GL_QUADS);
         glVertex2f(dx - 5.0f, dy + 11.0f);
@@ -5423,11 +5671,9 @@ void drawCngDriver(float baseX, float baseY) {
         glVertex2f(dx - 5.0f, dy + 13.5f);
     glEnd();
 
-    // Driver Head
     glColor3f(0.8f, 0.55f, 0.4f);
-    drawCngCircle(dx, dy + 6.5f, 4.0f, 12);
+    drawCircleShape(dx, dy + 6.5f, 4.0f, 12);
 
-    // Driver Shirt
     glColor3f(0.2f, 0.45f, 0.75f);
     glBegin(GL_QUADS);
         glVertex2f(dx - 5.0f, dy - 10.0f);
@@ -5436,7 +5682,6 @@ void drawCngDriver(float baseX, float baseY) {
         glVertex2f(dx - 4.0f, dy + 2.0f);
     glEnd();
 
-    // Handlebar & Hands
     glColor3f(0.1f, 0.1f, 0.1f);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
@@ -5450,11 +5695,9 @@ void drawCngPassengers(float baseX, float baseY) {
     float px1 = baseX + 56.0f;
     float py1 = baseY - 30.0f;
 
-    // Passenger Head
     glColor3f(0.75f, 0.5f, 0.38f);
-    drawCngCircle(px1, py1 + 6.5f, 3.8f, 12);
+    drawCircleShape(px1, py1 + 6.5f, 3.8f, 12);
 
-    // Passenger Shirt
     glColor3f(0.85f, 0.25f, 0.25f);
     glBegin(GL_QUADS);
         glVertex2f(px1 - 4.5f, py1 - 10.0f);
@@ -5466,9 +5709,8 @@ void drawCngPassengers(float baseX, float baseY) {
     float px2 = baseX + 68.0f;
     float py2 = baseY - 30.0f;
 
-    // Second Passenger
     glColor3f(0.7f, 0.48f, 0.35f);
-    drawCngCircle(px2, py2 + 6.5f, 3.8f, 12);
+    drawCircleShape(px2, py2 + 6.5f, 3.8f, 12);
 
     glColor3f(0.2f, 0.65f, 0.3f);
     glBegin(GL_QUADS);
@@ -5499,23 +5741,17 @@ void drawCngGrillMesh(float x1, float y1, float x2, float y2) {
     }
 }
 
-// Main CNG Function (Box Type Ratio 10:7)
+// Main CNG Function
 void drawCNG() {
-    if (!isCngTimerStarted) {
-        glutTimerFunc(16, internalCngTimer, 0);
-        isCngTimerStarted = true;
-    }
+    float currentPositionY = cngY_Base;
 
-    float basePositionY = 845.0f;
-
-    // Speed breaker bump effect
     if (cngX >= 305.0f && cngX <= 460.0f) {
         float bumpPhase = (cngX - 305.0f) / 155.0f * 3.14159f * 2.0f;
-        basePositionY += sinf(bumpPhase) * 4.0f;
+        currentPositionY += sinf(bumpPhase) * 4.0f;
     }
 
     glPushMatrix();
-    glTranslatef(cngX, basePositionY, 0.0f);
+    glTranslatef(cngX, currentPositionY, 0.0f);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -5527,16 +5763,6 @@ void drawCNG() {
         glVertex2f(90.0f, 6.0f);
         glVertex2f(80.0f, 15.0f);
         glVertex2f(-18.0f, 15.0f);
-    glEnd();
-
-    // 2. Black Canvas Top (Compact Box Shape, Aspect Ratio 10:7)
-    glColor3f(0.18f, 0.22f, 0.2f);
-    glBegin(GL_POLYGON);
-        glVertex2f(32.0f, -68.0f);
-        glVertex2f(82.0f, -68.0f);
-        glVertex2f(84.0f, -22.0f);
-        glVertex2f(52.0f, -22.0f);
-        glVertex2f(32.0f, -48.0f);
     glEnd();
 
     // 3. Green Metallic Body
@@ -5591,7 +5817,6 @@ void drawCNG() {
     glEnd();
 
     // 7. Door Openings & Protective Mesh
-    // Driver side opening
     glColor3f(0.05f, 0.35f, 0.18f);
     glBegin(GL_QUADS);
         glVertex2f(22.0f, -48.0f);
@@ -5601,7 +5826,6 @@ void drawCNG() {
     glEnd();
     drawCngGrillMesh(22.0f, -48.0f, 40.0f, -26.0f);
 
-    // Passenger side opening
     glBegin(GL_QUADS);
         glVertex2f(44.0f, -48.0f);
         glVertex2f(78.0f, -48.0f);
@@ -5639,9 +5863,8 @@ void drawCNG() {
         glVertex2f(-8.0f, -20.0f);
     glEnd();
 
-    // Headlight (Unlit Housing)
     glColor3f(0.35f, 0.35f, 0.38f);
-    drawCngCircle(-3.0f, -14.0f, 3.2f, 10);
+    drawCircleShape(-3.0f, -14.0f, 3.2f, 10);
     glColor3f(0.85f, 0.45f, 0.1f);
     glBegin(GL_QUADS);
         glVertex2f(-2.0f, -9.0f);
@@ -5669,8 +5892,6 @@ void drawCNG() {
     glDisable(GL_BLEND);
     glPopMatrix();
 }
-
-
 /* ==========================================================
    MAIN FUNCTION
    ========================================================== */
@@ -5687,6 +5908,7 @@ int main(int argc, char** argv)
     // Start Metro Rail Animation Loop
     glutTimerFunc(0, updateMetroRail, 0);
     //Bus Timer
+    glutTimerFunc(0, schoolBusTimer, 0);
     //glutTimerFunc(0, updateTimer, 0);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
