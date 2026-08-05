@@ -3583,12 +3583,499 @@ void drawFootballField()
     glPopMatrix();
 }
 
-void drawBasketballHoop() { }
+// ----------------------------------------------------------------------------
+// RESCALED BASKETBALL HOOP & SHOOTING ANIMATION
+// Scaled down pole & player height with extra details
+// ----------------------------------------------------------------------------
+
+float bPlayerX = 1495.0f;
+float bPlayerY = 485.0f;
+
+// Ball Animation Parameters
+float bBallX = 1498.0f;
+float bBallY = 472.0f;
+float bBallProgress = 0.0f;
+float bBallRotation = 0.0f;
+
+void updateBasketballAnimation()
+{
+    bBallProgress += 0.012f;
+    if (bBallProgress > 1.0f) {
+        bBallProgress = 0.0f;
+    }
+
+    bBallRotation += 10.0f;
+
+    // Adjusted Arc Trajectory for smaller pole height (Rim Y = 390)
+    if (bBallProgress < 0.45f) {
+        float t = bBallProgress / 0.45f;
+        float startX = 1498.0f, startY = 472.0f;
+        float targetX = 1554.0f, targetY = 390.0f;
+
+        bBallX = startX + (targetX - startX) * t;
+        bBallY = startY + (targetY - startY) * t - sinf(t * M_PI) * 45.0f;
+    }
+    else if (bBallProgress < 0.65f) {
+        float t = (bBallProgress - 0.45f) / 0.20f;
+        float startX = 1554.0f, startY = 390.0f;
+        float groundY = 510.0f;
+
+        bBallX = startX;
+        bBallY = startY + (groundY - startY) * t;
+    }
+    else {
+        float t = (bBallProgress - 0.65f) / 0.35f;
+        float startX = 1554.0f, startY = 510.0f;
+        float endX = 1498.0f, endY = 472.0f;
+
+        bBallX = startX + (endX - startX) * t;
+        bBallY = startY + (endY - startY) * t - sinf(t * M_PI) * 15.0f;
+    }
+}
+
+void drawBasketballHoop()
+{
+    // 1. Concrete Ground Court Patch
+    glColor3f(0.70f, 0.72f, 0.74f);
+    glBegin(GL_POLYGON);
+        glVertex2f(1460.0f, 510.0f);
+        glVertex2f(1580.0f, 510.0f);
+        glVertex2f(1570.0f, 522.0f);
+        glVertex2f(1450.0f, 522.0f);
+    glEnd();
+
+    // White Border Lines
+    glColor3f(0.95f, 0.95f, 0.95f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(1460.0f, 510.0f);
+        glVertex2f(1580.0f, 510.0f);
+        glVertex2f(1570.0f, 522.0f);
+        glVertex2f(1450.0f, 522.0f);
+    glEnd();
+
+    // Key Hole Arc on Court
+    glLineWidth(1.2f);
+    glBegin(GL_LINE_STRIP);
+        for(int i=0; i<=10; i++) {
+            float a = i * M_PI / 10.0f;
+            glVertex2f(1554.0f + cosf(a)*18.0f, 510.0f + sinf(a)*5.0f);
+        }
+    glEnd();
+
+    // 2. Heavy Base Stand
+    glColor3f(0.20f, 0.22f, 0.24f);
+    glRectf(1558.0f, 502.0f, 1576.0f, 510.0f);
+    glColor3f(0.35f, 0.38f, 0.40f);
+    glRectf(1560.0f, 498.0f, 1574.0f, 502.0f);
+
+    // Reduced Height Pole (Height halved: Y = 360 to 498)
+    glColor3f(0.35f, 0.37f, 0.40f);
+    glRectf(1565.0f, 360.0f, 1569.0f, 498.0f);
+    glColor3f(0.60f, 0.63f, 0.65f); // 3D Specular Highlight
+    glRectf(1566.0f, 360.0f, 1567.0f, 498.0f);
+
+    // Backboard Support Brackets (Behind Board)
+    glColor3f(0.25f, 0.25f, 0.28f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(1565.0f, 370.0f); glVertex2f(1558.0f, 360.0f);
+        glVertex2f(1565.0f, 390.0f); glVertex2f(1558.0f, 395.0f);
+    glEnd();
+
+    // 3. Backboard (Reduced Size with Glass & Rim Mount)
+    // 3D Thickness Side
+    glColor3f(0.50f, 0.52f, 0.55f);
+    glBegin(GL_POLYGON);
+        glVertex2f(1562.0f, 355.0f);
+        glVertex2f(1564.0f, 357.0f);
+        glVertex2f(1564.0f, 397.0f);
+        glVertex2f(1562.0f, 395.0f);
+    glEnd();
+
+    // Board Main Body
+    glColor3f(0.95f, 0.96f, 0.98f);
+    glRectf(1546.0f, 355.0f, 1562.0f, 395.0f);
+
+    // Black Outer Border
+    glColor3f(0.12f, 0.12f, 0.15f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(1546.0f, 355.0f);
+        glVertex2f(1562.0f, 355.0f);
+        glVertex2f(1562.0f, 395.0f);
+        glVertex2f(1546.0f, 395.0f);
+    glEnd();
+
+    // Inner Red Target Box
+    glColor3f(0.85f, 0.20f, 0.10f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2f(1550.0f, 375.0f);
+        glVertex2f(1558.0f, 375.0f);
+        glVertex2f(1558.0f, 388.0f);
+        glVertex2f(1550.0f, 388.0f);
+    glEnd();
+
+    // 4. Basketball Rim Mount & Rim Ring
+    // Metal Base Connector
+    glColor3f(0.80f, 0.18f, 0.05f);
+    glRectf(1552.0f, 388.0f, 1556.0f, 391.0f);
+
+    // Outer Rim Oval
+    glColor3f(0.92f, 0.25f, 0.05f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINE_LOOP);
+        for(int i = 0; i < 20; i++) {
+            float rad = i * 2.0f * M_PI / 20.0f;
+            glVertex2f(1554.0f + cosf(rad) * 6.0f, 390.0f + sinf(rad) * 2.0f);
+        }
+    glEnd();
+
+    // Net Mesh Strands
+    glColor4f(0.95f, 0.95f, 0.95f, 0.85f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+        for(int i = 0; i < 8; i++) {
+            float rad = i * 2.0f * M_PI / 8.0f;
+            float topX = 1554.0f + cosf(rad) * 5.5f;
+            float topY = 390.0f + sinf(rad) * 1.6f;
+            glVertex2f(topX, topY);
+            glVertex2f(1554.0f + cosf(rad) * 2.8f, 402.0f);
+        }
+    glEnd();
+
+    // 5. Scaled Down & Detailed Playing Student Body
+    float armAngle = (bBallProgress < 0.3f) ? -(bBallProgress / 0.3f) * 35.0f : -10.0f;
+
+    glPushMatrix();
+    glTranslatef(bPlayerX, bPlayerY, 0.0f);
+
+    // Player Shadow
+    glColor4f(0.10f, 0.12f, 0.10f, 0.30f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<15; i++){
+            float a = i * 2.0f * M_PI / 15.0f;
+            glVertex2f(cosf(a)*4.0f, 22.0f + sinf(a)*1.5f);
+        }
+    glEnd();
+
+    // Shoes with Soles
+    glColor3f(0.15f, 0.15f, 0.15f);
+    glRectf(-1.8f, 20.5f, -0.3f, 22.0f);
+    glRectf(0.3f, 20.5f, 1.8f, 22.0f);
+    glColor3f(0.85f, 0.85f, 0.85f); // White sole
+    glRectf(-1.8f, 21.6f, -0.3f, 22.2f);
+    glRectf(0.3f, 21.6f, 1.8f, 22.2f);
+
+    // Legs
+    glColor3f(0.92f, 0.75f, 0.62f);
+    glRectf(-1.4f, 15.0f, -0.5f, 20.5f);
+    glRectf(0.5f, 15.0f, 1.4f, 20.5f);
+
+    // Sports Shorts with Side Stripe
+    glColor3f(0.15f, 0.35f, 0.75f);
+    glRectf(-1.8f, 11.0f, 1.8f, 15.0f);
+    glColor3f(0.95f, 0.95f, 0.95f); // Side Stripe
+    glRectf(-1.8f, 11.0f, -1.5f, 15.0f);
+
+    // Shirt & Collar Detail
+    glColor3f(0.95f, 0.95f, 0.95f);
+    glRectf(-2.0f, 2.0f, 2.0f, 11.0f);
+    glColor3f(0.15f, 0.35f, 0.75f); // Blue V-Collar
+    glLineWidth(1.2f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(-0.8f, 2.0f);
+        glVertex2f(0.8f, 2.0f);
+        glVertex2f(0.0f, 4.0f);
+    glEnd();
+
+    // Head, Hair & Facial Detail
+    glColor3f(0.92f, 0.75f, 0.62f); // Skin
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<15; i++){
+            float a = i * 2.0f * M_PI / 15.0f;
+            glVertex2f(cosf(a)*2.2f, -1.8f + sinf(a)*2.2f);
+        }
+    glEnd();
+
+    glColor3f(0.12f, 0.12f, 0.12f); // Hair
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<12; i++){
+            float a = i * M_PI / 12.0f;
+            glVertex2f(cosf(a)*2.3f, -2.0f - sinf(a)*2.0f);
+        }
+    glEnd();
+
+    // Eye dot
+    glColor3f(0.10f, 0.10f, 0.10f);
+    glPointSize(2.0f);
+    glBegin(GL_POINTS);
+        glVertex2f(1.0f, -1.8f);
+    glEnd();
+
+    // Shooting Arms (Both Arms Visible)
+    // Left Arm (Stabilizing)
+    glColor3f(0.88f, 0.70f, 0.58f);
+    glRectf(-0.5f, 3.0f, 2.8f, 4.5f);
+
+    // Right Arm (Shooting Motion)
+    glPushMatrix();
+        glTranslatef(1.2f, 3.5f, 0.0f);
+        glRotatef(armAngle, 0.0f, 0.0f, 1.0f);
+        glColor3f(0.92f, 0.75f, 0.62f);
+        glRectf(0.0f, -0.6f, 4.2f, 0.6f);
+    glPopMatrix();
+
+    glPopMatrix();
+
+    // 6. Basketball with Detailed Seams
+    updateBasketballAnimation();
+
+    // Ball Ground Shadow
+    glColor4f(0.10f, 0.12f, 0.10f, 0.25f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<12; i++){
+            float a = i * 2.0f * M_PI / 12.0f;
+            glVertex2f(bBallX + cosf(a)*2.8f, 510.0f + sinf(a)*1.0f);
+        }
+    glEnd();
+
+    // Rotating Basketball
+    glPushMatrix();
+    glTranslatef(bBallX, bBallY, 0.0f);
+    glRotatef(bBallRotation, 0.0f, 0.0f, 1.0f);
+
+    // Orange Base
+    glColor3f(0.92f, 0.40f, 0.05f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<16; i++){
+            float a = i * 2.0f * M_PI / 16.0f;
+            glVertex2f(cosf(a)*2.8f, sinf(a)*2.8f);
+        }
+    glEnd();
+
+    // Black Seams/Lines
+    glColor3f(0.10f, 0.10f, 0.10f);
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+        glVertex2f(-2.8f, 0.0f); glVertex2f(2.8f, 0.0f);
+        glVertex2f(0.0f, -2.8f); glVertex2f(0.0f, 2.8f);
+    glEnd();
+
+    glLineWidth(1.0f);
+    glBegin(GL_LINE_STRIP);
+        for(int i=0; i<=10; i++){
+            float a = -M_PI/2.0f + (i * M_PI / 10.0f);
+            glVertex2f(cosf(a)*1.8f - 0.8f, sinf(a)*1.8f);
+        }
+    glEnd();
+
+    glPopMatrix();
+}
 void drawCricketPitch() { }
 void drawSwing() { }
 void drawSlide() { }
 void drawSeesaw() { }
-void drawMonkeyBars() { }
+// ----------------------------------------------------------------------------
+// 3D REALISTIC MONKEY BARS WITH STUDENTS (X: 1300 to 1400, Y: 500 to 600)
+// Features depth shading, ground cast shadows, and 4 active kids playing
+// ----------------------------------------------------------------------------
+
+void drawStudentBody(float x, float y, float scale, bool isSitting, bool armsUp)
+{
+    glPushMatrix();
+    glTranslatef(x, y, 0.0f);
+    glScalef(scale, scale, 1.0f);
+
+    // 1. Shoes & Socks
+    glColor3f(0.12f, 0.12f, 0.12f);
+    if (isSitting) {
+        glRectf(-2.5f, 18.0f, -0.5f, 20.0f);
+        glRectf(0.5f, 18.0f, 2.5f, 20.0f);
+        // Socks
+        glColor3f(0.90f, 0.90f, 0.90f);
+        glRectf(-2.0f, 14.0f, -1.0f, 18.0f);
+        glRectf(1.0f, 14.0f, 2.0f, 18.0f);
+    } else {
+        glRectf(-2.2f, 22.0f, -0.5f, 24.0f);
+        glRectf(0.5f, 22.0f, 2.2f, 24.0f);
+        // Socks
+        glColor3f(0.90f, 0.90f, 0.90f);
+        glRectf(-1.8f, 18.0f, -0.9f, 22.0f);
+        glRectf(0.9f, 18.0f, 1.8f, 22.0f);
+    }
+
+    // 2. Legs
+    glColor3f(0.92f, 0.75f, 0.62f);
+    if (isSitting) {
+        glRectf(-1.8f, 10.0f, -1.0f, 14.0f);
+        glRectf(1.0f, 10.0f, 1.8f, 14.0f);
+    } else {
+        glRectf(-1.6f, 13.0f, -0.8f, 18.0f);
+        glRectf(0.8f, 13.0f, 1.6f, 18.0f);
+    }
+
+    // 3. Blue Uniform Shorts
+    glColor3f(0.15f, 0.35f, 0.75f);
+    glRectf(-2.2f, 8.0f, 2.2f, 13.0f);
+
+    // 4. White Uniform Shirt
+    glColor3f(0.95f, 0.95f, 0.95f);
+    glRectf(-2.5f, -2.0f, 2.5f, 8.0f);
+
+    // Shirt Collar & Tie
+    glColor3f(0.15f, 0.35f, 0.75f);
+    glLineWidth(1.5f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, -1.0f); glVertex2f(0.0f, 3.5f);
+    glEnd();
+
+    // 5. Head, Hair & Face Details
+    glColor3f(0.92f, 0.75f, 0.62f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i = 0; i < 15; i++) {
+            float a = i * 2.0f * M_PI / 15.0f;
+            glVertex2f(cosf(a) * 2.2f, -5.0f + sinf(a) * 2.2f);
+        }
+    glEnd();
+
+    // Dark Hair
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i = 0; i < 12; i++) {
+            float a = i * M_PI / 12.0f;
+            glVertex2f(cosf(a) * 2.4f, -5.2f - sinf(a) * 2.0f);
+        }
+    glEnd();
+
+    // Eyes
+    glColor3f(0.10f, 0.10f, 0.10f);
+    glPointSize(2.0f);
+    glBegin(GL_POINTS);
+        glVertex2f(-0.8f, -5.0f);
+        glVertex2f(0.8f, -5.0f);
+    glEnd();
+
+    // 6. Arms & Hands
+    glColor3f(0.92f, 0.75f, 0.62f);
+    if (armsUp) {
+        // Raised arms (Cheering or holding top bars)
+        glRectf(-3.5f, -8.0f, -2.2f, 0.0f);
+        glRectf(2.2f, -8.0f, 3.5f, 0.0f);
+    } else {
+        // Normal side/holding arms
+        glRectf(-3.6f, -1.0f, -2.3f, 5.0f);
+        glRectf(2.3f, -1.0f, 3.6f, 5.0f);
+    }
+
+    glPopMatrix();
+}
+
+void drawMonkeyBars()
+{
+    // ------------------------------------------------------------------------
+    // 1. GROUND CAST SHADOWS (3D Depth Projection)
+    // ------------------------------------------------------------------------
+    glColor4f(0.10f, 0.12f, 0.10f, 0.35f);
+
+    // Structure Frame Shadow
+    glBegin(GL_POLYGON);
+        glVertex2f(1310.0f, 595.0f);
+        glVertex2f(1395.0f, 595.0f);
+        glVertex2f(1405.0f, 602.0f);
+        glVertex2f(1320.0f, 602.0f);
+    glEnd();
+
+    // Center Student Shadow
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i = 0; i < 12; i++) {
+            float a = i * 2.0f * M_PI / 12.0f;
+            glVertex2f(1350.0f + cosf(a) * 6.0f, 592.0f + sinf(a) * 2.0f);
+        }
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 2. BACK VERTICAL LADDER & FRAME (3D Depth)
+    // ------------------------------------------------------------------------
+    glColor3f(0.40f, 0.25f, 0.12f); // Darker Wood for Back Frame
+
+    // Back Left Pillar
+    glRectf(1312.0f, 505.0f, 1316.0f, 585.0f);
+    // Back Right Pillar
+    glRectf(1382.0f, 505.0f, 1386.0f, 585.0f);
+
+    // Back Horizontal Bars
+    for(int i = 0; i < 5; i++) {
+        float yStep = 518.0f + (i * 13.0f);
+        glRectf(1312.0f, yStep, 1386.0f, yStep + 2.5f);
+    }
+
+    // ------------------------------------------------------------------------
+    // 3. FRONT MAIN WOODEN FRAME
+    // ------------------------------------------------------------------------
+    // Front Left Posts
+    glColor3f(0.55f, 0.35f, 0.18f); // Main Wood Tone
+    glRectf(1302.0f, 510.0f, 1307.0f, 590.0f);
+    glRectf(1318.0f, 510.0f, 1323.0f, 590.0f);
+
+    // Front Right Posts
+    glRectf(1372.0f, 510.0f, 1377.0f, 590.0f);
+    glRectf(1388.0f, 510.0f, 1393.0f, 590.0f);
+
+    // Wood Highlights (3D Edge Lighting)
+    glColor3f(0.70f, 0.45f, 0.25f);
+    glRectf(1302.0f, 510.0f, 1303.5f, 590.0f);
+    glRectf(1318.0f, 510.0f, 1319.5f, 590.0f);
+    glRectf(1372.0f, 510.0f, 1373.5f, 590.0f);
+    glRectf(1388.0f, 510.0f, 1389.5f, 590.0f);
+
+    // Left Ladder Rungs
+    glColor3f(0.48f, 0.30f, 0.15f);
+    for(int i = 0; i < 5; i++) {
+        float yStep = 522.0f + (i * 13.0f);
+        glRectf(1307.0f, yStep, 1318.0f, yStep + 3.0f);
+    }
+
+    // Right Ladder Rungs
+    for(int i = 0; i < 5; i++) {
+        float yStep = 522.0f + (i * 13.0f);
+        glRectf(1377.0f, yStep, 1388.0f, yStep + 3.0f);
+    }
+
+    // Top Main Overhead Beams
+    glColor3f(0.58f, 0.38f, 0.20f);
+    glRectf(1302.0f, 508.0f, 1393.0f, 514.0f);
+    glRectf(1312.0f, 502.0f, 1386.0f, 508.0f); // Back Top Beam
+
+    // Overhead Crossing Monkey Bars
+    glColor3f(0.45f, 0.28f, 0.14f);
+    for(int i = 0; i < 9; i++) {
+        float xStep = 1310.0f + (i * 8.5f);
+        glBegin(GL_POLYGON);
+            glVertex2f(xStep, 514.0f);
+            glVertex2f(xStep + 3.0f, 514.0f);
+            glVertex2f(xStep + 8.0f, 504.0f);
+            glVertex2f(xStep + 5.0f, 504.0f);
+        glEnd();
+    }
+
+    // ------------------------------------------------------------------------
+    // 4. FOUR STUDENTS PLAYING & ENJOYING
+    // ------------------------------------------------------------------------
+
+    // Student 1: Climbing Left Ladder
+    drawStudentBody(1312.0f, 540.0f, 0.85f, false, true);
+
+    // Student 2: Sitting On Top Overhead Ladder
+    drawStudentBody(1348.0f, 498.0f, 0.85f, true, false);
+
+    // Student 3: Cheering/Jumping On Ground (Center)
+    drawStudentBody(1350.0f, 565.0f, 0.90f, false, true);
+
+    // Student 4: Climbing Up Right Ladder
+    drawStudentBody(1382.0f, 545.0f, 0.85f, false, false);
+}
 
 /* ---- Boundary & Gate Layer ---- */
 // ============================================================================
