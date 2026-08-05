@@ -3881,7 +3881,204 @@ void drawBasketballHoop()
 
     glPopMatrix();
 }
-void drawCricketPitch() { }
+// ----------------------------------------------------------------------------
+// HIGHLY DETAILED PERSPECTIVE CRICKET PITCH (LEFT LAWN - BRIGHT & REFINED)
+// Positioned on the left field, running parallel to the central assembly path.
+// Trajectory: As Y increases towards foreground (520->585), X shifts left (615->500).
+// Features: Brightened turf & clay colors, ultra-thin precision white lines,
+//           isometric dashed markings, and refined stump details.
+// ----------------------------------------------------------------------------
+
+void drawCricketPitch()
+{
+    // Primary Pitch Coordinates (Aligned with left lawn perspective)
+    float x1_far = 615.0f, y1_far = 520.0f; // Far Top-Left
+    float x2_far = 635.0f, y2_far = 523.0f; // Far Top-Right
+
+    float x1_near = 495.0f, y1_near = 582.0f; // Near Bottom-Left
+    float x2_near = 522.0f, y2_near = 588.0f; // Near Bottom-Right
+
+    // 1. OUTFIELD GRASS DUST & CUT PATTERN (Brighter Grass Base Blend)
+    glColor4f(0.30f, 0.62f, 0.22f, 0.70f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x1_near - 8.0f, y1_near - 4.0f);
+        glVertex2f(x2_near + 8.0f, y2_near + 4.0f);
+        glVertex2f(x2_far + 6.0f,  y2_far + 3.0f);
+        glVertex2f(x1_far - 6.0f,  y1_far - 3.0f);
+    glEnd();
+
+    // 2. HARD CLAY SOIL PITCH BASE (Bright Warm Khaki/Clay Tone)
+    glColor3f(0.90f, 0.81f, 0.65f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x1_near, y1_near);
+        glVertex2f(x2_near, y2_near);
+        glVertex2f(x2_far,  y2_far);
+        glVertex2f(x1_far,  y1_far);
+    glEnd();
+
+    // 3. PITCH SURFACE TEXTURE & WEAR LINES (Lighter Dried Center Track)
+    // Dry Clay Center Track
+    glColor3f(0.85f, 0.75f, 0.58f);
+    glBegin(GL_POLYGON);
+        glVertex2f(x1_near + 5.0f, y1_near + 1.0f);
+        glVertex2f(x2_near - 5.0f, y2_near - 1.0f);
+        glVertex2f(x2_far - 4.0f,  y2_far - 1.0f);
+        glVertex2f(x1_far + 4.0f,  y1_far + 1.0f);
+    glEnd();
+
+    // Rough Footmark Patches near Bowling Creases (Soft Lighter Dirt Marks)
+    glColor3f(0.78f, 0.67f, 0.50f);
+    // Near Rough
+    glBegin(GL_POLYGON);
+        glVertex2f(x1_near + 3.0f, y1_near - 2.0f);
+        glVertex2f(x1_near + 9.0f, y1_near - 1.0f);
+        glVertex2f(x1_near + 7.0f, y1_near - 12.0f);
+        glVertex2f(x1_near + 1.0f, y1_near - 12.0f);
+    glEnd();
+    // Far Rough
+    glBegin(GL_POLYGON);
+        glVertex2f(x2_far - 2.0f, y2_far - 1.0f);
+        glVertex2f(x2_far - 7.0f, y2_far - 1.0f);
+        glVertex2f(x2_far - 5.0f, y2_far + 8.0f);
+        glVertex2f(x2_far - 1.0f, y2_far + 8.0f);
+    glEnd();
+
+    // 4. ULTRA-THIN BRIGHT WHITE CREASE MARKINGS
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glLineWidth(1.0f); // Thin lines
+
+    // Near End Creases (Batting Side)
+    float nPoppingX1 = x1_near * 0.82f + x1_far * 0.18f;
+    float nPoppingY1 = y1_near * 0.82f + y1_far * 0.18f;
+    float nPoppingX2 = x2_near * 0.82f + x2_far * 0.18f;
+    float nPoppingY2 = y2_near * 0.82f + y2_far * 0.18f;
+
+    glBegin(GL_LINES);
+        // Popping Crease Line
+        glVertex2f(nPoppingX1 - 5.0f, nPoppingY1 - 1.2f);
+        glVertex2f(nPoppingX2 + 5.0f, nPoppingY2 + 1.2f);
+
+        // Bowling Crease Line
+        glVertex2f(x1_near + 2.0f, y1_near + 0.5f);
+        glVertex2f(x2_near - 2.0f, y2_near - 0.5f);
+
+        // Return Creases Left & Right
+        glVertex2f(x1_near + 2.0f, y1_near + 0.5f);
+        glVertex2f(nPoppingX1 - 2.0f, nPoppingY1 - 0.5f);
+        glVertex2f(x2_near - 2.0f, y2_near - 0.5f);
+        glVertex2f(nPoppingX2 + 2.0f, nPoppingY2 + 0.5f);
+    glEnd();
+
+    // Far End Creases (Bowling Side)
+    float fPoppingX1 = x1_far * 0.82f + x1_near * 0.18f;
+    float fPoppingY1 = y1_far * 0.82f + y1_near * 0.18f;
+    float fPoppingX2 = x2_far * 0.82f + x2_near * 0.18f;
+    float fPoppingY2 = y2_far * 0.82f + y2_near * 0.18f;
+
+    glBegin(GL_LINES);
+        // Popping Crease Line
+        glVertex2f(fPoppingX1 - 4.0f, fPoppingY1 - 1.0f);
+        glVertex2f(fPoppingX2 + 4.0f, fPoppingY2 + 1.0f);
+
+        // Bowling Crease Line
+        glVertex2f(x1_far + 2.0f, y1_far + 0.5f);
+        glVertex2f(x2_far - 2.0f, y2_far - 0.5f);
+
+        // Return Creases Left & Right
+        glVertex2f(x1_far + 2.0f, y1_far + 0.5f);
+        glVertex2f(fPoppingX1 - 1.5f, fPoppingY1 - 0.5f);
+        glVertex2f(x2_far - 2.0f, y2_far - 0.5f);
+        glVertex2f(fPoppingX2 + 1.5f, fPoppingY2 + 0.5f);
+    glEnd();
+
+    // Fine Dashed Indicator Lines (Thin White Accent Marks)
+    glLineWidth(0.8f);
+    glBegin(GL_LINES);
+        // Near Side Dashes
+        glVertex2f(nPoppingX1 + 2.0f, nPoppingY1); glVertex2f(nPoppingX1 + 4.0f, nPoppingY1);
+        glVertex2f(nPoppingX2 - 2.0f, nPoppingY2); glVertex2f(nPoppingX2 - 4.0f, nPoppingY2);
+        // Far Side Dashes (Fixed Variable Name Here)
+        glVertex2f(fPoppingX1 + 1.5f, fPoppingY1); glVertex2f(fPoppingX1 + 3.0f, fPoppingY1);
+        glVertex2f(fPoppingX2 - 1.5f, fPoppingY2); glVertex2f(fPoppingX2 - 3.0f, fPoppingY2);
+    glEnd();
+
+    // 5. STUMPS, BAILS & GROUND CAST SHADOWS
+
+    // --- NEAR STUMPS (Foreground - Larger Scale) ---
+    float nStumpBaseX = (x1_near + x2_near) * 0.5f;
+    float nStumpBaseY = (y1_near + y2_near) * 0.5f;
+
+    // Soft Ambient Base Shadow on Pitch Surface
+    glColor4f(0.12f, 0.12f, 0.12f, 0.30f);
+    glBegin(GL_POLYGON);
+        glVertex2f(nStumpBaseX - 5.0f, nStumpBaseY);
+        glVertex2f(nStumpBaseX + 5.0f, nStumpBaseY);
+        glVertex2f(nStumpBaseX + 8.0f, nStumpBaseY + 3.0f);
+        glVertex2f(nStumpBaseX - 2.0f, nStumpBaseY + 3.0f);
+    glEnd();
+
+    // Wooden Stumps with Lighter Bright Highlights
+    for (int i = -1; i <= 1; i++) {
+        float sx = nStumpBaseX + (i * 3.5f);
+
+        // Shadow Edge
+        glColor3f(0.78f, 0.62f, 0.35f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINES);
+            glVertex2f(sx, nStumpBaseY);
+            glVertex2f(sx, nStumpBaseY - 16.0f);
+        glEnd();
+
+        // Bright Wood Highlight
+        glColor3f(0.98f, 0.90f, 0.68f);
+        glLineWidth(1.0f);
+        glBegin(GL_LINES);
+            glVertex2f(sx - 0.3f, nStumpBaseY);
+            glVertex2f(sx - 0.3f, nStumpBaseY - 16.0f);
+        glEnd();
+    }
+
+    // Near Bails (Top Crossbars - Bright Light Yellow)
+    glColor3f(1.0f, 0.95f, 0.70f);
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+        glVertex2f(nStumpBaseX - 4.5f, nStumpBaseY - 16.0f);
+        glVertex2f(nStumpBaseX + 4.5f, nStumpBaseY - 16.0f);
+    glEnd();
+
+    // --- FAR STUMPS (Background - Scaled Down for Depth) ---
+    float fStumpBaseX = (x1_far + x2_far) * 0.5f;
+    float fStumpBaseY = (y1_far + y2_far) * 0.5f;
+
+    // Soft Base Shadow
+    glColor4f(0.12f, 0.12f, 0.12f, 0.25f);
+    glBegin(GL_POLYGON);
+        glVertex2f(fStumpBaseX - 3.5f, fStumpBaseY);
+        glVertex2f(fStumpBaseX + 3.5f, fStumpBaseY);
+        glVertex2f(fStumpBaseX + 6.0f, fStumpBaseY + 2.0f);
+        glVertex2f(fStumpBaseX - 1.0f, fStumpBaseY + 2.0f);
+    glEnd();
+
+    // Wooden Stumps
+    for (int i = -1; i <= 1; i++) {
+        float sx = fStumpBaseX + (i * 2.4f);
+
+        glColor3f(0.95f, 0.82f, 0.55f);
+        glLineWidth(1.2f);
+        glBegin(GL_LINES);
+            glVertex2f(sx, fStumpBaseY);
+            glVertex2f(sx, fStumpBaseY - 10.0f);
+        glEnd();
+    }
+
+    // Far Bails
+    glColor3f(1.0f, 0.95f, 0.70f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+        glVertex2f(fStumpBaseX - 3.2f, fStumpBaseY - 10.0f);
+        glVertex2f(fStumpBaseX + 3.2f, fStumpBaseY - 10.0f);
+    glEnd();
+}
 void drawSwing() { }
 void drawSlide() { }
 void drawSeesaw() { }
