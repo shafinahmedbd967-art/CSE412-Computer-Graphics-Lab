@@ -197,11 +197,8 @@ void drawWalkingStudents();
 /* ==========================================================
    FUNCTION PROTOTYPES - VEHICLES
    ========================================================== */
-void drawBus();
 void drawRickshaw();
-void drawBicycle();
-void drawMotorbike();
-void drawCar();
+void drawBRTCBus();
 
 /* ==========================================================
    INIT FUNCTION
@@ -310,12 +307,8 @@ void display()
     drawStudent();
 
     /* ---- Vehicles (Road Layer) ---- */
-    drawBus();
     drawRickshaw();
-    drawBicycle();
-    drawMotorbike();
-    drawCar();
-
+  drawBRTCBus();
     /* ---- Foreground fauna ---- */
     drawButterfly();
 
@@ -1073,30 +1066,107 @@ void drawDistantSkyline() {
 
 // ============================================================================
 // FUNCTION: drawGround
-// Description: Renders grass starting closer (Y = 420) so school isn't isolated.
+// Description: Detailed realistic grass ground with organic depth & smooth shade variations
 // ============================================================================
 void drawGround() {
-    // 1. MAIN GRASS GRADIENT
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // 1. BASE HORIZON & FIELD GRADIENT (4-Layer Depth Blend)
     glBegin(GL_QUADS);
-        glColor3f(0.42f, 0.78f, 0.30f); // Light Horizon Green
+        // Distance Horizon (Y: 420 - 520)
+        glColor3f(0.48f, 0.80f, 0.35f); // Soft Sunlight Horizon Green
         glVertex2i(0, 420);
         glVertex2i(1600, 420);
+        glColor3f(0.38f, 0.72f, 0.28f);
+        glVertex2i(1600, 520);
+        glVertex2i(0, 520);
 
-        glColor3f(0.28f, 0.62f, 0.20f); // Mid-Field Green
+        // Mid-Distance Layer 1 (Y: 520 - 650)
+        glColor3f(0.38f, 0.72f, 0.28f);
+        glVertex2i(0, 520);
+        glVertex2i(1600, 520);
+        glColor3f(0.28f, 0.62f, 0.20f);
         glVertex2i(1600, 650);
         glVertex2i(0, 650);
-    glEnd();
 
-    glBegin(GL_QUADS);
+        // Foreground Transition (Y: 650 - 780)
         glColor3f(0.28f, 0.62f, 0.20f);
         glVertex2i(0, 650);
         glVertex2i(1600, 650);
+        glColor3f(0.18f, 0.50f, 0.14f);
+        glVertex2i(1600, 780);
+        glVertex2i(0, 780);
 
-        glColor3f(0.12f, 0.42f, 0.10f); // Dark Foreground Green
+        // Immediate Foreground (Y: 780 - 900)
+        glColor3f(0.18f, 0.50f, 0.14f);
+        glVertex2i(0, 780);
+        glVertex2i(1600, 780);
+        glColor3f(0.10f, 0.38f, 0.08f); // Rich Deep Foreground Green
         glVertex2i(1600, 900);
         glVertex2i(0, 900);
     glEnd();
 
+    // 2. NATURAL ORGANIC SHADE VARIATIONS (Patches of Sunlight & Density)
+    // Sunlit / Lighter Grass Field Patches
+    glColor4f(0.55f, 0.85f, 0.38f, 0.18f); // Soft Transparent Warm Green
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(350.0f, 550.0f);
+        glVertex2f(200.0f, 500.0f);
+        glVertex2f(500.0f, 480.0f);
+        glVertex2f(600.0f, 580.0f);
+        glVertex2f(420.0f, 620.0f);
+    glEnd();
+
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(1200.0f, 600.0f);
+        glVertex2f(1050.0f, 530.0f);
+        glVertex2f(1380.0f, 520.0f);
+        glVertex2f(1450.0f, 640.0f);
+        glVertex2f(1300.0f, 660.0f);
+    glEnd();
+
+    // Denser / Shaded Grass Patches
+    glColor4f(0.08f, 0.32f, 0.06f, 0.22f); // Deep Shadowy Green
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(800.0f, 680.0f);
+        glVertex2f(600.0f, 640.0f);
+        glVertex2f(750.0f, 750.0f);
+        glVertex2f(1000.0f, 720.0f);
+    glEnd();
+
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(250.0f, 760.0f);
+        glVertex2f(100.0f, 700.0f);
+        glVertex2f(400.0f, 720.0f);
+        glVertex2f(320.0f, 820.0f);
+    glEnd();
+
+    // 3. SUBTLE DIRT/SOIL TONE BLEND (Gives realistic ground texture beneath grass)
+    glColor4f(0.38f, 0.30f, 0.18f, 0.08f); // Very soft soil brown tint
+    glBegin(GL_QUADS);
+        glVertex2i(0, 600);
+        glVertex2i(1600, 600);
+        glVertex2i(1600, 900);
+        glVertex2i(0, 900);
+    glEnd();
+
+    // 4. MICRO GRASS SHRED DETAILS (Tiny subtle grass tufts - minimal and non-distracting)
+    glColor4f(0.22f, 0.58f, 0.18f, 0.45f);
+    glLineWidth(1.2f);
+    glBegin(GL_LINES);
+        // Distributed tiny field micro-tufts
+        for (int x = 50; x < 1550; x += 110) {
+            float y = 500.0f + (x % 70);
+            glVertex2f((float)x, y);
+            glVertex2f((float)x - 2.0f, y - 6.0f);
+
+            glVertex2f((float)x + 8.0f, y + 20.0f);
+            glVertex2f((float)x + 11.0f, y + 12.0f);
+        }
+    glEnd();
+
+    glDisable(GL_BLEND);
     glLineWidth(1.0f);
 }
 
@@ -4927,11 +4997,345 @@ void drawAssemblyStudents() { }
 void drawWalkingStudents() { }
 
 /* ---- Vehicles ---- */
-void drawBus() { }
 void drawRickshaw() { }
-void drawBicycle() { }
-void drawMotorbike() { }
-void drawCar() { }
+#include <GL/glut.h>
+#include <math.h>
+
+// Global position variables
+float busX = 1200.0f;
+float busWheelAngle = 0.0f;
+bool isTimerStarted = false;
+
+// Helper function to draw circles
+void drawCircleShape(float cx, float cy, float r, int num_segments) {
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(cx, cy);
+    for (int i = 0; i <= num_segments; i++) {
+        float theta = 2.0f * 3.1415926f * float(i) / float(num_segments);
+        float x = r * cosf(theta);
+        float y = r * sinf(theta);
+        glVertex2f(cx + x, cy + y);
+    }
+    glEnd();
+}
+
+// Auto movement timer function with adjusted Speed Breaker Timing
+void internalTrafficTimer(int value) {
+    float currentSpeed = 2.5f;
+
+    // Adjusted Speed breaker X-range (X = 305 to 460)
+    bool isOnSpeedBreaker = (busX >= 305.0f && busX <= 460.0f);
+
+    if (isOnSpeedBreaker) {
+        currentSpeed = 0.7f; // Speed breaker-e bus slow hobe
+    }
+
+    busX -= currentSpeed; // Bus movement speed
+
+    // Wheel rotation direction based on actual movement speed
+    busWheelAngle += currentSpeed * 4.0f;
+
+    // Reset bus position after moving out of screen
+    if (busX < -350.0f) {
+        busX = 1300.0f;
+    }
+
+    glutPostRedisplay();
+    glutTimerFunc(16, internalTrafficTimer, 0);
+}
+// Draw Passengers inside windows
+void drawDetailedPassengers(float baseX, float baseY) {
+    // Upper deck passengers
+    for (int i = 0; i < 5; i++) {
+        float px = baseX + 45.0f + (i * 35.0f);
+        float py = baseY - 78.0f;
+
+        glColor3f(0.25f, 0.18f, 0.12f);
+        drawCircleShape(px, py + 8.0f, 4.5f, 12);
+
+        if (i % 2 == 0) glColor3f(0.85f, 0.2f, 0.2f);
+        else glColor3f(0.1f, 0.4f, 0.8f);
+
+        glBegin(GL_QUADS);
+            glVertex2f(px - 5.5f, py - 5.5f);
+            glVertex2f(px + 5.5f, py - 5.5f);
+            glVertex2f(px + 4.5f, py + 3.5f);
+            glVertex2f(px - 4.5f, py + 3.5f);
+        glEnd();
+    }
+
+    // Lower deck passengers
+    for (int i = 1; i < 5; i++) {
+        float px = baseX + 45.0f + (i * 35.0f);
+        float py = baseY - 28.0f;
+
+        glColor3f(0.2f, 0.2f, 0.25f);
+        drawCircleShape(px, py + 8.0f, 4.5f, 12);
+
+        if (i % 2 == 0) glColor3f(0.1f, 0.6f, 0.3f);
+        else glColor3f(0.9f, 0.6f, 0.1f);
+
+        glBegin(GL_QUADS);
+            glVertex2f(px - 5.5f, py - 5.5f);
+            glVertex2f(px + 5.5f, py - 5.5f);
+            glVertex2f(px + 4.5f, py + 3.5f);
+            glVertex2f(px - 4.5f, py + 3.5f);
+        glEnd();
+    }
+}
+
+// Detailed Driver Function
+void drawDetailedDriver(float baseX, float baseY) {
+    float dx = baseX + 2.0f;
+    float dy = baseY - 28.0f;
+
+    // Driver Cap
+    glColor3f(0.1f, 0.1f, 0.3f);
+    glBegin(GL_QUADS);
+        glVertex2f(dx - 7.0f, dy + 12.0f);
+        glVertex2f(dx + 5.0f, dy + 12.0f);
+        glVertex2f(dx + 5.0f, dy + 14.5f);
+        glVertex2f(dx - 7.0f, dy + 14.5f);
+    glEnd();
+
+    // Driver Head
+    glColor3f(0.8f, 0.55f, 0.4f);
+    drawCircleShape(dx - 1.0f, dy + 8.0f, 4.5f, 12);
+
+    // Driver Uniform / Shirt
+    glColor3f(0.2f, 0.4f, 0.7f);
+    glBegin(GL_QUADS);
+        glVertex2f(dx - 7.0f, dy - 6.0f);
+        glVertex2f(dx + 5.0f, dy - 6.0f);
+        glVertex2f(dx + 4.0f, dy + 3.5f);
+        glVertex2f(dx - 6.0f, dy + 3.5f);
+    glEnd();
+
+    // Driver Hands holding steering wheel
+    glColor3f(0.8f, 0.55f, 0.4f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(dx - 2.0f, dy);
+        glVertex2f(dx - 9.0f, dy - 2.0f);
+    glEnd();
+
+    // Steering Wheel
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glLineWidth(2.5f);
+    glBegin(GL_LINES);
+        glVertex2f(dx - 9.0f, dy + 4.5f);
+        glVertex2f(dx - 9.0f, dy - 6.5f);
+    glEnd();
+    drawCircleShape(dx - 9.0f, dy - 1.0f, 4.0f, 10);
+}
+
+// Wheel with rotating spokes
+void drawDetailedWheel(float wx, float wy, float radius) {
+    // Outer Rubber Tire
+    glColor3f(0.1f, 0.1f, 0.1f);
+    drawCircleShape(wx, wy, radius, 24);
+
+    // Rim Outer
+    glColor3f(0.75f, 0.75f, 0.78f);
+    drawCircleShape(wx, wy, radius * 0.55f, 16);
+
+    // Inner Cap
+    glColor3f(0.25f, 0.25f, 0.25f);
+    drawCircleShape(wx, wy, radius * 0.25f, 12);
+
+    // Rotating Spokes
+    glColor3f(0.3f, 0.3f, 0.3f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        for (int i = 0; i < 4; i++) {
+            float rad = (-busWheelAngle + i * 45.0f) * 3.14159f / 180.0f;
+            glVertex2f(wx + cos(rad) * (radius * 0.25f), wy + sin(rad) * (radius * 0.25f));
+            glVertex2f(wx + cos(rad) * (radius * 0.55f), wy + sin(rad) * (radius * 0.55f));
+        }
+    glEnd();
+}
+
+// Main Function: drawBRTCBus
+void drawBRTCBus() {
+    if (!isTimerStarted) {
+        glutTimerFunc(16, internalTrafficTimer, 0);
+        isTimerStarted = true;
+    }
+
+    float basePositionY = 845.0f;
+
+    // Up-down bounce effect aligned with new speed breaker zone (X = 305 to 460)
+    if (busX >= 305.0f && busX <= 460.0f) {
+        float bumpPhase = (busX - 305.0f) / 155.0f * 3.14159f * 2.0f;
+        basePositionY += sinf(bumpPhase) * 5.0f;
+    }
+    glPushMatrix();
+    glTranslatef(busX, basePositionY, 0.0f);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // 1. Bus Shadow
+    glColor4f(0.0f, 0.0f, 0.0f, 0.35f);
+    glBegin(GL_QUADS);
+        glVertex2f(-20.0f, 6.0f);
+        glVertex2f(260.0f, 6.0f);
+        glVertex2f(240.0f, 17.0f);
+        glVertex2f(-35.0f, 17.0f);
+    glEnd();
+
+    // 2. Main BRTC Red Body
+    glColor3f(0.85f, 0.08f, 0.1f);
+    glBegin(GL_POLYGON);
+        glVertex2f(-15.0f, -108.0f);
+        glVertex2f(245.0f, -108.0f);
+        glVertex2f(245.0f, 0.0f);
+        glVertex2f(-18.0f, 0.0f);
+    glEnd();
+
+    // 3. Roof Edge Highlight
+    glColor3f(0.65f, 0.05f, 0.08f);
+    glBegin(GL_QUADS);
+        glVertex2f(-15.0f, -112.0f);
+        glVertex2f(245.0f, -112.0f);
+        glVertex2f(245.0f, -108.0f);
+        glVertex2f(-15.0f, -108.0f);
+    glEnd();
+
+    // 4. BRTC Green Stripes
+    glColor3f(0.0f, 0.52f, 0.24f);
+    glBegin(GL_QUADS);
+        glVertex2f(-15.0f, -58.0f);
+        glVertex2f(245.0f, -58.0f);
+        glVertex2f(245.0f, -51.0f);
+        glVertex2f(-15.0f, -51.0f);
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(-17.0f, -9.0f);
+        glVertex2f(245.0f, -9.0f);
+        glVertex2f(245.0f, -2.0f);
+        glVertex2f(-17.0f, -2.0f);
+    glEnd();
+
+    // 5. Passengers & Driver
+    drawDetailedPassengers(0.0f, 0.0f);
+    drawDetailedDriver(0.0f, 0.0f);
+
+    // 6. Glass Windows
+    glColor4f(0.65f, 0.85f, 0.95f, 0.55f);
+
+    // Upper Deck Windows
+    for (int i = 0; i < 6; i++) {
+        float winX = 22.0f + (i * 35.0f);
+        glBegin(GL_QUADS);
+            glVertex2f(winX, -95.0f);
+            glVertex2f(winX + 27.0f, -95.0f);
+            glVertex2f(winX + 27.0f, -65.0f);
+            glVertex2f(winX, -65.0f);
+        glEnd();
+    }
+
+    // Lower Deck Windows
+    for (int i = 0; i < 6; i++) {
+        float winX = 22.0f + (i * 35.0f);
+        glBegin(GL_QUADS);
+            glVertex2f(winX, -45.0f);
+            glVertex2f(winX + 27.0f, -45.0f);
+            glVertex2f(winX + 27.0f, -15.0f);
+            glVertex2f(winX, -15.0f);
+        glEnd();
+    }
+
+    // Front Main Windshields
+    glBegin(GL_QUADS);
+        glVertex2f(-12.0f, -95.0f);
+        glVertex2f(13.0f, -95.0f);
+        glVertex2f(13.0f, -65.0f);
+        glVertex2f(-12.0f, -65.0f);
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(-14.0f, -45.0f);
+        glVertex2f(13.0f, -45.0f);
+        glVertex2f(13.0f, -15.0f);
+        glVertex2f(-14.0f, -15.0f);
+    glEnd();
+
+    // 7. Metallic Window Frames
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glLineWidth(1.5f);
+    for (int i = 0; i < 6; i++) {
+        float winX = 22.0f + (i * 35.0f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(winX, -95.0f);
+            glVertex2f(winX + 27.0f, -95.0f);
+            glVertex2f(winX + 27.0f, -65.0f);
+            glVertex2f(winX, -65.0f);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(winX, -45.0f);
+            glVertex2f(winX + 27.0f, -45.0f);
+            glVertex2f(winX + 27.0f, -15.0f);
+            glVertex2f(winX, -15.0f);
+        glEnd();
+    }
+
+    // 8. Side Mirror & Wiper
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glBegin(GL_LINES);
+        glVertex2f(-14.0f, -39.0f);
+        glVertex2f(-25.0f, -35.0f);
+    glEnd();
+    glBegin(GL_QUADS);
+        glVertex2f(-28.0f, -42.0f);
+        glVertex2f(-23.0f, -42.0f);
+        glVertex2f(-23.0f, -30.0f);
+        glVertex2f(-28.0f, -30.0f);
+    glEnd();
+
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(0.0f, -15.0f);
+        glVertex2f(-9.0f, -31.0f);
+    glEnd();
+
+    // 9. Front Grill & Headlights
+    glColor3f(0.15f, 0.15f, 0.15f);
+    glBegin(GL_QUADS);
+        glVertex2f(-16.0f, -9.0f);
+        glVertex2f(-14.0f, -9.0f);
+        glVertex2f(-14.0f, 0.0f);
+        glVertex2f(-16.0f, 0.0f);
+    glEnd();
+
+    glColor3f(0.4f, 0.4f, 0.4f);
+    drawCircleShape(-15.0f, -13.0f, 4.5f, 10);
+    drawCircleShape(-15.0f, -22.0f, 4.5f, 10);
+
+    // Rear Taillights
+    glColor3f(0.7f, 0.0f, 0.0f);
+    glBegin(GL_QUADS);
+        glVertex2f(245.0f, -20.0f);
+        glVertex2f(247.0f, -20.0f);
+        glVertex2f(247.0f, -11.0f);
+        glVertex2f(245.0f, -11.0f);
+    glEnd();
+
+    // 10. Heavy Bumpers
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glBegin(GL_QUADS);
+        glVertex2f(-18.0f, -3.0f);
+        glVertex2f(249.0f, -3.0f);
+        glVertex2f(249.0f, 3.5f);
+        glVertex2f(-18.0f, 3.5f);
+    glEnd();
+
+    // 11. Wheels
+    drawDetailedWheel(32.0f, 3.5f, 17.5f);
+    drawDetailedWheel(190.0f, 3.5f, 17.5f);
+
+    glDisable(GL_BLEND);
+    glPopMatrix();
+}
 
 /* ==========================================================
    MAIN FUNCTION
@@ -4948,6 +5352,8 @@ int main(int argc, char** argv)
 
     // Start Metro Rail Animation Loop
     glutTimerFunc(0, updateMetroRail, 0);
+    //Bus Timer
+    //glutTimerFunc(0, updateTimer, 0);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
