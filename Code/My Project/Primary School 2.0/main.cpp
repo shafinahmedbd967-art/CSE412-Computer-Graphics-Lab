@@ -2426,36 +2426,93 @@ void drawFlower(float x, float y, float r, const float petalColor[3])
 }
 
 // ============================================================================
-// FUNCTION: drawBush
-// Rounded green bush cap standing UPWARDS on top of garden bed
+// FUNCTION: drawBush (Realistic 3D Layered Organic Bush)
 // ============================================================================
 void drawBush(float x, float y, float rx, float ry)
 {
     int segments = 20;
 
-    // Outer Dark Green Layer (Curves UPWARDS: y - sin)
-    glColor3f(0.10f, 0.38f, 0.10f);
-    glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(x, y);
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 3.14159f / segments;
-            glVertex2f(x + (rx * cos(angle)), y - (ry * sin(angle)));
-        }
-    glEnd();
+    // Helper Lambda for Semi-Circle / Ellipse Domes
+    auto drawDome = [&](float cx, float cy, float radX, float radY, float r, float g, float b) {
+        glColor3f(r, g, b);
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(cx, cy);
+            for (int i = 0; i <= segments; i++) {
+                float angle = i * 3.14159f / segments;
+                // Subtracting Y-sin curves upwards in inverted Y systems
+                glVertex2f(cx + (radX * cosf(angle)), cy - (radY * sinf(angle)));
+            }
+        glEnd();
+    };
 
-    // Inner Highlight Light Green Layer
-    glColor3f(0.25f, 0.60f, 0.20f);
-    glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(x, y);
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = i * 3.14159f / segments;
-            glVertex2f(x + ((rx - 2.0f) * cos(angle)), y - ((ry - 2.0f) * sin(angle)));
-        }
+    // ------------------------------------------------------------------------
+    // 1. BASE DARK DROP SHADOW (Ground Contact Layer)
+    // ------------------------------------------------------------------------
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.05f, 0.15f, 0.05f, 0.40f);
+    glBegin(GL_QUADS);
+        glVertex2f(x - rx * 1.15f, y + 2.0f);
+        glVertex2f(x + rx * 1.15f, y + 2.0f);
+        glVertex2f(x + rx * 0.95f, y - 4.0f);
+        glVertex2f(x - rx * 0.95f, y - 4.0f);
     glEnd();
+    glDisable(GL_BLEND);
+
+    // ------------------------------------------------------------------------
+    // 2. LAYER 1: DEEP BASE SHADOW DOMES (Dark Green Silhouette)
+    // ------------------------------------------------------------------------
+    // Left Dome Base
+    drawDome(x - rx * 0.45f, y, rx * 0.65f, ry * 0.75f, 0.08f, 0.28f, 0.08f);
+    // Right Dome Base
+    drawDome(x + rx * 0.45f, y, rx * 0.65f, ry * 0.70f, 0.08f, 0.28f, 0.08f);
+    // Main Center Dome Base
+    drawDome(x, y, rx * 0.85f, ry * 0.95f, 0.10f, 0.35f, 0.10f);
+
+    // ------------------------------------------------------------------------
+    // 3. LAYER 2: MID-TONE LEAF CLUSTERS (Rich Natural Green)
+    // ------------------------------------------------------------------------
+    // Left Cluster
+    drawDome(x - rx * 0.42f, y - ry * 0.10f, rx * 0.58f, ry * 0.68f, 0.18f, 0.48f, 0.15f);
+    // Right Cluster
+    drawDome(x + rx * 0.42f, y - ry * 0.10f, rx * 0.58f, ry * 0.62f, 0.18f, 0.48f, 0.15f);
+    // Center Top Main Cluster
+    drawDome(x, y - ry * 0.15f, rx * 0.75f, ry * 0.88f, 0.22f, 0.55f, 0.18f);
+
+    // ------------------------------------------------------------------------
+    // 4. LAYER 3: TOP SUNLIGHT HIGHLIGHTS (Fresh Bright Green)
+    // ------------------------------------------------------------------------
+    // Small top-left highlight
+    drawDome(x - rx * 0.35f, y - ry * 0.25f, rx * 0.42f, ry * 0.50f, 0.32f, 0.68f, 0.22f);
+    // Small top-right highlight
+    drawDome(x + rx * 0.35f, y - ry * 0.22f, rx * 0.40f, ry * 0.45f, 0.32f, 0.68f, 0.22f);
+    // Center Top Main Specular Highlight
+    drawDome(x, y - ry * 0.30f, rx * 0.55f, ry * 0.65f, 0.38f, 0.75f, 0.25f);
+
+    // ------------------------------------------------------------------------
+    // 5. ACCENT: SMALL RED BERRIES / FLOWERS (Natural Realism Details)
+    // ------------------------------------------------------------------------
+    struct Berry { float bx, by; };
+    Berry berries[] = {
+        { x - rx * 0.50f, y - ry * 0.30f },
+        { x - rx * 0.20f, y - ry * 0.65f },
+        { x + rx * 0.15f, y - ry * 0.50f },
+        { x + rx * 0.55f, y - ry * 0.35f },
+        { x - rx * 0.10f, y - ry * 0.25f },
+        { x + rx * 0.35f, y - ry * 0.60f }
+    };
+
+    glColor3f(0.88f, 0.15f, 0.20f); // Bright Red Berries
+    for (const auto& b : berries) {
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(b.bx, b.by);
+            for (int i = 0; i <= 8; i++) {
+                float a = i * 2.0f * 3.14159f / 8;
+                glVertex2f(b.bx + 2.0f * cosf(a), b.by + 2.0f * sinf(a));
+            }
+        glEnd();
+    }
 }
-
 // ============================================================================
 // FUNCTION: drawGarden
 // Aligned strictly between School's Red Accent Pillars
@@ -2686,19 +2743,20 @@ void drawSingleMangoTree(float x, float y, float scale)
 // ----------------------------------------------------------------------------
 void drawSingleCoconutTree(float startX, float startY, float height)
 {
-    int segments = 12;
+    // Height is increased by 1.45x for a taller realistic look
+    float tallerHeight = height * 1.45f;
+    int segments = 16; // Increased segments for smoother taller curve
     float currentX = startX;
     float currentY = startY;
-    float segmentH = height / segments;
+    float segmentH = tallerHeight / segments;
 
     // Curved Trunk with Bark Ring Textures (Leaning Left)
     for (int i = 0; i < segments; i++)
     {
-
-        float nextX = currentX - (i * .4f);
+        float nextX = currentX - (i * 0.35f);
         float nextY = currentY - segmentH;
-        float w1 = 11.0f - (i * 0.5f);
-        float w2 = 11.0f - ((i + 1) * 0.45f);
+        float w1 = 12.0f - (i * 0.45f);
+        float w2 = 12.0f - ((i + 1) * 0.40f);
 
         drawBranchSegment(currentX, currentY, w1 * 2.0f, nextX, nextY, w2 * 2.0f, 0.38f, 0.24f, 0.12f);
 
@@ -2719,15 +2777,15 @@ void drawSingleCoconutTree(float startX, float startY, float height)
 
     // Natural Round Coconuts with Highlights
     float coconutCoords[4][2] = {
-        {topX - 5.0f, topY + 2.0f},
-        {topX + 5.0f, topY + 2.0f},
-        {topX - 1.0f, topY + 6.0f},
+        {topX - 6.0f, topY + 2.0f},
+        {topX + 6.0f, topY + 2.0f},
+        {topX - 1.0f, topY + 7.0f},
         {topX + 2.0f, topY - 2.0f}
     };
     for (int c = 0; c < 4; c++)
     {
-        drawSmoothCircle(coconutCoords[c][0], coconutCoords[c][1], 5.5f, 6.0f, 0.15f, 0.38f, 0.05f);
-        drawSmoothCircle(coconutCoords[c][0] - 1.5f, coconutCoords[c][1] - 1.5f, 2.5f, 3.0f, 0.30f, 0.55f, 0.10f);
+        drawSmoothCircle(coconutCoords[c][0], coconutCoords[c][1], 6.0f, 6.5f, 0.15f, 0.38f, 0.05f);
+        drawSmoothCircle(coconutCoords[c][0] - 1.5f, coconutCoords[c][1] - 1.5f, 2.8f, 3.2f, 0.30f, 0.55f, 0.10f);
     }
 
     // Organic Curved Feathery Leaves (Fronds)
@@ -2736,9 +2794,9 @@ void drawSingleCoconutTree(float startX, float startY, float height)
     for (int f = 0; f < 8; f++)
     {
         float rad = leafAngles[f] * M_PI / 180.0f;
-        float leafLen = 65.0f;
+        float leafLen = 80.0f; // Increased leaf length for taller tree proportion
         float endX = topX + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.18f);
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[f]) * 0.20f);
 
         // Main Spine
         glColor3f(0.08f, 0.42f, 0.08f);
@@ -2749,7 +2807,7 @@ void drawSingleCoconutTree(float startX, float startY, float height)
         glEnd();
 
         // Feathery Leaflets along the spine
-        int leaflets = 16;
+        int leaflets = 20; // Increased leaflets count for longer fronds
         glLineWidth(1.5f);
         glColor3f(0.12f, 0.58f, 0.12f);
         for (int j = 1; j <= leaflets; j++)
@@ -2760,9 +2818,9 @@ void drawSingleCoconutTree(float startX, float startY, float height)
 
             glBegin(GL_LINES);
                 glVertex2f(lx, ly);
-                glVertex2f(lx - 7.0f * (1.0f - t * 0.3f), ly + 10.0f);
+                glVertex2f(lx - 8.0f * (1.0f - t * 0.3f), ly + 12.0f);
                 glVertex2f(lx, ly);
-                glVertex2f(lx + 7.0f * (1.0f - t * 0.3f), ly + 10.0f);
+                glVertex2f(lx + 8.0f * (1.0f - t * 0.3f), ly + 12.0f);
             glEnd();
         }
     }
@@ -2898,7 +2956,7 @@ void drawRightSideForest()
     // Ground Y = 460 ~ 465
     drawSingleBananaTree(1190.0f, 480.0f, 0.85f);
     drawSingleMangoTree(1450.0f, 475.0f, 0.85f);
-    drawSingleCoconutTree(1570.0f, 485.0f, 130.0f);
+    drawSingleCoconutTree(1570.0f, 480.0f, 130.0f);
     drawSinglePalmTree(1250.0f, 470.0f, 125.0f);
     drawSingleTree(1350.0f, 465.0f, 0.80f);
 }
