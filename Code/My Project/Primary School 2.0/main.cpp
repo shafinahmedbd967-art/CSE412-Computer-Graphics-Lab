@@ -757,6 +757,9 @@ void drawCloud()
 // FUNCTION: drawSingleBird
 // Description: Renders a realistic, graceful bird silhouette (slender wings, smooth curve, no bat look).
 // ============================================================================
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 void drawSingleBird(float x, float y, float size, float flapAngle)
 {
     // Deep Charcoal Color (Natural bird shadow in bright sky)
@@ -804,24 +807,26 @@ void drawSingleBird(float x, float y, float size, float flapAngle)
 // ============================================================================
 void drawBird()
 {
-    // 1. Move birds smoothly from Right to Left
-    birdOffsetX -= 1.5f;
+    // Real time based constant movement logic
+    float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 
-    // Loop back smoothly
-    if (birdOffsetX < -600.0f)
-    {
-        birdOffsetX = 1200.0f;
-    }
+    float birdOffsetX = fmod(currentTime * 70.0f, 2000.0f);
+
+    // ------------------------------------------------------------------------
+    // NOTE: Coordinate alignment: coordinates need to move from right to left.
+    // birdOffsetX will be increasing, so subtract it from base coordinates.
+    // ------------------------------------------------------------------------
 
     // 2. Wing Flapping Speed
     float time = glutGet(GLUT_ELAPSED_TIME) * 0.007f;
 
     // Flock of birds with staggered wing flap angles and positions
-    drawSingleBird(350.0f + birdOffsetX, 85.0f,  9.0f, time);
-    drawSingleBird(385.0f + birdOffsetX, 105.0f, 11.0f, time + 0.7f);
-    drawSingleBird(420.0f + birdOffsetX, 75.0f,  8.0f,  time + 1.4f);
-    drawSingleBird(455.0f + birdOffsetX, 95.0f,  10.0f, time + 2.1f);
-    drawSingleBird(490.0f + birdOffsetX, 115.0f, 7.5f,  time + 2.8f);
+    // base X coordinates: subtract birdOffsetX for smooth right-to-left flight
+    drawSingleBird(1350.0f - birdOffsetX, 85.0f,  9.0f, time);
+    drawSingleBird(1385.0f - birdOffsetX, 105.0f, 11.0f, time + 0.7f);
+    drawSingleBird(1420.0f - birdOffsetX, 75.0f,  8.0f,  time + 1.4f);
+    drawSingleBird(1455.0f - birdOffsetX, 95.0f,  10.0f, time + 2.1f);
+    drawSingleBird(1490.0f - birdOffsetX, 115.0f, 7.5f,  time + 2.8f);
 }
 
 
@@ -836,6 +841,14 @@ void drawBird()
 
 
 
+
+
+
+
+
+
+
+// BUTTERFLY
 // Helper function to draw a single small butterfly
 void drawSingleButterfly(float x, float y, float scale, float wingAngle, float r, float g, float b)
 {
@@ -979,6 +992,70 @@ void drawButterfly()
     float b6Y = 300.0f + sin(time * 1.8f) * 20.0f;
     drawSingleButterfly(b6X, b6Y, 0.65f, wingFlap + 1.7f, 0.45f, 0.95f, 0.2f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawAirplane
 // Description: Renders a highly realistic, shaded commercial airliner
@@ -989,7 +1066,7 @@ void drawButterfly()
 void drawAirplane()
 {
     // Movement animation logic
-    airplaneOffsetX -= 1.5f;
+    airplaneOffsetX -= .5f;
     if (airplaneOffsetX < -900.0f)
     {
         airplaneOffsetX = 900.0f;
@@ -1143,6 +1220,46 @@ void drawAirplane()
 
     glPopMatrix();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <GL/glut.h>
 #include <math.h>
 
@@ -1254,6 +1371,54 @@ void drawDistantSkyline() {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawGround
 // Description: Detailed realistic grass ground with organic depth & smooth shade variations
@@ -1360,6 +1525,58 @@ void drawGround() {
     glLineWidth(1.0f);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <GL/glut.h>
 #include <math.h>
 
@@ -1432,6 +1649,48 @@ void backBoundaryWall() {
         glEnd();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <GL/glut.h>
 #include <math.h>
 
@@ -1713,6 +1972,55 @@ void updateMetroRail(int value) {
     glutPostRedisplay(); // Trigger re-render
     glutTimerFunc(16, updateMetroRail, 0); // ~60 FPS update loop
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---- School Building Layer ---- */
 
 #include <GL/glut.h>
@@ -2124,6 +2432,52 @@ void drawClock()
     glEnd();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawFlagPole
 // Position: Centered at (X = 800.0f)
@@ -2196,6 +2550,39 @@ void drawBangladeshFlag()
     }
     glEnd();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawRoofBanner
 // Position: Centered below clock (X = 680 to 920, Y = 228 to 244).
@@ -2231,6 +2618,58 @@ void drawRoofBanner()
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *c);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ============================================================================
 // FUNCTION: drawShaheedMinar
@@ -2486,6 +2925,63 @@ void drawShaheedMinar()
             glVertex2f(SH_X(stepWidths[i]),  SH_Y(stepY_End[i]));
             glVertex2f(SH_X(-stepWidths[i]), SH_Y(stepY_End[i]));
         glEnd();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//FLOWER TRIBUTE
+
+
 void drawFlowerTribute(float cx, float baseY, float scale);
     }
 
@@ -2565,6 +3061,50 @@ void drawFlowerTribute()
     #undef SH_X
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawFlower
 // Scaled flower anchored inside bed
@@ -2613,6 +3153,61 @@ void drawFlower(float x, float y, float r, const float petalColor[3])
         }
     glEnd();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ============================================================================
 // FUNCTION: drawBush (Realistic 3D Layered Organic Bush)
@@ -2702,6 +3297,67 @@ void drawBush(float x, float y, float rx, float ry)
         glEnd();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawGarden
 // Aligned strictly between School's Red Accent Pillars
@@ -2790,6 +3446,52 @@ void drawGarden()
         drawFlower(fx, plantY, 3.5f, col);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <GL/glut.h>
 #include <cmath>
 
@@ -3278,6 +3980,43 @@ void drawRightSideForest()
     drawSinglePalmTree(230.0f, 468.0f, 120.0f);     // Gap between 1450 and 1570
     drawSingleCoconutTree(630.0f, 478.0f, 125.0f);  // Extension beyond 1570
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Decorative tree
 void drawSingleDecorativeTree(float x, float y, float scale)
 {
@@ -3351,6 +4090,50 @@ void drawDecorativeTree()
     drawSingleDecorativeTree(715.0f, 480.0f, 0.55f); // Left of entrance
     drawSingleDecorativeTree(885.0f, 480.0f, 0.55f); // Right of entrance
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // PERFECTLY ADJUSTED ASSEMBLY GROUND
 // Fitted exactly to Blue Line boundary (Y = 665) & Trimmed Yellow Leader Line
@@ -3525,6 +4308,70 @@ void drawAssemblyGround()
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---- Playground ---- */
 void drawPlayground() { }
 #include <GL/glut.h>
@@ -3551,15 +4398,20 @@ int passState = 1; // 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 1
 float ballProgress = 0.0f;
 float ballRotation = 0.0f;
 
-// Unique Pass Speeds
-float speedVector[7] = { 0.020f, 0.025f, 0.022f, 0.028f, 0.024f, 0.019f, 0.023f };
+
+float speedVector[7] = { 0.005f, 0.007f, 0.006f, 0.008f, 0.006f, 0.005f, 0.007f };
 
 
 void updateFootballAnimation()
 {
+
+    float speedVector[7] = { 0.005f, 0.007f, 0.006f, 0.008f, 0.006f, 0.005f, 0.007f };
+
     float currentSpeed = speedVector[passState - 1];
     ballProgress += currentSpeed;
-    ballRotation += 12.0f; // Continuous ball spin
+
+
+    ballRotation += 4.0f;
 
     if (ballProgress >= 1.0f)
     {
@@ -3586,7 +4438,6 @@ void updateFootballAnimation()
     float arcOffset = sinf(ballProgress * M_PI) * 8.0f;
     ballY += arcOffset;
 }
-
 // ----------------------------------------------------------------------------
 // HELPER: DRAW DETAILED CASUAL PLAYER WITH KICK & IDLE ANIMATION
 // ----------------------------------------------------------------------------
@@ -3697,7 +4548,6 @@ void drawSmallPlayer(float px, float py, bool facingRight)
 {
     drawDetailedPlayer(px, py, facingRight, 0.95f, 0.95f, 0.95f, 0.15f, 0.35f, 0.75f, 0.1f, 0.1f, 0.1f);
 }
-
 void drawGoalPost()
 {
 }
@@ -3774,6 +4624,31 @@ void drawFootballField()
     glPopMatrix();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // RESCALED BASKETBALL HOOP & SHOOTING ANIMATION
 // Scaled down pole & player height with extra details
@@ -3790,12 +4665,17 @@ float bBallRotation = 0.0f;
 
 void updateBasketballAnimation()
 {
-    bBallProgress += 0.012f;
+    // Speed / Seed komano holo (0.012f -> 0.004f)
+    bBallProgress += 0.004f;
     if (bBallProgress > 1.0f) {
         bBallProgress = 0.0f;
     }
 
-    bBallRotation += 10.0f;
+    // Rotation speed-o Control kora holo (10.0f -> 2.5f)
+    bBallRotation += 2.5f;
+    if (bBallRotation >= 360.0f) {
+        bBallRotation -= 360.0f; // Rotation angle reset
+    }
 
     // Adjusted Arc Trajectory for smaller pole height (Rim Y = 390)
     if (bBallProgress < 0.45f) {
@@ -3823,6 +4703,8 @@ void updateBasketballAnimation()
         bBallY = startY + (endY - startY) * t - sinf(t * M_PI) * 15.0f;
     }
 }
+
+
 
 void drawBasketballHoop()
 {
@@ -4064,6 +4946,30 @@ void drawBasketballHoop()
 
     glPopMatrix();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // HIGHLY DETAILED PERSPECTIVE CRICKET PITCH (LEFT LAWN - BRIGHT & REFINED)
 // Positioned on the left field, running parallel to the central assembly path.
@@ -4943,6 +5849,7 @@ void drawSlide()
 
 
 
+
 // ----------------------------------------------------------------------------
 // HIGHLY DETAILED 3D-REALISTIC SEESAW WITH TWO ANIMATED KIDS
 // Positioned at X = 245.0f (Swing 145.0f + 100.0f) and Y = 505.0f (495.0f + 10.0f)
@@ -4953,7 +5860,7 @@ void drawSeesaw()
 {
     // Frame Timing & Animation Logic
     static float seeSawAngle = 0.0f;
-    seeSawAngle += 0.02f; // Oscillation speed
+    seeSawAngle += 0.005f; // Speed komano hoyeche (0.02f -> 0.005f)
 
     // Smooth rotation angle for see-saw plank (-12 to +12 degrees)
     float currentAngle = sinf(seeSawAngle) * 12.0f;
@@ -4970,17 +5877,8 @@ void drawSeesaw()
     float plankThickness = 3.5f;
 
     // ------------------------------------------------------------------------
-    // 1. GROUND SHADOW & 3D FULCRUM STAND
+    // 1. 3D FULCRUM STAND (Ground Shadow Removed)
     // ------------------------------------------------------------------------
-
-    // Ground Perspective Oval Shadow
-    glColor4f(0.1f, 0.15f, 0.1f, 0.35f);
-    glBegin(GL_POLYGON);
-        for (int i = 0; i < 16; i++) {
-            float rad = i * 2.0f * 3.14159f / 16.0f;
-            glVertex2f(centerX + cosf(rad) * 28.0f, groundY + 4.0f + sinf(rad) * 2.5f);
-        }
-    glEnd();
 
     // Concrete Footing Base Pad
     glColor3f(0.48f, 0.48f, 0.52f);
@@ -5191,20 +6089,6 @@ void drawSeesaw()
     // Force frame redraw for continuous smooth animation
     glutPostRedisplay();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -8938,12 +9822,12 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);       // Duplicate line removed
     glutSpecialFunc(specialKeys);
+PlaySound(TEXT("bird_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     // Timers
     glutTimerFunc(0, updateMetroRail, 0);
     glutTimerFunc(0, schoolBusTimer, 0);
     glutTimerFunc(0, timer, 0);
-
     glutMainLoop();
 
     return 0;
