@@ -3331,8 +3331,258 @@ void drawAssemblyGround()
 }
 /* ---- Playground ---- */
 void drawPlayground() { }
-void drawFootballField() { }
-void drawGoalPost() { }
+#include <GL/glut.h>
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
+
+// ----------------------------------------------------------------------------
+// GLOBAL ANIMATION VARIABLES (Positioned in front of Shaheed Minar Lawn)
+// Coordinates: X = 1000 to 1400, Y = 510 to 600
+// ----------------------------------------------------------------------------
+float p1X = 1020.0f, p1Y = 520.0f; // Player 1
+float p2X = 1100.0f, p2Y = 580.0f; // Player 2
+float p3X = 1180.0f, p3Y = 530.0f; // Player 3
+float p4X = 1260.0f, p4Y = 590.0f; // Player 4
+float p5X = 1350.0f, p5Y = 540.0f; // Player 5
+float p6X = 1280.0f, p6Y = 515.0f; // Player 6
+float p7X = 1140.0f, p7Y = 555.0f; // Player 7
+
+float ballX = 1020.0f;
+float ballY = 520.0f;
+int passState = 1; // 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 1
+float ballProgress = 0.0f;
+float ballRotation = 0.0f;
+
+// Unique Pass Speeds
+float speedVector[7] = { 0.020f, 0.025f, 0.022f, 0.028f, 0.024f, 0.019f, 0.023f };
+
+void updateFootballAnimation()
+{
+    float currentSpeed = speedVector[passState - 1];
+    ballProgress += currentSpeed;
+    ballRotation += 12.0f; // Continuous ball spin
+
+    if (ballProgress >= 1.0f)
+    {
+        ballProgress = 0.0f;
+        passState = (passState % 7) + 1;
+    }
+
+    float startX = p1X, startY = p1Y;
+    float endX = p2X, endY = p2Y;
+
+    if (passState == 1)      { startX = p1X; startY = p1Y; endX = p2X; endY = p2Y; }
+    else if (passState == 2) { startX = p2X; startY = p2Y; endX = p3X; endY = p3Y; }
+    else if (passState == 3) { startX = p3X; startY = p3Y; endX = p4X; endY = p4Y; }
+    else if (passState == 4) { startX = p4X; startY = p4Y; endX = p5X; endY = p5Y; }
+    else if (passState == 5) { startX = p5X; startY = p5Y; endX = p6X; endY = p6Y; }
+    else if (passState == 6) { startX = p6X; startY = p6Y; endX = p7X; endY = p7Y; }
+    else if (passState == 7) { startX = p7X; startY = p7Y; endX = p1X; endY = p1Y; }
+
+    // Linear interpolation
+    ballX = startX + (endX - startX) * ballProgress;
+    ballY = startY + (endY - startY) * ballProgress;
+
+    // Curved pass trajectory
+    float arcOffset = sinf(ballProgress * M_PI) * 8.0f;
+    ballY += arcOffset;
+}
+
+// ----------------------------------------------------------------------------
+// HELPER: DRAW DETAILED CASUAL PLAYER WITH KICK & IDLE ANIMATION
+// ----------------------------------------------------------------------------
+void drawDetailedPlayer(float px, float py, bool facingRight,
+                        float shirtR, float shirtG, float shirtB,
+                        float shortR, float shortG, float shortB,
+                        float hairR, float hairG, float hairB,
+                        float kickAngle = 0.0f, float idleOffset = 0.0f)
+{
+    glPushMatrix();
+    glTranslatef(px, py + idleOffset, 0.0f);
+    if (!facingRight) glScalef(-1.0f, 1.0f, 1.0f);
+
+    // 1. Ground Shadow
+    glColor4f(0.1f, 0.15f, 0.1f, 0.35f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<15; i++){
+            float a = i * 2.0f * M_PI / 15.0f;
+            glVertex2f(cosf(a)*6.0f, sinf(a)*2.5f - idleOffset);
+        }
+    glEnd();
+
+    // 2. Standing Leg (Left Leg)
+    glColor3f(0.92f, 0.75f, 0.62f); // Skin
+    glRectf(-2.0f, -6.0f, -0.8f, -1.2f);
+    glColor3f(shirtR, shirtG, shirtB); // Sock
+    glRectf(-2.1f, -3.0f, -0.7f, -1.2f);
+    glColor3f(0.2f, 0.2f, 0.2f); // Shoe
+    glRectf(-3.0f, -1.2f, -0.5f, 1.0f);
+    glColor3f(0.9f, 0.9f, 0.9f);
+    glRectf(-3.0f, -1.2f, -0.5f, -0.6f);
+
+    // 3. Dynamic Kicking Leg (Right Leg with Rotation)
+    glPushMatrix();
+        glTranslatef(1.4f, -6.0f, 0.0f);
+        glRotatef(kickAngle, 0.0f, 0.0f, 1.0f); // Kicking action
+
+        // Skin & Sock
+        glColor3f(0.92f, 0.75f, 0.62f);
+        glRectf(-0.6f, 0.0f, 0.6f, 4.8f);
+        glColor3f(shirtR, shirtG, shirtB);
+        glRectf(-0.7f, 3.0f, 0.7f, 4.8f);
+
+        // Kicking Shoe
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glRectf(-0.9f, 4.8f, 1.6f, 7.0f);
+        glColor3f(0.9f, 0.9f, 0.9f);
+        glRectf(-0.9f, 4.8f, 1.6f, 5.4f);
+    glPopMatrix();
+
+    // 4. Shorts
+    glColor3f(shortR, shortG, shortB);
+    glRectf(-2.8f, -10.0f, 2.8f, -6.0f);
+
+    // 5. Shirt Body & Pattern
+    glColor3f(shirtR, shirtG, shirtB);
+    glRectf(-3.2f, -18.0f, 3.2f, -10.0f);
+
+    glColor3f(shortR, shortG, shortB);
+    glRectf(-2.5f, -15.0f, 2.5f, -14.0f);
+
+    // 6. Arms & Hands (Slight swing when kicking)
+    float armAngle = kickAngle * 0.4f;
+    glPushMatrix();
+        glTranslatef(-3.8f, -14.0f, 0.0f);
+        glRotatef(-armAngle, 0.0f, 0.0f, 1.0f);
+        glColor3f(shirtR, shirtG, shirtB);
+        glRectf(-0.7f, -2.0f, 0.6f, 2.0f);
+        glColor3f(0.92f, 0.75f, 0.62f);
+        glRectf(-0.5f, 2.0f, 0.5f, 5.5f);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(3.8f, -14.0f, 0.0f);
+        glRotatef(armAngle, 0.0f, 0.0f, 1.0f);
+        glColor3f(shirtR, shirtG, shirtB);
+        glRectf(-0.6f, -2.0f, 0.7f, 2.0f);
+        glColor3f(0.92f, 0.75f, 0.62f);
+        glRectf(-0.5f, 2.0f, 0.5f, 5.5f);
+    glPopMatrix();
+
+    // 7. Head & Face
+    glColor3f(0.92f, 0.75f, 0.62f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<15; i++){
+            float a = i * 2.0f * M_PI / 15.0f;
+            glVertex2f(cosf(a)*3.2f, -21.0f + sinf(a)*3.2f);
+        }
+    glEnd();
+
+    // Eye Detail
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glRectf(1.0f, -21.5f, 2.0f, -20.5f);
+
+    // 8. Hair
+    glColor3f(hairR, hairG, hairB);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<12; i++){
+            float a = i * M_PI / 12.0f;
+            glVertex2f(cosf(a)*3.5f, -21.5f - sinf(a)*3.2f);
+        }
+    glEnd();
+
+    glPopMatrix();
+}
+
+void drawSmallPlayer(float px, float py, bool facingRight)
+{
+    drawDetailedPlayer(px, py, facingRight, 0.95f, 0.95f, 0.95f, 0.15f, 0.35f, 0.75f, 0.1f, 0.1f, 0.1f);
+}
+
+void drawGoalPost()
+{
+}
+
+// ----------------------------------------------------------------------------
+// MAIN DRAWING FUNCTION FOR PLAYERS & PASSING ANIMATION
+// ----------------------------------------------------------------------------
+void drawFootballField()
+{
+    // Compute Kick Angle for passer and receiver based on current passState
+    float kickAngles[7] = { 0.0f };
+    float idleOffsets[7] = { 0.0f };
+
+    int passerIdx = passState - 1;
+    int receiverIdx = passState % 7;
+
+    // Passer leg swings back and kicks forward as ball leaves
+    if (ballProgress < 0.35f) {
+        kickAngles[passerIdx] = sinf((ballProgress / 0.35f) * M_PI) * -35.0f;
+    }
+
+    // Receiver anticipates and lifts foot slightly near arrival
+    if (ballProgress > 0.7f) {
+        kickAngles[receiverIdx] = sinf(((ballProgress - 0.7f) / 0.3f) * M_PI) * 20.0f;
+    }
+
+    // Idle subtle body bounce for all players
+    for (int i = 0; i < 7; i++) {
+        idleOffsets[i] = sinf(ballProgress * M_PI * 2.0f + i) * 0.8f;
+    }
+
+    // 1. DRAW 7 PLAYERS WITH KICK & IDLE ANIMATION
+    drawDetailedPlayer(p1X, p1Y, true,  0.95f, 0.95f, 0.95f,  0.15f, 0.35f, 0.75f,  0.1f, 0.1f, 0.1f, kickAngles[0], idleOffsets[0]);
+    drawDetailedPlayer(p2X, p2Y, true,  0.85f, 0.15f, 0.15f,  0.15f, 0.15f, 0.15f,  0.4f, 0.2f, 0.1f, kickAngles[1], idleOffsets[1]);
+    drawDetailedPlayer(p3X, p3Y, true,  0.95f, 0.85f, 0.10f,  0.10f, 0.55f, 0.20f,  0.1f, 0.1f, 0.1f, kickAngles[2], idleOffsets[2]);
+    drawDetailedPlayer(p4X, p4Y, true,  0.10f, 0.70f, 0.85f,  0.05f, 0.10f, 0.25f,  0.8f, 0.7f, 0.2f, kickAngles[3], idleOffsets[3]);
+    drawDetailedPlayer(p5X, p5Y, false, 0.95f, 0.45f, 0.10f,  0.40f, 0.40f, 0.45f,  0.2f, 0.1f, 0.05f, kickAngles[4], idleOffsets[4]);
+    drawDetailedPlayer(p6X, p6Y, false, 0.20f, 0.65f, 0.25f,  0.90f, 0.90f, 0.90f,  0.1f, 0.1f, 0.1f, kickAngles[5], idleOffsets[5]);
+    drawDetailedPlayer(p7X, p7Y, true,  0.55f, 0.20f, 0.75f,  0.15f, 0.15f, 0.15f,  0.3f, 0.15f, 0.05f, kickAngles[6], idleOffsets[6]);
+
+    // 2. UPDATE PASSING ANIMATION
+    updateFootballAnimation();
+
+    // 3. DRAW FOOTBALL WITH SPIN EFFECT & DYNAMIC SHADOW
+    glColor4f(0.1f, 0.15f, 0.1f, 0.35f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<12; i++){
+            float a = i * 2.0f * M_PI / 12.0f;
+            glVertex2f(ballX + cosf(a)*3.5f, ballY + 1.0f + sinf(a)*1.4f);
+        }
+    glEnd();
+
+    // Rotating Football Body
+    glPushMatrix();
+    glTranslatef(ballX, ballY, 0.0f);
+    glRotatef(ballRotation, 0.0f, 0.0f, 1.0f);
+
+    glColor3f(0.98f, 0.98f, 0.98f);
+    glBegin(GL_TRIANGLE_FAN);
+        for(int i=0; i<15; i++){
+            float a = i * 2.0f * M_PI / 15.0f;
+            glVertex2f(cosf(a)*3.0f, sinf(a)*3.0f);
+        }
+    glEnd();
+
+    // Football Pentagons / Spin Pattern
+    glColor3f(0.1f, 0.1f, 0.1f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(1.5f, 1.0f);
+        glVertex2f(0.5f, 2.2f);
+
+        glVertex2f(0.0f, 0.0f);
+        glVertex2f(-1.5f, -1.0f);
+        glVertex2f(-0.5f, -2.2f);
+    glEnd();
+
+    glPopMatrix();
+}
+
+
 void drawBasketballHoop() { }
 void drawCricketPitch() { }
 void drawSwing() { }
