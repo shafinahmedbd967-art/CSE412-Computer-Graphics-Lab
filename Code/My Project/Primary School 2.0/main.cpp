@@ -245,6 +245,7 @@ void display()
     drawGround();
     backBoundaryWall();
     /* ---- School Building Layer ---- */
+    drawRightSideForest();
     drawSchool();
     drawRoof();
     drawRoofBanner();
@@ -254,7 +255,7 @@ void display()
 
 
     /* ---- Campus / Garden Layer ---- */
-     drawRightSideForest();
+
     drawShaheedMinar();
     drawFlowerTribute();
     drawGarden();
@@ -2884,70 +2885,191 @@ void drawSinglePalmTree(float x, float y, float height)
 }
 
 // ----------------------------------------------------------------------------
-// 5. BANANA TREE (Arching Drooping Leaves & Kolar Mocha)
+// REWRITTEN BANANA TREE (With Smaller Bananas & Detailed Dense Bunch)
 // ----------------------------------------------------------------------------
 void drawSingleBananaTree(float x, float y, float scale)
 {
-    float topY = y - (55.0f * scale);
+    // Tall Trunk Height
+    float height = 125.0f * scale;
+    float topY = y - height;
 
-    // Green Soft Layered Pseudostem
-    drawBranchSegment(x, y, 12.0f * scale, x, topY, 7.0f * scale, 0.35f, 0.62f, 0.15f);
-    drawBranchSegment(x - 1.0f * scale, y, 3.0f * scale, x - 0.5f * scale, topY, 2.0f * scale, 0.48f, 0.75f, 0.20f); // Soft Highlight
+    // 1. MAIN TALL GREEN TRUNK (Pseudostem)
+    drawBranchSegment(x, y, 18.0f * scale, x, topY, 11.0f * scale, 0.42f, 0.72f, 0.18f);
 
-    float leafAngles[] = { -150.0f, -105.0f, -45.0f, 45.0f, 105.0f, 150.0f };
+    // Trunk Highlight Segment
+    drawBranchSegment(x - 2.0f * scale, y, 4.0f * scale, x - 1.2f * scale, topY, 2.5f * scale, 0.58f, 0.82f, 0.28f);
 
-    // Broad Curved Arching Leaves with Natural Volume
-    for (int i = 0; i < 6; i++)
+    // 2. DETAILED DRY V-SHAPED BARK LAYERS (At Trunk Base)
+    for (int i = 0; i < 5; i++)
     {
-        float rad = leafAngles[i] * M_PI / 180.0f;
-        float leafLen = 50.0f * scale;
+        float sy = y - (i * 14.0f * scale);
+        float w = (18.0f - i * 1.8f) * scale;
 
-        float endX = x + (leafLen * cos(rad));
-        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[i]) * 0.14f * scale);
-
-        float midX = (x + endX) / 2.0f;
-        float midY = (topY + endY) / 2.0f - (10.0f * scale);
-
-        // Smooth Broad Leaf Body
-        glColor3f(0.25f, 0.68f, 0.12f);
-        glBegin(GL_TRIANGLE_FAN);
-            glVertex2f(x, topY);
-            glVertex2f(midX - (12.0f * scale * sin(rad)), midY + (12.0f * scale * cos(rad)));
-            glVertex2f(endX, endY);
-            glVertex2f(midX + (12.0f * scale * sin(rad)), midY - (12.0f * scale * cos(rad)));
+        // Outer Dark Bark Edge
+        glColor3f(0.42f, 0.36f, 0.15f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(x - w / 2.0f - (1.0f * scale), sy);
+            glVertex2f(x + w / 2.0f + (1.0f * scale), sy);
+            glVertex2f(x, sy - (13.0f * scale));
         glEnd();
 
-        // Distinct Central Leaf Midrib Line
-        glColor3f(0.15f, 0.42f, 0.06f);
-        glLineWidth(2.5f);
+        // Inner Light Brown Bark
+        glColor3f(0.75f, 0.68f, 0.32f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(x - w / 2.0f, sy);
+            glVertex2f(x + w / 2.0f, sy);
+            glVertex2f(x, sy - (11.5f * scale));
+        glEnd();
+    }
+
+    // 3. ARCHING BROADER LEAVES WITH DETAILED NOTCHES
+    float leafAngles[] = { -160.0f, -120.0f, -75.0f, -30.0f, 30.0f, 75.0f, 120.0f, 160.0f };
+
+    for (int i = 0; i < 8; i++)
+    {
+        float rad = leafAngles[i] * M_PI / 180.0f;
+        float leafLen = 85.0f * scale;
+
+        float endX = x + (leafLen * cos(rad));
+        float endY = topY - (leafLen * sin(rad)) + (abs((int)leafAngles[i]) * 0.25f * scale);
+
+        float midX = (x + endX) / 2.0f;
+        float midY = (topY + endY) / 2.0f - (22.0f * scale);
+
+        // Leaf Under Shadow Layer
+        glColor3f(0.20f, 0.48f, 0.10f);
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(x, topY);
+            glVertex2f(midX - (18.0f * scale * sin(rad)), midY + (18.0f * scale * cos(rad)));
+            glVertex2f(endX, endY);
+            glVertex2f(midX + (18.0f * scale * sin(rad)), midY - (18.0f * scale * cos(rad)));
+        glEnd();
+
+        // Top Main Vibrant Green Leaf Body
+        glColor3f(0.38f, 0.76f, 0.18f);
+        glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(x, topY);
+            glVertex2f(midX - (15.0f * scale * sin(rad)), midY + (15.0f * scale * cos(rad)));
+            glVertex2f(endX, endY);
+            glVertex2f(midX + (15.0f * scale * sin(rad)), midY - (15.0f * scale * cos(rad)));
+        glEnd();
+
+        // Leaf Border Outline
+        glColor3f(0.12f, 0.38f, 0.06f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(x, topY);
+            glVertex2f(midX - (15.0f * scale * sin(rad)), midY + (15.0f * scale * cos(rad)));
+            glVertex2f(endX, endY);
+            glVertex2f(midX + (15.0f * scale * sin(rad)), midY - (15.0f * scale * cos(rad)));
+            glVertex2f(x, topY);
+        glEnd();
+
+        // Central Midrib Stem
+        glColor3f(0.20f, 0.52f, 0.10f);
+        glLineWidth(3.0f);
         glBegin(GL_LINES);
             glVertex2f(x, topY);
             glVertex2f(endX, endY);
         glEnd();
+
+        // Leaf Cuts / Notches (Slits)
+        glColor3f(0.15f, 0.42f, 0.08f);
+        glLineWidth(1.5f);
+        glBegin(GL_LINES);
+            for (int k = 1; k <= 5; k++) {
+                float t = k * 0.16f;
+                float lx = x + (endX - x) * t;
+                float ly = topY + (endY - topY) * t;
+                glVertex2f(lx, ly);
+                glVertex2f(lx - (8.0f * scale * sin(rad)), ly + (8.0f * scale * cos(rad)));
+                glVertex2f(lx, ly);
+                glVertex2f(lx + (8.0f * scale * sin(rad)), ly - (8.0f * scale * cos(rad)));
+            }
+        glEnd();
     }
 
-    // Hanging Banana Comb Stalk
-    glColor3f(0.65f, 0.78f, 0.08f);
-    glLineWidth(3.0f);
-    glBegin(GL_LINES);
-        glVertex2f(x, topY);
-        glVertex2f(x, topY + (18.0f * scale));
+    // 4. HANGING DENSE CLUSTER OF SMALLER BANANAS
+    float stalkStartX = x;
+    float stalkStartY = topY + (15.0f * scale);
+    float bunchX = x - (20.0f * scale);
+    float bunchY = topY + (38.0f * scale);
+
+    // Green Hanging Stalk
+    glColor3f(0.28f, 0.55f, 0.10f);
+    glLineWidth(4.5f * scale);
+    glBegin(GL_LINE_STRIP);
+        glVertex2f(stalkStartX, stalkStartY);
+        glVertex2f(bunchX + (4.0f * scale), topY + (22.0f * scale));
+        glVertex2f(bunchX + (4.0f * scale), bunchY - (8.0f * scale));
     glEnd();
 
-    // Curved Yellow Bananas
-    for (int b = 0; b < 3; b++)
+    // Much Smaller Bananas Grid Coordinates (18 bananas in compact layers)
+    float bananaOffsets[][2] = {
+        {-8.0f, -10.0f}, {-3.0f, -11.0f}, {2.0f, -11.0f}, {7.0f, -10.0f},
+        {-10.0f, -4.0f}, {-5.0f, -5.0f},  {0.0f, -5.0f},  {5.0f, -5.0f},  {10.0f, -4.0f},
+        {-8.0f, 2.0f},  {-3.0f, 3.0f},   {2.0f, 3.0f},   {7.0f, 2.0f},
+        {-5.0f, 8.0f},  {0.0f, 9.0f},    {5.0f, 8.0f},
+        {-2.0f, 14.0f}, {2.0f, 14.0f}
+    };
+
+    // Reduced Radius: Width = 2.2f * scale, Height = 3.8f * scale
+    float bRadiusX = 2.2f * scale;
+    float bRadiusY = 3.8f * scale;
+
+    for (int b = 0; b < 18; b++)
     {
-        float by = topY + ((6.0f + b * 3.5f) * scale);
-        drawSmoothCircle(x - 3.0f * scale, by, 4.0f * scale, 2.0f * scale, 0.88f, 0.82f, 0.05f);
-        drawSmoothCircle(x + 3.0f * scale, by, 4.0f * scale, 2.0f * scale, 0.88f, 0.82f, 0.05f);
+        float bx = bunchX + (bananaOffsets[b][0] * scale);
+        float by = bunchY + (bananaOffsets[b][1] * scale);
+
+        // Yellow Banana Body
+        drawSmoothCircle(bx, by, bRadiusX, bRadiusY, 0.98f, 0.90f, 0.12f);
+
+        // Banana Outline
+        glColor3f(0.75f, 0.65f, 0.05f);
+        glLineWidth(1.0f);
+        glBegin(GL_LINE_LOOP);
+            for (int k = 0; k < 10; k++) {
+                float angle = k * 2.0f * M_PI / 10.0f;
+                glVertex2f(bx + (bRadiusX * cosf(angle)), by + (bRadiusY * sinf(angle)));
+            }
+        glEnd();
+
+        // Tiny Tip Detail
+        glColor3f(0.35f, 0.25f, 0.10f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(bx - (0.8f * scale), by + (bRadiusY - 0.2f));
+            glVertex2f(bx + (0.8f * scale), by + (bRadiusY - 0.2f));
+            glVertex2f(bx, by + bRadiusY + (1.2f * scale));
+        glEnd();
     }
 
-    // Banana Flower Bud (Kolar Mocha) with Smooth Curved Tip
-    drawSmoothCircle(x, topY + (22.0f * scale), 5.5f * scale, 7.5f * scale, 0.45f, 0.03f, 0.12f);
+    // 5. EXTENDED BOTANICAL FLOWER (Kolar Mocha)
+    float mochaX = bunchX + (1.5f * scale);
+    float mochaStartY = bunchY + (18.0f * scale);
+    float mochaEndY = mochaStartY + (14.0f * scale);
+
+    // Stem Below Banana Bunch
+    glColor3f(0.28f, 0.55f, 0.10f);
+    glLineWidth(2.5f * scale);
+    glBegin(GL_LINES);
+        glVertex2f(mochaX, mochaStartY);
+        glVertex2f(mochaX, mochaEndY);
+    glEnd();
+
+    // Maroon/Pink Mocha Cone (Banana Blossom)
+    glColor3f(0.88f, 0.28f, 0.38f);
+    glBegin(GL_TRIANGLES);
+        glVertex2f(mochaX - (4.0f * scale), mochaEndY);
+        glVertex2f(mochaX + (4.0f * scale), mochaEndY);
+        glVertex2f(mochaX, mochaEndY + (12.0f * scale));
+    glEnd();
+
+    // Top Crown of Mocha
+    drawSmoothCircle(mochaX, mochaEndY, 4.0f * scale, 3.0f * scale, 0.70f, 0.18f, 0.28f);
 
     glLineWidth(1.0f);
 }
-
 // ============================================================================
 // RIGHT SIDE FOREST (Single instance of each tree within 1600f screen limit)
 // ============================================================================
