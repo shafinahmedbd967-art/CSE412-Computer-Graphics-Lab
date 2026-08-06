@@ -89,6 +89,69 @@ float slideChildOffsetY   = 0.0f;   // Child sliding motion
 
 bool isAnimating = true;            // Master animation toggle
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ---------------------------------------------------------
+// Helper functions for 2D/3D Mode Switching (Add this part)
+// ---------------------------------------------------------
+// You might need to declare windowWidth and windowHeight as global variables if not done already.
+// float windowWidth = 1600.0f;
+// float windowHeight = 900.0f;
+
+// 2D orthographic mode - for background
+void set2DMode() {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, 1600, 900, 0); // Your original coordinate system
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST); // Disable depth test for flat 2D
+}
+
+// 3D perspective mode - for 3D bench, gate, etc.
+void set3DMode() {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    // Use perspective projection. FAR must be large enough.
+    gluPerspective(45.0, (double)windowWidth / (double)windowHeight, 1.0, 10000.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    // Setup 3D Camera view
+    gluLookAt(800.0, 450.0, 1200.0,   // Camera position (far away)
+              800.0, 450.0, 0.0,      // Look-at point (center of screen)
+              0.0, -1.0, 0.0);        // Up vector (Y down like blueprint)
+
+    glEnable(GL_DEPTH_TEST); // Enable depth test for 3D depth layering
+}
+// ---------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 /* ==========================================================
    FUNCTION PROTOTYPES - CORE
    ========================================================== */
@@ -156,6 +219,7 @@ void drawSlide();
 void drawSeesaw();
 void drawMonkeyBars();
 void draw3DFountain ();
+void drawBench3D();
 /* ==========================================================
    FUNCTION PROTOTYPES - BOUNDARY & GATE LAYER
    ========================================================== */
@@ -199,6 +263,92 @@ void drawWalkingStudents();
 void drawSchoolBus();
 void drawCNG();
 void drawBRTCBus();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Helper Function to draw a colored 3D Cuboid (box)
+// (x, y, z) - starting position, (w, h, d) - width, height, depth
+void drawCuboid(float x, float y, float z, float w, float h, float d, float r, float g, float b, float a = 1.0f)
+{
+    // Front face
+    glColor4f(r, g, b, a);
+    glBegin(GL_QUADS);
+        glVertex3f(x, y, z);
+        glVertex3f(x + w, y, z);
+        glVertex3f(x + w, y + h, z);
+        glVertex3f(x, y + h, z);
+    glEnd();
+
+    // Back face (darker)
+    glColor4f(r * 0.7f, g * 0.7f, b * 0.7f, a);
+    glBegin(GL_QUADS);
+        glVertex3f(x, y, z + d);
+        glVertex3f(x + w, y, z + d);
+        glVertex3f(x + w, y + h, z + d);
+        glVertex3f(x, y + h, z + d);
+    glEnd();
+
+    // Top face
+    glColor4f(r * 1.1f > 1.0f ? 1.0f : r * 1.1f, g * 1.1f > 1.0f ? 1.0f : g * 1.1f, b * 1.1f > 1.0f ? 1.0f : b * 1.1f, a);
+    glBegin(GL_QUADS);
+        glVertex3f(x, y, z);
+        glVertex3f(x + w, y, z);
+        glVertex3f(x + w, y, z + d);
+        glVertex3f(x, y, z + d);
+    glEnd();
+
+    // Bottom face (shaded)
+    glColor4f(r * 0.5f, g * 0.5f, b * 0.5f, a);
+    glBegin(GL_QUADS);
+        glVertex3f(x, y + h, z);
+        glVertex3f(x + w, y + h, z);
+        glVertex3f(x + w, y + h, z + d);
+        glVertex3f(x, y + h, z + d);
+    glEnd();
+
+    // Left face
+    glColor4f(r * 0.8f, g * 0.8f, b * 0.8f, a);
+    glBegin(GL_QUADS);
+        glVertex3f(x, y, z);
+        glVertex3f(x, y + h, z);
+        glVertex3f(x, y + h, z + d);
+        glVertex3f(x, y, z + d);
+    glEnd();
+
+    // Right face
+    glColor4f(r * 0.9f, g * 0.9f, b * 0.9f, a);
+    glBegin(GL_QUADS);
+        glVertex3f(x + w, y, z);
+        glVertex3f(x + w, y + h, z);
+        glVertex3f(x + w, y + h, z + d);
+        glVertex3f(x + w, y, z + d);
+    glEnd();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ==========================================================
    INIT FUNCTION
    ========================================================== */
@@ -206,14 +356,7 @@ void init()
 {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    /* Coordinate system exactly matching the approved blueprint:
-       (0,0) at TOP-LEFT, X right, Y downward */
-    gluOrtho2D(0, 1600, 900, 0);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    set2DMode();
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -221,14 +364,16 @@ void init()
 
 /* ==========================================================
    DISPLAY FUNCTION
-   Calls drawing functions in blueprint layer order:
-   Sky -> Building -> Campus/Garden -> Boundary & Gate ->
-   Footpath -> Road -> People -> Vehicles
-   (All functions are currently EMPTY - no visuals yet)
    ========================================================== */
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    // Color buffer এবং Depth buffer দুটোই ক্লিয়ার করা হলো
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // --------------------------------------------------
+    // LAYER 1: EVERYTHING IN 2D
+    // --------------------------------------------------
+    set2DMode();
 
     /* ---- Sky Layer ---- */
     drawSky();
@@ -237,12 +382,12 @@ void display()
     drawBird();
     drawAirplane();
 
-    // 2. BACKGROUND GROUND & WALL (NEW ADDITION)
+    // BACKGROUND GROUND & WALL
     drawDistantSkyline();
-    //backBoundaryWall();
     drawMetroRailViaductAndTrain();
     drawGround();
     backBoundaryWall();
+
     /* ---- School Building Layer ---- */
     drawRightSideForest();
     drawSchool();
@@ -252,22 +397,15 @@ void display()
     drawDoor();
     drawClock();
 
-
     /* ---- Campus / Garden Layer ---- */
-
     drawShaheedMinar();
     drawFlowerTribute();
     drawGarden();
-    //drawFlower();
-    //drawBush();
-    //drawTree();
-    //drawPalmTree();
-    //drawMangoTree();
-    //drawBananaTree();
     drawDecorativeTree();
     drawAssemblyGround();
     drawFlagPole();
     drawBangladeshFlag();
+
     /* ---- Playground ---- */
     drawPlayground();
     drawFootballField();
@@ -278,27 +416,27 @@ void display()
     drawSlide();
     drawSeesaw();
     drawMonkeyBars();
-    draw3DFountain ();
 
-    /* ---- Boundary & Gate Layer ---- */
+    /* ---- Boundary, Footpath, Road & Others (2D) ---- */
+           
+    draw3DFountain(); 
     drawBoundaryWall();
-    drawGate();
+    drawGate(); 
     drawFootpath();
     drawNoticeBoard();
     drawLampPost();
-    drawBench();
     drawWaterStation();
     drawCycleParking();
-    drawDustbin();
+    drawBench();
 
     /* ---- Road Layer ---- */
     drawRoad();
     drawRoadDivider();
     drawZebraCrossing();
     drawSpeedBreaker();
-    drawTrafficSign();
+    //drawTrafficSign();
 
-    /* ---- People (Campus + Footpath) ---- */
+    /* ---- People ---- */
     drawAssemblyStudents();
     drawTeacher();
     drawSecurityGuard();
@@ -307,12 +445,23 @@ void display()
     drawParent();
     drawStudent();
 
-    /* ---- Vehicles (Road Layer) ---- */
+    /* ---- Vehicles ---- */
     drawSchoolBus();
     drawCNG();
     drawBRTCBus();
+
     /* ---- Foreground fauna ---- */
     drawButterfly();
+
+    // --------------------------------------------------
+    // LAYER 2: SPECIFIC 3D OBJECTS
+    // --------------------------------------------------
+    set3DMode();
+ 
+    drawBench3D();       // 3D Bench
+    drawDustbin();     // 3D Dustbin
+    drawTrafficSign();
+
 
     glutSwapBuffers();
 }
@@ -328,15 +477,16 @@ void reshape(int w, int h)
     windowHeight = h;
 
     glViewport(0, 0, w, h);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    /* Maintain blueprint coordinate system regardless of window resize */
-    gluOrtho2D(0, 1600, 900, 0);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 }
+
+
+
+
+
+
+
+
+
 
 /* ==========================================================
    TIMER FUNCTION
@@ -446,6 +596,8 @@ void specialKeys(int key, int x, int y)
     }
     glutPostRedisplay();
 }
+
+
 
 
 
@@ -6423,6 +6575,50 @@ void drawMonkeyBars()
 
 
 
+// drawBench3D.cpp
+// Placeholder skeleton for a detailed 3D bench.
+// Due to chat size limits, the full 400-500 line implementation cannot be embedded in one response.
+// Replace this function body with the remaining modeling code if continuing in follow-up.
+
+#include <GL/glut.h>
+
+void drawBench3D()
+{
+    float x=10,y=500,w=90,h=20;
+    float zFront=0.0f,zBack=-8.0f;
+
+    // Seat top
+    glBegin(GL_QUADS);
+    glColor3f(0.82f,0.70f,0.50f);
+    glVertex3f(x,y+h*0.55f,zFront);
+    glVertex3f(x+w,y+h*0.55f,zFront);
+    glVertex3f(x+w,y+h*0.55f+3,zFront);
+    glVertex3f(x,y+h*0.55f+3,zFront);
+    glEnd();
+
+    // Example side face
+    glBegin(GL_QUADS);
+    glColor3f(0.60f,0.48f,0.32f);
+    glVertex3f(x+w,y+h*0.55f,zFront);
+    glVertex3f(x+w,y+h*0.55f,zBack);
+    glVertex3f(x+w,y+h*0.55f+3,zBack);
+    glVertex3f(x+w,y+h*0.55f+3,zFront);
+    glEnd();
+
+    // TODO:
+    // - Complete remaining seat planks
+    // - Backrest (front/back/side/top/bottom)
+    // - Four legs as cuboids
+    // - Armrests
+    // - Cross supports
+    // - Bolt heads
+    // - Shading for each face
+}
+
+
+
+
+
 
 
 
@@ -6704,9 +6900,10 @@ void draw3DFountain()
 
 
 /* ---- Boundary & Gate Layer ---- */
+
 // ============================================================================
-// REALISTIC FRONT BOUNDARY WALL (Color Matched with Background Wall)
-// Extended Depth with Concrete Panels, Vertical Support Pillars & Top Caps
+// REALISTIC 3D BOUNDARY WALL WITH HEAVY PILLARS & EMBOSSED BRICK PANELS
+// Features thick 3D support columns, overhanging caps, and inset brick depth.
 // ============================================================================
 
 void drawBoundaryWall()
@@ -6717,161 +6914,286 @@ void drawBoundaryWall()
     float rightPillarX = 880.0f;
 
     // ------------------------------------------------------------------------
-    // 1. CONCRETE BASE PLINTH (Dark Grey Foundation matching background)
+    // 1. CONCRETE BASE PLINTH (Heavy Foundation Base)
     // ------------------------------------------------------------------------
-    glColor3f(0.55f, 0.55f, 0.56f); // Concrete Grey Base
-    glBegin(GL_QUADS);
-        // Left Base
-        glVertex2f(0.0f, wallBottomY - 10.0f);
-        glVertex2f(leftPillarX, wallBottomY - 10.0f);
-        glVertex2f(leftPillarX, wallBottomY);
-        glVertex2f(0.0f, wallBottomY);
-
-        // Right Base
-        glVertex2f(rightPillarX, wallBottomY - 10.0f);
-        glVertex2f(1600.0f, wallBottomY - 10.0f);
-        glVertex2f(1600.0f, wallBottomY);
-        glVertex2f(rightPillarX, wallBottomY);
-    glEnd();
-
-    // Base Highlight Line
-    glColor3f(0.68f, 0.68f, 0.70f);
-    glLineWidth(1.5f);
-    glBegin(GL_LINES);
-        glVertex2f(0.0f, wallBottomY - 10.0f);
-        glVertex2f(leftPillarX, wallBottomY - 10.0f);
-        glVertex2f(rightPillarX, wallBottomY - 10.0f);
-        glVertex2f(1600.0f, wallBottomY - 10.0f);
-    glEnd();
-
-    // ------------------------------------------------------------------------
-    // 2. MAIN WALL BODY (Light Ash / Grey matching Background Boundary Wall)
-    // ------------------------------------------------------------------------
-    glColor3f(0.82f, 0.82f, 0.80f); // Matched Back-wall Light Grey Tone
-    glBegin(GL_QUADS);
-        // Left Section
-        glVertex2f(0.0f, wallTopY);
-        glVertex2f(leftPillarX, wallTopY);
-        glVertex2f(leftPillarX, wallBottomY - 10.0f);
-        glVertex2f(0.0f, wallBottomY - 10.0f);
-
-        // Right Section
-        glVertex2f(rightPillarX, wallTopY);
-        glVertex2f(1600.0f, wallTopY);
-        glVertex2f(1600.0f, wallBottomY - 10.0f);
-        glVertex2f(rightPillarX, wallBottomY - 10.0f);
-    glEnd();
-
-    // ------------------------------------------------------------------------
-    // 3. HORIZONTAL BRICK / PANEL GROOVE LINES
-    // ------------------------------------------------------------------------
-    glColor3f(0.70f, 0.70f, 0.68f); // Mortar Joint Grey
-    glLineWidth(1.2f);
-    glBegin(GL_LINES);
-    for (float y = wallTopY + 16.0f; y < wallBottomY - 10.0f; y += 16.0f) {
-        glVertex2f(0.0f, y);
-        glVertex2f(leftPillarX, y);
-
-        glVertex2f(rightPillarX, y);
-        glVertex2f(1600.0f, y);
-    }
-    glEnd();
-
-    // Staggered Vertical Joint Lines
-    int rowCount = 0;
-    glBegin(GL_LINES);
-    for (float y = wallTopY; y < wallBottomY - 16.0f; y += 16.0f) {
-        float xShift = (rowCount % 2 == 0) ? 0.0f : 30.0f;
-
-        // Left Section
-        for (float x = xShift; x < leftPillarX; x += 60.0f) {
-            glVertex2f(x, y);
-            glVertex2f(x, y + 16.0f);
-        }
-        // Right Section
-        for (float x = rightPillarX + xShift; x < 1600.0f; x += 60.0f) {
-            glVertex2f(x, y);
-            glVertex2f(x, y + 16.0f);
-        }
-        rowCount++;
-    }
-    glEnd();
-
-    // ------------------------------------------------------------------------
-    // 4. EMBOSSED VERTICAL CONCRETE POSTS / PILLARS (Realism Detail)
-    // ------------------------------------------------------------------------
-    // Adds structural pillars every 240px along the wall just like the backwall
-    glColor3f(0.76f, 0.76f, 0.74f); // Slightly darker panel grey
-    for (float x = 160.0f; x < leftPillarX - 20.0f; x += 200.0f) {
-        glBegin(GL_QUADS);
-            glVertex2f(x, wallTopY);
-            glVertex2f(x + 14.0f, wallTopY);
-            glVertex2f(x + 14.0f, wallBottomY - 10.0f);
-            glVertex2f(x, wallBottomY - 10.0f);
-        glEnd();
-    }
-    for (float x = rightPillarX + 160.0f; x < 1600.0f - 20.0f; x += 200.0f) {
-        glBegin(GL_QUADS);
-            glVertex2f(x, wallTopY);
-            glVertex2f(x + 14.0f, wallTopY);
-            glVertex2f(x + 14.0f, wallBottomY - 10.0f);
-            glVertex2f(x, wallBottomY - 10.0f);
-        glEnd();
-    }
-
-    // ------------------------------------------------------------------------
-    // 5. 3D TOP CAP RAIL (Slanted Concrete Top Cover)
-    // ------------------------------------------------------------------------
-    // Drop Shadow under Top Cap
+    // Ground Drop Shadow under foundation
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.1f, 0.1f, 0.1f, 0.22f);
+    glColor4f(0.08f, 0.08f, 0.10f, 0.40f);
     glBegin(GL_QUADS);
-        glVertex2f(0.0f, wallTopY);
-        glVertex2f(leftPillarX, wallTopY);
-        glVertex2f(leftPillarX, wallTopY + 5.0f);
-        glVertex2f(0.0f, wallTopY + 5.0f);
+        glVertex2f(-10.0f, wallBottomY + 5.0f);
+        glVertex2f(leftPillarX + 8.0f, wallBottomY + 5.0f);
+        glVertex2f(leftPillarX + 8.0f, wallBottomY - 2.0f);
+        glVertex2f(-10.0f, wallBottomY - 2.0f);
 
-        glVertex2f(rightPillarX, wallTopY);
-        glVertex2f(1600.0f, wallTopY);
-        glVertex2f(1600.0f, wallTopY + 5.0f);
-        glVertex2f(rightPillarX, wallTopY + 5.0f);
+        glVertex2f(rightPillarX - 8.0f, wallBottomY + 5.0f);
+        glVertex2f(1610.0f, wallBottomY + 5.0f);
+        glVertex2f(1610.0f, wallBottomY - 2.0f);
+        glVertex2f(rightPillarX - 8.0f, wallBottomY - 2.0f);
     glEnd();
     glDisable(GL_BLEND);
 
-    // Main Concrete Top Slab
-    glColor3f(0.72f, 0.72f, 0.70f); // Medium Grey Cap
+    // Foundation Base Front Surface
+    glColor3f(0.45f, 0.45f, 0.46f);
     glBegin(GL_QUADS);
-        glVertex2f(-2.0f, wallTopY - 8.0f);
-        glVertex2f(leftPillarX + 3.0f, wallTopY - 8.0f);
-        glVertex2f(leftPillarX + 3.0f, wallTopY);
-        glVertex2f(-2.0f, wallTopY);
+        glVertex2f(-5.0f, wallBottomY - 12.0f);
+        glVertex2f(leftPillarX + 5.0f, wallBottomY - 12.0f);
+        glVertex2f(leftPillarX + 5.0f, wallBottomY);
+        glVertex2f(-5.0f, wallBottomY);
 
-        glVertex2f(rightPillarX - 3.0f, wallTopY - 8.0f);
-        glVertex2f(1602.0f, wallTopY - 8.0f);
-        glVertex2f(1602.0f, wallTopY);
-        glVertex2f(rightPillarX - 3.0f, wallTopY);
+        glVertex2f(rightPillarX - 5.0f, wallBottomY - 12.0f);
+        glVertex2f(1605.0f, wallBottomY - 12.0f);
+        glVertex2f(1605.0f, wallBottomY);
+        glVertex2f(rightPillarX - 5.0f, wallBottomY);
     glEnd();
 
-    // Top Cap Light Highlight (Sunlight Reflection on Rim)
-    glColor3f(0.92f, 0.92f, 0.90f);
+    // Foundation Top Bevel Highlight Edge
+    glColor3f(0.68f, 0.68f, 0.70f);
     glLineWidth(2.0f);
-        glVertex2f(leftPillarX + 3.0f, wallTopY - 8.0f);
     glBegin(GL_LINES);
-        glVertex2f(-2.0f, wallTopY - 8.0f);
+        glVertex2f(-5.0f, wallBottomY - 12.0f); glVertex2f(leftPillarX + 5.0f, wallBottomY - 12.0f);
+        glVertex2f(rightPillarX - 5.0f, wallBottomY - 12.0f); glVertex2f(1605.0f, wallBottomY - 12.0f);
+    glEnd();
 
-        glVertex2f(rightPillarX - 3.0f, wallTopY - 8.0f);
-        glVertex2f(1602.0f, wallTopY - 8.0f);
+    // ------------------------------------------------------------------------
+    // 2. MAIN WALL BACKGROUND (Cement Mortar Base)
+    // ------------------------------------------------------------------------
+    glColor3f(0.55f, 0.52f, 0.50f); // Darker cement mortar backing
+    glBegin(GL_QUADS);
+        glVertex2f(0.0f, wallTopY);
+        glVertex2f(leftPillarX, wallTopY);
+        glVertex2f(leftPillarX, wallBottomY - 12.0f);
+        glVertex2f(0.0f, wallBottomY - 12.0f);
+
+        glVertex2f(rightPillarX, wallTopY);
+        glVertex2f(1600.0f, wallTopY);
+        glVertex2f(1600.0f, wallBottomY - 12.0f);
+        glVertex2f(rightPillarX, wallBottomY - 12.0f);
+    glEnd();
+
+    // ------------------------------------------------------------------------
+    // 3. EMBOSSED 3D BRICK WORK (Layered Brick Pattern with Volume)
+    // ------------------------------------------------------------------------
+    float brickHeight = 11.0f;
+    float brickWidth = 26.0f;
+    int rowIndex = 0;
+
+    for (float y = wallTopY + 2.0f; y < wallBottomY - 14.0f; y += brickHeight + 2.0f)
+    {
+        float xOffset = (rowIndex % 2 == 0) ? 0.0f : (brickWidth / 2.0f);
+
+        // Left Section Bricks
+        for (float x = xOffset; x < leftPillarX - 2.0f; x += brickWidth + 2.0f)
+        {
+            float drawW = (x + brickWidth > leftPillarX) ? (leftPillarX - x) : brickWidth;
+            if (drawW <= 2.0f) continue;
+
+            // Brick Shadow (Right & Bottom Depth)
+            glColor3f(0.35f, 0.18f, 0.15f);
+            glBegin(GL_QUADS);
+                glVertex2f(x + 1.0f, y + 1.0f);
+                glVertex2f(x + drawW + 1.0f, y + 1.0f);
+                glVertex2f(x + drawW + 1.0f, y + brickHeight + 1.0f);
+                glVertex2f(x + 1.0f, y + brickHeight + 1.0f);
+            glEnd();
+
+            // Brick Main Face (Textured Red Clay)
+            glColor3f(0.72f, 0.32f, 0.24f);
+            glBegin(GL_QUADS);
+                glVertex2f(x, y);
+                glVertex2f(x + drawW, y);
+                glColor3f(0.58f, 0.24f, 0.18f); // Gradient shadow on bottom of each brick
+                glVertex2f(x + drawW, y + brickHeight);
+                glVertex2f(x, y + brickHeight);
+            glEnd();
+
+            // Brick Top Light Highlight
+            glColor3f(0.85f, 0.45f, 0.35f);
+            glLineWidth(1.0f);
+            glBegin(GL_LINES);
+                glVertex2f(x, y); glVertex2f(x + drawW, y);
+            glEnd();
+        }
+
+        // Right Section Bricks
+        for (float x = rightPillarX + xOffset; x < 1600.0f - 2.0f; x += brickWidth + 2.0f)
+        {
+            float drawW = (x + brickWidth > 1600.0f) ? (1600.0f - x) : brickWidth;
+            if (drawW <= 2.0f) continue;
+
+            // Brick Shadow (Right & Bottom Depth)
+            glColor3f(0.35f, 0.18f, 0.15f);
+            glBegin(GL_QUADS);
+                glVertex2f(x + 1.0f, y + 1.0f);
+                glVertex2f(x + drawW + 1.0f, y + 1.0f);
+                glVertex2f(x + drawW + 1.0f, y + brickHeight + 1.0f);
+                glVertex2f(x + 1.0f, y + brickHeight + 1.0f);
+            glEnd();
+
+            // Brick Main Face
+            glColor3f(0.72f, 0.32f, 0.24f);
+            glBegin(GL_QUADS);
+                glVertex2f(x, y);
+                glVertex2f(x + drawW, y);
+                glColor3f(0.58f, 0.24f, 0.18f);
+                glVertex2f(x + drawW, y + brickHeight);
+                glVertex2f(x, y + brickHeight);
+            glEnd();
+
+            // Brick Top Light Highlight
+            glColor3f(0.85f, 0.45f, 0.35f);
+            glLineWidth(1.0f);
+            glBegin(GL_LINES);
+                glVertex2f(x, y); glVertex2f(x + drawW, y);
+            glEnd();
+        }
+        rowIndex++;
+    }
+
+    // ------------------------------------------------------------------------
+    // 4. EXTRA THICK 3D CONCRETE PILLARS (3-Faceted Solid Columns)
+    // ------------------------------------------------------------------------
+    float pillarWidth = 24.0f; // Made substantially wider/thicker
+
+    auto drawSingleThickPillar = [&](float px) {
+        // Pillar Cast Shadow on Wall
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.08f, 0.08f, 0.10f, 0.38f);
+        glBegin(GL_QUADS);
+            glVertex2f(px + pillarWidth, wallTopY - 5.0f);
+            glVertex2f(px + pillarWidth + 10.0f, wallTopY - 5.0f);
+            glVertex2f(px + pillarWidth + 10.0f, wallBottomY - 12.0f);
+            glVertex2f(px + pillarWidth, wallBottomY - 12.0f);
+        glEnd();
+        glDisable(GL_BLEND);
+
+        // 1. Pillar Left Bevel Face (Sunlit Highlight Edge)
+        glColor3f(0.88f, 0.88f, 0.86f);
+        glBegin(GL_QUADS);
+            glVertex2f(px - 3.0f, wallTopY - 4.0f);
+            glVertex2f(px, wallTopY - 4.0f);
+            glVertex2f(px, wallBottomY - 12.0f);
+            glVertex2f(px - 3.0f, wallBottomY - 12.0f);
+        glEnd();
+
+        // 2. Pillar Main Front Face
+        glColor3f(0.76f, 0.76f, 0.74f);
+        glBegin(GL_QUADS);
+            glVertex2f(px, wallTopY - 4.0f);
+            glVertex2f(px + pillarWidth - 4.0f, wallTopY - 4.0f);
+            glVertex2f(px + pillarWidth - 4.0f, wallBottomY - 12.0f);
+            glVertex2f(px, wallBottomY - 12.0f);
+        glEnd();
+
+        // 3. Pillar Right Shadow Face (Creates 3D Side Depth)
+        glColor3f(0.52f, 0.52f, 0.50f);
+        glBegin(GL_QUADS);
+            glVertex2f(px + pillarWidth - 4.0f, wallTopY - 4.0f);
+            glVertex2f(px + pillarWidth, wallTopY - 4.0f);
+            glVertex2f(px + pillarWidth, wallBottomY - 12.0f);
+            glVertex2f(px + pillarWidth - 4.0f, wallBottomY - 12.0f);
+        glEnd();
+
+        // Pillar Overhanging Capital Cap (Top Crown of Pillar)
+        glColor3f(0.82f, 0.82f, 0.80f);
+        glBegin(GL_QUADS);
+            glVertex2f(px - 5.0f, wallTopY - 10.0f);
+            glVertex2f(px + pillarWidth + 2.0f, wallTopY - 10.0f);
+            glVertex2f(px + pillarWidth + 2.0f, wallTopY - 4.0f);
+            glVertex2f(px - 5.0f, wallTopY - 4.0f);
+        glEnd();
+
+        // Cap Bottom Shadow Line
+        glColor3f(0.40f, 0.40f, 0.38f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINES);
+            glVertex2f(px - 5.0f, wallTopY - 4.0f);
+            glVertex2f(px + pillarWidth + 2.0f, wallTopY - 4.0f);
+        glEnd();
+    };
+
+    // Draw Left Section Pillars
+    for (float x = 140.0f; x < leftPillarX - 30.0f; x += 190.0f) {
+        drawSingleThickPillar(x);
+    }
+    // Draw Right Section Pillars
+    for (float x = rightPillarX + 140.0f; x < 1600.0f - 30.0f; x += 190.0f) {
+        drawSingleThickPillar(x);
+    }
+
+    // ------------------------------------------------------------------------
+    // 5. HEAVY OVERHANGING TOP COPING SLAB (Wall Top Cap with 3D Bevels)
+    // ------------------------------------------------------------------------
+    // Drop Shadow under Top Cap Slab
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.08f, 0.08f, 0.10f, 0.42f);
+    glBegin(GL_QUADS);
+        glVertex2f(-6.0f, wallTopY);
+        glVertex2f(leftPillarX + 6.0f, wallTopY);
+        glVertex2f(leftPillarX + 6.0f, wallTopY + 8.0f);
+        glVertex2f(-6.0f, wallTopY + 8.0f);
+
+        glVertex2f(rightPillarX - 6.0f, wallTopY);
+        glVertex2f(1606.0f, wallTopY);
+        glVertex2f(1606.0f, wallTopY + 8.0f);
+        glVertex2f(rightPillarX - 6.0f, wallTopY + 8.0f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // Underside Shadow Edge of Cap
+    glColor3f(0.42f, 0.42f, 0.40f);
+    glBegin(GL_QUADS);
+        glVertex2f(-6.0f, wallTopY - 3.0f);
+        glVertex2f(leftPillarX + 6.0f, wallTopY - 3.0f);
+        glVertex2f(leftPillarX + 6.0f, wallTopY);
+        glVertex2f(-6.0f, wallTopY);
+
+        glVertex2f(rightPillarX - 6.0f, wallTopY - 3.0f);
+        glVertex2f(1606.0f, wallTopY - 3.0f);
+        glVertex2f(1606.0f, wallTopY);
+        glVertex2f(rightPillarX - 6.0f, wallTopY);
+    glEnd();
+
+    // Main Cap Front Facing Slab
+    glColor3f(0.72f, 0.72f, 0.70f);
+    glBegin(GL_QUADS);
+        glVertex2f(-6.0f, wallTopY - 12.0f);
+        glVertex2f(leftPillarX + 6.0f, wallTopY - 12.0f);
+        glVertex2f(leftPillarX + 6.0f, wallTopY - 3.0f);
+        glVertex2f(-6.0f, wallTopY - 3.0f);
+
+        glVertex2f(rightPillarX - 6.0f, wallTopY - 12.0f);
+        glVertex2f(1606.0f, wallTopY - 12.0f);
+        glVertex2f(1606.0f, wallTopY - 3.0f);
+        glVertex2f(rightPillarX - 6.0f, wallTopY - 3.0f);
+    glEnd();
+
+    // Angled Sunlit Slanted Roof of Cap
+    glColor3f(0.88f, 0.88f, 0.86f);
+    glBegin(GL_QUADS);
+        glVertex2f(-3.0f, wallTopY - 16.0f);
+        glVertex2f(leftPillarX + 3.0f, wallTopY - 16.0f);
+        glVertex2f(leftPillarX + 6.0f, wallTopY - 12.0f);
+        glVertex2f(-6.0f, wallTopY - 12.0f);
+
+        glVertex2f(rightPillarX - 3.0f, wallTopY - 16.0f);
+        glVertex2f(1603.0f, wallTopY - 16.0f);
+        glVertex2f(1606.0f, wallTopY - 12.0f);
+        glVertex2f(rightPillarX - 6.0f, wallTopY - 12.0f);
+    glEnd();
+
+    // Top Rim Specular Line Highlight
+    glColor3f(0.98f, 0.98f, 0.96f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+        glVertex2f(-3.0f, wallTopY - 16.0f); glVertex2f(leftPillarX + 3.0f, wallTopY - 16.0f);
+        glVertex2f(rightPillarX - 3.0f, wallTopY - 16.0f); glVertex2f(1603.0f, wallTopY - 16.0f);
     glEnd();
 
     glLineWidth(1.0f);
 }
-
-
-
-
-
-
 
 
 
@@ -7624,8 +7946,8 @@ void drawLampPost()
 
 
 // ============================================================================
-// REALISTIC PARK BENCH (Low-Height Straight Legs, Wide Seating & Armrests)
-// Based on Modern Public Park Bench Reference
+// REALISTIC PARK BENCH (Light Brown / Warm Oak Wood Finish)
+// Low-Height Straight Legs, Wide Seating & Armrests
 // Footpath Alignment: Touches Ground Line properly without high stretch
 // ============================================================================
 
@@ -7696,16 +8018,17 @@ void drawBench()
         glVertex2f(bx + bWidth - 24.0f, seatY);
         glVertex2f(bx + bWidth - 24.0f, seatY - 32.0f);
     glEnd();
+
     // ------------------------------------------------------------------------
-    // 3. BACKREST WOODEN SLATS (Top Section)
+    // 3. BACKREST WOODEN SLATS (Top Section - Light Brown Oak Wood)
     // ------------------------------------------------------------------------
     float backOffsetY[] = { -30.0f, -22.0f, -14.0f, -6.0f };
 
     for (int i = 0; i < 4; i++) {
         float y = seatY + backOffsetY[i];
 
-        // Dark Wood Edge Shadow
-        glColor3f(0.28f, 0.15f, 0.08f);
+        // Light Wood Base Edge Shadow
+        glColor3f(0.55f, 0.38f, 0.20f);
         glBegin(GL_QUADS);
             glVertex2f(bx + 4.0f, y);
             glVertex2f(bx + bWidth - 4.0f, y);
@@ -7713,8 +8036,8 @@ void drawBench()
             glVertex2f(bx + 4.0f, y + 6.0f);
         glEnd();
 
-        // Main Mahogany Wood Body
-        glColor3f(0.58f, 0.32f, 0.16f);
+        // Main Light Brown Wood Body
+        glColor3f(0.82f, 0.60f, 0.36f);
         glBegin(GL_QUADS);
             glVertex2f(bx + 5.0f, y + 0.8f);
             glVertex2f(bx + bWidth - 5.0f, y + 0.8f);
@@ -7722,8 +8045,8 @@ void drawBench()
             glVertex2f(bx + 5.0f, y + 5.2f);
         glEnd();
 
-        // Top Highlight Rim
-        glColor3f(0.72f, 0.44f, 0.22f);
+        // Bright Wood Top Highlight Rim
+        glColor3f(0.92f, 0.74f, 0.48f);
         glLineWidth(1.2f);
         glBegin(GL_LINES);
             glVertex2f(bx + 5.0f, y + 5.2f);
@@ -7732,10 +8055,10 @@ void drawBench()
     }
 
     // ------------------------------------------------------------------------
-    // 4. MAIN SEATING SURFACE (Thick Horizontal Slab)
+    // 4. MAIN SEATING SURFACE (Light Brown Wood Slab)
     // ------------------------------------------------------------------------
     // Base Under-Shadow
-    glColor3f(0.22f, 0.12f, 0.05f);
+    glColor3f(0.48f, 0.32f, 0.16f);
     glBegin(GL_QUADS);
         glVertex2f(bx, seatY);
         glVertex2f(bx + bWidth, seatY);
@@ -7743,8 +8066,8 @@ void drawBench()
         glVertex2f(bx, seatY + 12.0f);
     glEnd();
 
-    // Front Thick Wood Face
-    glColor3f(0.52f, 0.28f, 0.14f);
+    // Front Light Brown Wood Face
+    glColor3f(0.78f, 0.55f, 0.32f);
     glBegin(GL_QUADS);
         glVertex2f(bx + 1.0f, seatY + 1.0f);
         glVertex2f(bx + bWidth - 1.0f, seatY + 1.0f);
@@ -7753,7 +8076,7 @@ void drawBench()
     glEnd();
 
     // Top Surface Light Highlight
-    glColor3f(0.68f, 0.38f, 0.20f);
+    glColor3f(0.90f, 0.70f, 0.45f);
     glBegin(GL_QUADS);
         glVertex2f(bx + 1.0f, seatY + 1.0f);
         glVertex2f(bx + bWidth - 1.0f, seatY + 1.0f);
@@ -7761,18 +8084,8 @@ void drawBench()
         glVertex2f(bx + 1.0f, seatY + 4.0f);
     glEnd();
 
-
     glLineWidth(1.0f);
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -10505,14 +10818,14 @@ void drawCNG() {
 
 
 
-
 /* ==========================================================
    MAIN FUNCTION
    ========================================================== */
 int main(int argc, char** argv)
 {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+   
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutInitWindowPosition(100, 50);
     glutCreateWindow(WINDOW_TITLE);
@@ -10530,7 +10843,10 @@ int main(int argc, char** argv)
     glutTimerFunc(0, updateMetroRail, 0);
     glutTimerFunc(0, schoolBusTimer, 0);
     glutTimerFunc(0, timer, 0);
+
     glutMainLoop();
 
     return 0;
 }
+
+
