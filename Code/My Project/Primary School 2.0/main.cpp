@@ -24,6 +24,8 @@
 bool isPassingActive = true;
 bool isGateOpen = false;
 bool isLampOn = false;   // Lamp Light toggle
+bool isFountainOn = true;
+float fountainWaterHeight = 1.0f; // Height multiplier
 
 /* ==========================================================
    WINDOW CONSTANTS
@@ -160,7 +162,7 @@ void drawSwing();
 void drawSlide();
 void drawSeesaw();
 void drawMonkeyBars();
-
+void draw3DFountain ();
 /* ==========================================================
    FUNCTION PROTOTYPES - BOUNDARY & GATE LAYER
    ========================================================== */
@@ -283,6 +285,7 @@ void display()
     drawSlide();
     drawSeesaw();
     drawMonkeyBars();
+    draw3DFountain ();
 
     /* ---- Boundary & Gate Layer ---- */
     drawBoundaryWall();
@@ -375,6 +378,23 @@ void keyboard(unsigned char key, int x, int y)
 {
     switch (key)
     {
+    case 'f':
+    case 'F':
+        isFountainOn = !isFountainOn; // Toggle Fountain ON / OFF
+        break;
+
+    case 'h':
+    case 'H':
+        if (fountainWaterHeight < 2.0f)
+            fountainWaterHeight += 0.2f; // Increase Water Jet Height
+        break;
+
+    case 'j':
+    case 'J':
+        if (fountainWaterHeight > 0.4f)
+            fountainWaterHeight -= 0.2f; // Decrease Water Jet Height
+        break;
+
     case 'g':
     case 'G':
         isGateOpen = !isGateOpen;
@@ -403,7 +423,6 @@ void keyboard(unsigned char key, int x, int y)
     }
     glutPostRedisplay(); // Screen Redraw Force
 }
-
 
 
 
@@ -6103,6 +6122,10 @@ void drawSeesaw()
 
 
 
+
+
+
+
 // ----------------------------------------------------------------------------
 // 3D REALISTIC MONKEY BARS WITH STUDENTS (Shifted X +30, Y +30)
 // Base Ground Level: Y = 620. Top Beam Level: Y = 538.
@@ -6350,6 +6373,276 @@ void drawMonkeyBars()
 
 
 
+// ==========================================================
+// REALISTIC 3D FOUNTAIN FUNCTION
+// Center Position: cx = 45.0f, cy = 575.0f
+// ==========================================================
+void draw3DFountain()
+{
+    float animTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+    float cx = 45.0f;
+    float cy = 575.0f;
+
+    // Smooth, natural ambient water color shifts (Cyan -> Blue -> Aqua -> Soft Cyan)
+    float cycle = sinf(animTime * 0.25f);
+    float wR = 0.10f + 0.08f * cycle;
+    float wG = 0.55f + 0.15f * sinf(animTime * 0.2f);
+    float wB = 0.85f + 0.10f * cosf(animTime * 0.25f);
+
+    glPushMatrix();
+    glTranslatef(cx, cy, 0.0f);
+    glScalef(1.0f, -1.0f, 1.0f);
+
+    // 1. Soft Ground Contact Shadow
+    glColor4f(0.0f, 0.0f, 0.0f, 0.15f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 32; i++) {
+        float rad = i * 2.0f * 3.14159f / 32.0f;
+        glVertex2f(cosf(rad) * 26.0f, -14.0f + sinf(rad) * 9.0f);
+    }
+    glEnd();
+
+    // 2. Base Tier (Main Outer Basin)
+    glColor3f(0.38f, 0.39f, 0.42f);
+    glRectf(-23.0f, -14.0f, 23.0f, -9.0f);
+
+    glColor3f(0.72f, 0.74f, 0.78f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 32; i++) {
+        float rad = i * 2.0f * 3.14159f / 32.0f;
+        glVertex2f(cosf(rad) * 23.0f, -9.0f + sinf(rad) * 10.0f);
+    }
+    glEnd();
+
+    glColor3f(0.30f, 0.31f, 0.35f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < 32; i++) {
+        float rad = i * 2.0f * 3.14159f / 32.0f;
+        glVertex2f(cosf(rad) * 23.0f, -9.0f + sinf(rad) * 10.0f);
+    }
+    glEnd();
+
+    // Main Pool Water Surface
+    glColor4f(wR, wG, wB, 0.88f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 32; i++) {
+        float rad = i * 2.0f * 3.14159f / 32.0f;
+        glVertex2f(cosf(rad) * 20.5f, -9.0f + sinf(rad) * 8.5f);
+    }
+    glEnd();
+
+    // Water Surface Wave Rings
+    if (isFountainOn) {
+        glColor4f(wR + 0.3f, wG + 0.3f, 1.0f, 0.40f);
+        glLineWidth(1.2f);
+        for (int r = 1; r <= 3; r++) {
+            float rippleScale = fmodf(animTime * 1.4f + r * 0.33f, 1.0f);
+            glBegin(GL_LINE_STRIP);
+            for (int i = 0; i <= 32; i++) {
+                float rad = i * 2.0f * 3.14159f / 32.0f;
+                glVertex2f(cosf(rad) * (2.0f + rippleScale * 17.5f),
+                           -9.0f + sinf(rad) * (1.0f + rippleScale * 7.0f));
+            }
+            glEnd();
+        }
+    }
+
+    // 3. Lower Column & Tier 2 Basin
+    glColor3f(0.40f, 0.42f, 0.45f);
+    glRectf(-4.0f, -9.0f, 4.0f, -1.0f);
+    glColor3f(0.60f, 0.62f, 0.66f);
+    glRectf(-1.2f, -9.0f, 1.2f, -1.0f);
+
+    glColor3f(0.55f, 0.57f, 0.60f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 28; i++) {
+        float rad = i * 2.0f * 3.14159f / 28.0f;
+        glVertex2f(cosf(rad) * 14.5f, -1.0f + sinf(rad) * 5.0f);
+    }
+    glEnd();
+
+    glColor4f(wR, wG, wB, 0.88f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 28; i++) {
+        float rad = i * 2.0f * 3.14159f / 28.0f;
+        glVertex2f(cosf(rad) * 12.5f, -1.0f + sinf(rad) * 4.0f);
+    }
+    glEnd();
+
+    // 4. Middle Column & Tier 3 Basin
+    glColor3f(0.38f, 0.40f, 0.43f);
+    glRectf(-3.0f, -1.0f, 3.0f, 6.0f);
+    glColor3f(0.58f, 0.60f, 0.64f);
+    glRectf(-0.9f, -1.0f, 0.9f, 6.0f);
+
+    glColor3f(0.60f, 0.62f, 0.66f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 24; i++) {
+        float rad = i * 2.0f * 3.14159f / 24.0f;
+        glVertex2f(cosf(rad) * 9.5f, 6.0f + sinf(rad) * 3.5f);
+    }
+    glEnd();
+
+    glColor4f(wR, wG, wB, 0.88f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 24; i++) {
+        float rad = i * 2.0f * 3.14159f / 24.0f;
+        glVertex2f(cosf(rad) * 8.0f, 6.0f + sinf(rad) * 2.8f);
+    }
+    glEnd();
+
+    // 5. Upper Column & Top Spout Crown (Tier 4)
+    glColor3f(0.35f, 0.37f, 0.40f);
+    glRectf(-2.0f, 6.0f, 2.0f, 12.0f);
+
+    glColor3f(0.68f, 0.70f, 0.74f);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < 20; i++) {
+        float rad = i * 2.0f * 3.14159f / 20.0f;
+        glVertex2f(cosf(rad) * 5.0f, 12.0f + sinf(rad) * 2.2f);
+    }
+    glEnd();
+
+    // 6. Dynamic Water Streams, Cascades & Particles
+    if (isFountainOn) {
+        float h = fountainWaterHeight;
+        float spoutOriginY = 12.0f;
+
+        // Central Vertical Spout Jet
+        glLineWidth(3.5f);
+        glBegin(GL_LINES);
+        for (int i = 0; i < 10; i++) {
+            float offset = sinf(animTime * 14.0f + i) * 0.5f;
+            float jetTopY = spoutOriginY + (22.0f * h) + sinf(animTime * 8.0f) * 1.5f;
+
+            glColor4f(wR + 0.4f, wG + 0.4f, 1.0f, 0.95f);
+            glVertex2f(offset * 0.2f, spoutOriginY);
+            glColor4f(wR, wG + 0.2f, 1.0f, 0.35f);
+            glVertex2f(offset, jetTopY);
+        }
+        glEnd();
+
+        // Top Spout Parabolic Arcs
+        glLineWidth(1.8f);
+        for (int side = -1; side <= 1; side += 2) {
+            for (int arc = 1; arc <= 4; arc++) {
+                float maxReachX = side * (2.8f + arc * 2.8f) * h;
+                float arcPeakHeight = (9.0f + arc * 2.5f) * h;
+
+                glBegin(GL_LINE_STRIP);
+                for (int step = 0; step <= 16; step++) {
+                    float t = step / 16.0f;
+                    float currX = maxReachX * t;
+                    float currY = spoutOriginY + (arcPeakHeight * t) - (arcPeakHeight * t * t * 1.3f);
+
+                    glColor4f(wR + 0.3f, wG + 0.3f, 1.0f, 0.85f - (t * 0.45f));
+                    glVertex2f(currX, currY);
+                }
+                glEnd();
+            }
+        }
+
+        // Tier 4 -> Tier 3 Overflow Streams
+        glLineWidth(1.6f);
+        glColor4f(wR + 0.2f, wG + 0.2f, 1.0f, 0.70f);
+        for (int c = -4; c <= 4; c++) {
+            float xPos = c * 1.1f;
+            glBegin(GL_LINES);
+            glVertex2f(xPos, 12.0f);
+            glVertex2f(xPos * 1.6f, 6.0f);
+            glEnd();
+        }
+
+        // Tier 3 -> Tier 2 Overflow Streams
+        glLineWidth(1.8f);
+        glColor4f(wR + 0.2f, wG + 0.2f, 1.0f, 0.65f);
+        for (int c = -7; c <= 7; c++) {
+            float xPos = c * 1.1f;
+            glBegin(GL_LINES);
+            glVertex2f(xPos, 6.0f);
+            glVertex2f(xPos * 1.5f, -1.0f);
+            glEnd();
+        }
+
+        // Tier 2 -> Main Basin Overflow Streams
+        glLineWidth(2.0f);
+        glColor4f(wR + 0.15f, wG + 0.15f, 1.0f, 0.60f);
+        for (int c = -10; c <= 10; c++) {
+            float xPos = c * 1.2f;
+            glBegin(GL_LINES);
+            glVertex2f(xPos, -1.0f);
+            glVertex2f(xPos * 1.6f, -9.0f);
+            glEnd();
+        }
+
+        // Falling Water Droplets
+        glColor4f(1.0f, 1.0f, 1.0f, 0.90f);
+        glPointSize(2.8f);
+        glBegin(GL_POINTS);
+        for (int p = 0; p < 42; p++) {
+            float pSeed = p * 1.45f;
+            float pProgress = fmodf(animTime * 1.8f + pSeed, 1.0f);
+            float px = (sinf(pSeed * 5.5f) * 18.0f) * pProgress;
+            float py = spoutOriginY + (18.0f * h * pProgress) - (36.0f * h * pProgress * pProgress);
+            glVertex2f(px, py);
+        }
+        glEnd();
+
+        // Surface Splash Particles
+        glColor4f(wR + 0.4f, wG + 0.4f, 1.0f, 0.75f);
+        glPointSize(2.0f);
+        glBegin(GL_POINTS);
+        for (int s = 0; s < 20; s++) {
+            float sAngle = s * 2.0f * 3.14159f / 20.0f;
+            float splashR = 14.0f + sinf(animTime * 10.0f + s) * 2.5f;
+            glVertex2f(cosf(sAngle) * splashR, -9.0f + sinf(sAngle) * (splashR * 0.4f));
+        }
+        glEnd();
+    }
+
+    glPopMatrix();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6516,6 +6809,9 @@ void drawBoundaryWall()
 
     glLineWidth(1.0f);
 }
+
+
+
 
 
 
@@ -6820,6 +7116,9 @@ void drawGate()
 
 
 
+
+
+
 // ============================================================================
 // HIGHLY DETAILED NOTICE BOARD (Placed next to right pillar at X: 910 to 980)
 // Adjusted for New Boundary Height (Y: 610 to 715) with Pins, Notices & 3D Frame
@@ -6985,6 +7284,10 @@ void drawNoticeBoard()
 
     glLineWidth(1.0f);
 }
+
+
+
+
 
 
 
@@ -7206,6 +7509,10 @@ void drawLampPost()
     }
     glLineWidth(1.0f);
 }
+
+
+
+
 
 
 
@@ -7592,6 +7899,8 @@ void drawWaterStation()
     // Reset Line Width
     glLineWidth(1.0f);
 }
+
+
 
 
 
@@ -8147,6 +8456,9 @@ void drawFootpath()
 
     glLineWidth(1.0f);
 }
+
+
+
 
 
 
@@ -8747,8 +9059,318 @@ void drawTrafficSign()
 
 
 /* ---- People ---- */
-void drawStudent() { }
-void drawTeacher() { }
+// ----------------------------------------------------------------------------
+// EXCITED STUDENT GATHERING FOR CRICKET (X: 150 - 500, Y: 525 - 600)
+// Scaled 1.25x, Spaced out (6 Students), holding Cricket Bat/Ball
+// ----------------------------------------------------------------------------
+
+void drawStudent()
+{
+    float animTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+    struct StudentData {
+        float x;
+        float y;
+        float dir;
+        int shirtType;
+        int propType;     // 0: None (Cheering), 1: Cricket Bat, 2: Leather Ball
+        float phaseShift;
+    };
+
+    // 6 Students spaced out within X [150, 500] and Y [525, 600]
+    StudentData students[6] = {
+        { 170.0f, 540.0f,  1.0f, 0, 1, 0.0f }, // Holding Cricket Bat
+        { 230.0f, 530.0f,  1.0f, 1, 0, 0.8f }, // Cheering / Jumping
+        { 290.0f, 555.0f,  1.0f, 0, 2, 1.5f }, // Holding Leather Ball
+        { 350.0f, 535.0f, -1.0f, 2, 0, 2.2f }, // Raising arms
+        { 410.0f, 560.0f, -1.0f, 1, 1, 0.4f }, // Resting Bat on shoulder
+        { 470.0f, 545.0f, -1.0f, 0, 2, 1.9f }  // Tossing Ball
+    };
+
+    for (int s = 0; s < 6; s++) {
+        float sx = students[s].x;
+        float sy = students[s].y;
+        float dir = students[s].dir;
+        float t = animTime * 3.5f + students[s].phaseShift;
+
+        // Dynamic jump & excitement motion
+        float bounceY = fabsf(sinf(t)) * 3.2f;
+        float waveArm = sinf(t * 2.0f) * 6.0f;
+        float bodyLean = cosf(t) * 2.0f;
+
+        glPushMatrix();
+        glTranslatef(sx, sy - bounceY, 0.0f);
+        glScalef(1.25f, 1.25f, 1.0f);
+
+        // Light Ground Shadow
+        glColor4f(0.0f, 0.0f, 0.0f, 0.10f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 12; i++) {
+                float rad = i * 2.0f * 3.14159f / 12.0f;
+                glVertex2f(cosf(rad) * (3.8f + bounceY * 0.2f), 0.8f + sinf(rad) * 0.9f);
+            }
+        glEnd();
+
+        glRotatef(bodyLean, 0.0f, 0.0f, 1.0f);
+
+        // 1. Shoes / Cricket Spikes
+        glColor3f(0.85f, 0.85f, 0.90f);
+        glRectf(-2.4f, -1.2f, 0.2f, 0.5f);
+        glRectf( 0.2f, -1.2f, 2.4f, 0.5f);
+
+        // 2. Socks
+        glColor3f(0.95f, 0.95f, 0.95f);
+        glRectf(-1.8f, -2.8f, -0.2f, -1.2f);
+        glRectf( 0.2f, -2.8f,  1.8f, -1.2f);
+
+        // 3. Legs
+        glColor3f(0.90f, 0.72f, 0.58f);
+        glRectf(-1.6f, -6.5f, -0.3f, -2.8f);
+        glRectf( 0.3f, -6.5f,  1.6f, -2.8f);
+
+        // 4. Uniform Shorts (Navy)
+        glColor3f(0.12f, 0.20f, 0.45f);
+        glRectf(-2.2f, -10.0f, 2.2f, -6.5f);
+
+        // 5. Shirt Colors
+        if (students[s].shirtType == 0)      glColor3f(0.95f, 0.95f, 0.98f);
+        else if (students[s].shirtType == 1) glColor3f(0.90f, 0.25f, 0.25f);
+        else                                 glColor3f(0.20f, 0.65f, 0.35f);
+
+        glRectf(-2.5f, -17.5f, 2.5f, -10.0f);
+
+        // V-Neck Collar
+        glColor3f(0.12f, 0.20f, 0.45f);
+        glBegin(GL_TRIANGLES);
+            glVertex2f(0.0f, -14.5f);
+            glVertex2f(-1.2f, -17.5f);
+            glVertex2f( 1.2f, -17.5f);
+        glEnd();
+
+        // 6. Dynamic Arms & Cricket Props
+        glColor3f(0.90f, 0.72f, 0.58f);
+        glLineWidth(2.5f);
+
+        if (students[s].propType == 1) { // CRICKET BAT
+            glBegin(GL_LINES);
+                glVertex2f(dir * 2.5f, -16.0f);
+                glVertex2f(dir * 5.0f, -12.0f + waveArm * 0.2f);
+            glEnd();
+
+            // Cricket Bat Wood
+            glColor3f(0.82f, 0.62f, 0.35f);
+            glRectf(dir * 5.0f, -20.0f + waveArm * 0.2f, dir * 6.5f, -9.0f + waveArm * 0.2f);
+            // Rubber Handle Grip
+            glColor3f(0.85f, 0.15f, 0.15f);
+            glRectf(dir * 5.2f, -9.0f + waveArm * 0.2f, dir * 6.3f, -5.5f + waveArm * 0.2f);
+        }
+        else if (students[s].propType == 2) { // LEATHER BALL
+            float ballToss = fabsf(sinf(t * 3.0f)) * 5.0f;
+            glBegin(GL_LINES);
+                glVertex2f(dir * 2.5f, -16.0f);
+                glVertex2f(dir * 4.5f, -18.0f - ballToss * 0.3f);
+            glEnd();
+
+            // Red Cricket Ball
+            glColor3f(0.85f, 0.12f, 0.12f);
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 12; i++) {
+                    float rad = i * 2.0f * 3.14159f / 12.0f;
+                    glVertex2f(dir * 4.5f + cosf(rad) * 1.3f, -19.5f - ballToss + sinf(rad) * 1.3f);
+                }
+            glEnd();
+        }
+        else { // CHEERING HANDS UP
+            glBegin(GL_LINES);
+                glVertex2f(-2.5f, -16.0f);
+                glVertex2f(-5.0f, -22.0f - waveArm * 0.4f);
+                glVertex2f( 2.5f, -16.0f);
+                glVertex2f( 5.0f, -22.0f + waveArm * 0.4f);
+            glEnd();
+        }
+
+        // 7. Head & Happy Expression
+        float headY = -20.2f;
+        glColor3f(0.90f, 0.72f, 0.58f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 16; i++) {
+                float rad = i * 2.0f * 3.14159f / 16.0f;
+                glVertex2f(cosf(rad) * 2.4f, headY + sinf(rad) * 2.4f);
+            }
+        glEnd();
+
+        // Eye Dots
+        glColor3f(0.10f, 0.10f, 0.10f);
+        glPointSize(2.2f);
+        glBegin(GL_POINTS);
+            glVertex2f(dir * 1.1f, headY - 0.2f);
+        glEnd();
+
+        // Smile
+        glLineWidth(1.5f);
+        glBegin(GL_LINE_STRIP);
+            glVertex2f(dir * 0.2f, headY + 0.8f);
+            glVertex2f(dir * 1.0f, headY + 1.2f);
+            glVertex2f(dir * 1.6f, headY + 0.8f);
+        glEnd();
+
+        // Hair Cap
+        glColor3f(0.15f, 0.10f, 0.05f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 9; i++) {
+                float rad = 3.14159f + i * 3.14159f / 9.0f;
+                glVertex2f(cosf(rad) * 2.5f, headY + sinf(rad) * 2.4f);
+            }
+        glEnd();
+
+        glPopMatrix();
+    }
+
+    glutPostRedisplay();
+}
+
+
+// ----------------------------------------------------------------------------
+// INSTRUCTING CRICKET COACHES (X: 150 - 500, Y: 525 - 600)
+// Scaled 1.25x, pointing towards pitch, holding tactical board
+// ----------------------------------------------------------------------------
+
+void drawTeacher()
+{
+    float animTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+    struct TeacherData {
+        float x;
+        float y;
+        float dir;
+        float phase;
+        bool isHeadTeacher;
+    };
+
+    TeacherData teachers[2] = {
+        { 380.0f, 580.0f, -1.0f, 0.0f, true },  // Head Coach
+        { 220.0f, 590.0f,  1.0f, 1.8f, false }  // Assistant Coach
+    };
+
+    for (int t = 0; t < 2; t++) {
+        float tx = teachers[t].x;
+        float ty = teachers[t].y;
+        float dir = teachers[t].dir;
+        float phase = animTime * 2.2f + teachers[t].phase;
+
+        float pointAngle = sinf(phase) * 5.0f;
+        float bodyBreath = cosf(phase * 0.8f) * 0.7f;
+
+        glPushMatrix();
+        glTranslatef(tx, ty + bodyBreath, 0.0f);
+        glScalef(1.25f, 1.25f, 1.0f);
+
+        // Light Ground Shadow
+        glColor4f(0.0f, 0.0f, 0.0f, 0.10f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 12; i++) {
+                float rad = i * 2.0f * 3.14159f / 12.0f;
+                glVertex2f(cosf(rad) * 4.5f, 0.8f + sinf(rad) * 1.1f);
+            }
+        glEnd();
+
+        // 1. Sports Shoes
+        glColor3f(0.15f, 0.12f, 0.10f);
+        glRectf(-2.6f, -1.5f, 0.2f, 0.5f);
+        glRectf( 0.2f, -1.5f, 2.6f, 0.5f);
+
+        // 2. Track Pants
+        if (teachers[t].isHeadTeacher) glColor3f(0.18f, 0.22f, 0.28f);
+        else                           glColor3f(0.15f, 0.18f, 0.35f);
+
+        glRectf(-2.0f, -10.5f, -0.2f, -1.5f);
+        glRectf( 0.2f, -10.5f,  2.0f, -1.5f);
+
+        // 3. Track Suit Jacket
+        if (teachers[t].isHeadTeacher) glColor3f(0.20f, 0.45f, 0.75f);
+        else                           glColor3f(0.85f, 0.85f, 0.88f);
+
+        glRectf(-2.8f, -21.0f, 2.8f, -11.5f);
+
+        // Whistle Strap
+        glColor3f(0.85f, 0.15f, 0.15f);
+        glLineWidth(2.0f);
+        glBegin(GL_LINES);
+            glVertex2f(-1.0f, -20.5f);
+            glVertex2f( 0.0f, -16.0f);
+            glVertex2f( 1.0f, -20.5f);
+            glVertex2f( 0.0f, -16.0f);
+        glEnd();
+
+        // Whistle
+        glColor3f(0.85f, 0.85f, 0.90f);
+        glPointSize(3.5f);
+        glBegin(GL_POINTS);
+            glVertex2f(0.0f, -16.0f);
+        glEnd();
+
+        // 4. Tactical Clipboard
+        glColor3f(0.55f, 0.35f, 0.15f);
+        glRectf(-dir * 4.8f - 1.6f, -17.5f, -dir * 4.8f + 1.6f, -12.0f);
+        glColor3f(0.95f, 0.95f, 0.95f);
+        glRectf(-dir * 4.8f - 1.3f, -17.0f, -dir * 4.8f + 1.3f, -12.5f);
+
+        // 5. Pointing Arm
+        glColor3f(0.88f, 0.70f, 0.56f);
+        glLineWidth(3.0f);
+        glBegin(GL_LINES);
+            glVertex2f(dir * 2.8f, -19.0f);
+            glVertex2f(dir * (8.5f + pointAngle * 0.2f), -16.0f + pointAngle);
+        glEnd();
+
+        // 6. Head & Features
+        float headY = -24.0f;
+        glColor3f(0.88f, 0.70f, 0.56f);
+        glBegin(GL_POLYGON);
+            for (int i = 0; i < 16; i++) {
+                float rad = i * 2.0f * 3.14159f / 16.0f;
+                glVertex2f(cosf(rad) * 2.6f, headY + sinf(rad) * 2.6f);
+            }
+        glEnd();
+
+        // Sunglasses / Glasses
+        glColor3f(0.10f, 0.10f, 0.12f);
+        glLineWidth(1.8f);
+        glBegin(GL_LINE_LOOP);
+            glVertex2f(dir * 0.5f, headY - 0.8f);
+            glVertex2f(dir * 2.2f, headY - 0.8f);
+            glVertex2f(dir * 2.2f, headY + 0.8f);
+            glVertex2f(dir * 0.5f, headY + 0.8f);
+        glEnd();
+
+        // Sports Cap
+        if (teachers[t].isHeadTeacher) {
+            glColor3f(0.18f, 0.22f, 0.28f);
+            glRectf(-2.8f, headY - 0.5f, 2.8f, headY + 2.8f);
+            glLineWidth(3.2f);
+            glBegin(GL_LINES);
+                glVertex2f(dir * 0.0f, headY + 0.2f);
+                glVertex2f(dir * 5.2f, headY + 0.2f);
+            glEnd();
+        } else {
+            glColor3f(0.25f, 0.18f, 0.12f);
+            glBegin(GL_POLYGON);
+                for (int i = 0; i < 10; i++) {
+                    float rad = 3.14159f + i * 3.14159f / 10.0f;
+                    glVertex2f(cosf(rad) * 2.8f, headY + sinf(rad) * 2.6f);
+                }
+            glEnd();
+        }
+
+        glPopMatrix();
+    }
+
+    glutPostRedisplay();
+}
+
+
+
+
 void drawParent() { }
 void drawSecurityGuard() { }
 void drawGardener() { }
