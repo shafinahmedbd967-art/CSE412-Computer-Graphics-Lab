@@ -1,5 +1,5 @@
 /* ==========================================================
-   PHASE 1 - PROJECT FOUNDATION
+   PROJECT
    Modern Government Primary School in Bangladesh
    Canvas: 1600 x 900
    Coordinate System: Matches Approved Master Blueprint
@@ -7,15 +7,7 @@
    X increases to the RIGHT
    Y increases DOWNWARD
    (Achieved via gluOrtho2D(0, 1600, 900, 0))
-
-   This file contains ONLY:
-   - GLUT/OpenGL initialization
-   - Window + projection setup
-   - Global variables / color constants / animation variables
-   - Timer, Keyboard, Display, Reshape, init(), main()
-   - EMPTY prototypes for every drawing function required by the blueprint
-
-   NO objects are drawn in this phase.
+.
    ========================================================== */
 
 #include <GL/glut.h>
@@ -26,6 +18,7 @@ bool isGateOpen = false;
 bool isLampOn = false;   // Lamp Light toggle
 bool isFountainOn = true;
 float fountainWaterHeight = 1.0f; // Height multiplier
+bool isCngLightOn = false; // CNG Headlight State (Default: OFF)
 
 /* ==========================================================
    WINDOW CONSTANTS
@@ -408,6 +401,11 @@ void keyboard(unsigned char key, int x, int y)
     case 'p':
     case 'P':
         isPassingActive = !isPassingActive;
+        break;
+
+    case 'c':
+    case 'C':
+        isCngLightOn = !isCngLightOn; // Toggle CNG Light ON / OFF
         break;
 
     case 27: // ESC key
@@ -3736,6 +3734,19 @@ void drawSingleCoconutTree(float startX, float startY, float height)
     }
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ----------------------------------------------------------------------------
 // 4. PALMYRA PALM TREE (Tal Gach - Tall Straight Trunk & Fan Fronds)
 // ----------------------------------------------------------------------------
@@ -3766,7 +3777,7 @@ void drawSinglePalmTree(float x, float y, float height)
     }
 
     // Dense Fan-shaped Leaf Crown
-    int numFronds = 16;
+    int numFronds = 40;
     for (int i = 0; i < numFronds; i++)
     {
         float angle = (-175.0f + (i * 23.0f)) * M_PI / 180.0f;
@@ -3792,6 +3803,32 @@ void drawSinglePalmTree(float x, float y, float height)
     }
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ----------------------------------------------------------------------------
 // REWRITTEN BANANA TREE (With Smaller Bananas & Detailed Dense Bunch)
@@ -3979,6 +4016,25 @@ void drawSingleBananaTree(float x, float y, float scale)
 
     glLineWidth(1.0f);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // RIGHT SIDE FOREST (Single instance of each tree within 1600f screen limit)
 // ============================================================================
@@ -3988,16 +4044,17 @@ void drawRightSideForest()
 
     // Existing Trees
     drawSingleBananaTree(1480.0f, 475.0f, 0.85f);
+    drawSingleBananaTree(400.0f, 473.0f, 0.90f);
     //drawSinglePalmTree(1250.0f, 470.0f, 125.0f);
     drawSingleTree(1590.0f, 470.0f, 0.80f);
     drawSingleMangoTree(1200.0f, 475.0f, 0.85f);
-    drawSingleCoconutTree(1400.0f, 470.0f, 130.0f);
+    drawSingleCoconutTree(1400.0f, 470.0f, 180.0f);
 
     // Newly Added Trees (Filling the gaps & extending coverage)
     drawSingleMangoTree(5.0f, 470.0f, 0.82f);     // Gap between 1250 and 1350
-    drawSingleTree(400.0f, 468.0f, 0.85f);          // Gap between 1350 and 1450
-    drawSinglePalmTree(230.0f, 468.0f, 120.0f);     // Gap between 1450 and 1570
-    drawSingleCoconutTree(630.0f, 478.0f, 125.0f);  // Extension beyond 1570
+    //drawSingleTree(400.0f, 468.0f, 0.85f);          // Gap between 1350 and 1450
+    drawSinglePalmTree(270.0f, 470.0f, 170.0f);     // Gap between 1450 and 1570
+    drawSingleCoconutTree(150.0f, 470.0f, 160.0f);  // Extension beyond 1570
 }
 
 
@@ -6799,9 +6856,9 @@ void drawBoundaryWall()
     // Top Cap Light Highlight (Sunlight Reflection on Rim)
     glColor3f(0.92f, 0.92f, 0.90f);
     glLineWidth(2.0f);
+        glVertex2f(leftPillarX + 3.0f, wallTopY - 8.0f);
     glBegin(GL_LINES);
         glVertex2f(-2.0f, wallTopY - 8.0f);
-        glVertex2f(leftPillarX + 3.0f, wallTopY - 8.0f);
 
         glVertex2f(rightPillarX - 3.0f, wallTopY - 8.0f);
         glVertex2f(1602.0f, wallTopY - 8.0f);
@@ -10365,7 +10422,7 @@ void drawCNG() {
         glVertex2f(44.0f, -26.0f);
     glEnd();
 
-    // 9. Side Mirror & Front Unlit Headlight
+   // 9. Side Mirror & Dynamic Headlight
     glColor3f(0.1f, 0.1f, 0.1f);
     glBegin(GL_LINES);
         glVertex2f(-1.0f, -24.0f);
@@ -10378,15 +10435,33 @@ void drawCNG() {
         glVertex2f(-8.0f, -20.0f);
     glEnd();
 
+    // Headlight Bulb Base
     glColor3f(0.35f, 0.35f, 0.38f);
     drawCircleShape(-3.0f, -14.0f, 3.2f, 10);
-    glColor3f(0.85f, 0.45f, 0.1f);
-    glBegin(GL_QUADS);
-        glVertex2f(-2.0f, -9.0f);
-        glVertex2f(2.0f, -9.0f);
-        glVertex2f(2.0f, -6.0f);
-        glVertex2f(-2.0f, -6.0f);
-    glEnd();
+
+    // Dynamic Headlight Beam & Glow
+    if (isCngLightOn) {
+        // Active Bright Bulb
+        glColor3f(1.0f, 0.95f, 0.4f);
+        drawCircleShape(-3.0f, -14.0f, 2.8f, 10);
+
+        // Light Beam Cone (Glow Effect)
+        glColor4f(1.0f, 0.9f, 0.3f, 0.35f); // Semi-transparent yellow beam
+        glBegin(GL_TRIANGLES);
+            glVertex2f(-3.0f, -14.0f);   // Bulb Center
+            glVertex2f(-65.0f, -2.0f);   // Top Beam Spread
+            glVertex2f(-65.0f, -28.0f);  // Bottom Beam Spread
+        glEnd();
+    } else {
+        // Off Bulb Effect
+        glColor3f(0.85f, 0.45f, 0.1f);
+        glBegin(GL_QUADS);
+            glVertex2f(-2.0f, -9.0f);
+            glVertex2f(2.0f, -9.0f);
+            glVertex2f(2.0f, -6.0f);
+            glVertex2f(-2.0f, -6.0f);
+        glEnd();
+    }
 
     // Rear Bumper Guard
     glColor3f(0.75f, 0.75f, 0.78f);
@@ -10447,9 +10522,9 @@ int main(int argc, char** argv)
     // Register Callbacks
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
-    glutKeyboardFunc(keyboard);       // Duplicate line removed
+    glutKeyboardFunc(keyboard);
     glutSpecialFunc(specialKeys);
-PlaySound(TEXT("bird_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    PlaySound(TEXT("bird_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     // Timers
     glutTimerFunc(0, updateMetroRail, 0);
