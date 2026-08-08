@@ -11762,39 +11762,6 @@ void drawBRTCBus()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Compact CNG Wheel
 void drawCngWheel(float wx, float wy, float radius)
 {
