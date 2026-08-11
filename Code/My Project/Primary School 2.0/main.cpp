@@ -105,9 +105,8 @@ bool isAnimating = true;            // Master animation toggle
 
 
 // ---------------------------------------------------------
-// Helper functions for 2D/3D Mode Switching (Add this part)
+// Helper functions for 2D/3D Mode
 // ---------------------------------------------------------
-// You might need to declare windowWidth and windowHeight as global variables if not done already.
 // float windowWidth = 1600.0f;
 // float windowHeight = 900.0f;
 
@@ -141,7 +140,7 @@ void set3DMode()
 
     glEnable(GL_DEPTH_TEST); // Enable depth test for 3D depth layering
 }
-// ---------------------------------------------------------
+
 
 
 
@@ -373,7 +372,9 @@ void display()
     drawSky();
     drawSun();
     drawCloud();
+    set3DMode();
     drawBird();
+    set2DMode();
     drawAirplane();
 
     // BACKGROUND GROUND & WALL
@@ -450,8 +451,9 @@ void display()
 
     /* ---- Vehicles ---- */
     drawSchoolBus();
-    drawCNG();
+   drawCNG();
     drawBRTCBus();
+  //  drawCNG();
 
     /* ---- Foreground fauna ---- */
     drawButterfly();
@@ -797,8 +799,6 @@ void drawSun()
 
 
 
-
-
 // ============================================================================
 // FUNCTION: drawSingleCloud
 // Description: Keeps the clean original shape, but trims the lower bulge to make
@@ -927,89 +927,133 @@ void drawCloud()
 
 
 
-
-
-
-
-// ============================================================================
-// FUNCTION: drawSingleBird
-// Description: Renders a realistic, graceful bird silhouette (slender wings, smooth curve, no bat look).
-// ============================================================================
 #include <windows.h>
 #include <mmsystem.h>
+#include <cmath>
 #pragma comment(lib, "winmm.lib")
-void drawSingleBird(float x, float y, float size, float flapAngle)
-{
-    // Deep Charcoal Color (Natural bird shadow in bright sky)
-    glColor3f(0.15f, 0.15f, 0.18f);
 
-    // Natural smooth wing motion (up/down and slight arch)
+// ============================================================================
+// FUNCTION: drawSingleBird3D
+// Description: Renders a 3D volumetric bird model using 3D primitives and
+//              geometric transformations in 3D space.
+// ============================================================================
+void drawSingleBird3D(float x, float y, float z, float size, float flapAngle)
+{
     float wingUp = sin(flapAngle) * (size * 0.6f);
     float wingCurve = cos(flapAngle) * (size * 0.15f);
 
+    glPushMatrix();
+
+    // 1. Move to bird's 3D coordinates
+    glTranslatef(x, y, z);
+
+    // Slight downward pitch angle for realistic 3D flying pose
+    glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
+
+    // Bird Color (Deep Charcoal with 3D shadow support)
+    glColor3f(0.15f, 0.15f, 0.18f);
+
     // ---------------------------------------------------------
-    // 1. Left Wing (Graceful Curved Feathered Shape)
+    // 2. 3D Body Core (Volumetric Torso using 3D Ellipsoid approximation)
     // ---------------------------------------------------------
-    glBegin(GL_POLYGON);
-    glVertex2f(x, y - (size * 0.1f));                                 // Lower Body Center
-    glVertex2f(x, y + (size * 0.15f));                                // Upper Body Center
-    glVertex2f(x - (size * 0.5f), y + (size * 0.35f) + (wingUp * 0.5f));// Wing Elbow/Arch
-    glVertex2f(x - (size * 1.2f), y + (size * 0.1f) + wingUp);        // Sleek Wing Tip
-    glVertex2f(x - (size * 0.6f), y - (size * 0.05f) + wingCurve);    // Wing Inner Arch
+    glPushMatrix();
+    glScalef(size * 0.15f, size * 0.15f, size * 0.4f);
+
+    // Draw 3D Body Mesh
+    int slices = 8, stacks = 8;
+    for (int i = 0; i < stacks; i++) {
+        float lat0 = 3.14159f * (-0.5f + (float)(i) / stacks);
+        float z0  = sin(lat0);
+        float zr0 = cos(lat0);
+
+        float lat1 = 3.14159f * (-0.5f + (float)(i + 1) / stacks);
+        float z1  = sin(lat1);
+        float zr1 = cos(lat1);
+
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j <= slices; j++) {
+            float lng = 2.0f * 3.14159f * (float)(j) / slices;
+            float xVal = cos(lng);
+            float yVal = sin(lng);
+
+            glNormal3f(xVal * zr0, yVal * zr0, z0);
+            glVertex3f(xVal * zr0, yVal * zr0, z0);
+            glNormal3f(xVal * zr1, yVal * zr1, z1);
+            glVertex3f(xVal * zr1, yVal * zr1, z1);
+        }
+        glEnd();
+    }
+    glPopMatrix();
+
+    // ---------------------------------------------------------
+    // 3. Left Wing (3D Curved Polygonal Surface with Z Depth)
+    // ---------------------------------------------------------
+    glBegin(GL_TRIANGLE_STRIP);
+        // Inner Wing Joint
+        glVertex3f(0.0f, 0.0f, size * 0.1f);
+        glVertex3f(0.0f, 0.0f, -size * 0.1f);
+
+        // Mid Wing Arch
+        glVertex3f(-size * 0.5f, (size * 0.35f) + (wingUp * 0.5f), size * 0.05f);
+        glVertex3f(-size * 0.5f, (size * 0.25f) + (wingUp * 0.5f), -size * 0.05f);
+
+        // Sleek Wing Tip
+        glVertex3f(-size * 1.2f, (size * 0.1f) + wingUp, 0.0f);
+        glVertex3f(-size * 0.6f, -(size * 0.05f) + wingCurve, 0.0f);
     glEnd();
 
     // ---------------------------------------------------------
-    // 2. Right Wing (Graceful Curved Feathered Shape)
+    // 4. Right Wing (3D Curved Polygonal Surface with Z Depth)
     // ---------------------------------------------------------
-    glBegin(GL_POLYGON);
-    glVertex2f(x, y - (size * 0.1f));                                 // Lower Body Center
-    glVertex2f(x, y + (size * 0.15f));                                // Upper Body Center
-    glVertex2f(x + (size * 0.5f), y + (size * 0.35f) + (wingUp * 0.5f));// Wing Elbow/Arch
-    glVertex2f(x + (size * 1.2f), y + (size * 0.1f) + wingUp);        // Sleek Wing Tip
-    glVertex2f(x + (size * 0.6f), y - (size * 0.05f) + wingCurve);    // Wing Inner Arch
+    glBegin(GL_TRIANGLE_STRIP);
+        // Inner Wing Joint
+        glVertex3f(0.0f, 0.0f, size * 0.1f);
+        glVertex3f(0.0f, 0.0f, -size * 0.1f);
+
+        // Mid Wing Arch
+        glVertex3f(size * 0.5f, (size * 0.35f) + (wingUp * 0.5f), size * 0.05f);
+        glVertex3f(size * 0.5f, (size * 0.25f) + (wingUp * 0.5f), -size * 0.05f);
+
+        // Sleek Wing Tip
+        glVertex3f(size * 1.2f, (size * 0.1f) + wingUp, 0.0f);
+        glVertex3f(size * 0.6f, -(size * 0.05f) + wingCurve, 0.0f);
     glEnd();
 
     // ---------------------------------------------------------
-    // 3. Slender Tail Feathers
+    // 5. 3D Tail Feathers (Pyramidal Wedge Shape)
     // ---------------------------------------------------------
     glBegin(GL_TRIANGLES);
-    glVertex2f(x - (size * 0.12f), y - (size * 0.1f));
-    glVertex2f(x + (size * 0.12f), y - (size * 0.1f));
-    glVertex2f(x, y - (size * 0.45f));                                // Pointed Tail
+        // Top Face
+        glVertex3f(-size * 0.12f, 0.0f, -size * 0.2f);
+        glVertex3f(size * 0.12f, 0.0f, -size * 0.2f);
+        glVertex3f(0.0f, -size * 0.1f, -size * 0.55f);
+
+        // Bottom Face
+        glVertex3f(-size * 0.12f, -size * 0.05f, -size * 0.2f);
+        glVertex3f(size * 0.12f, -size * 0.05f, -size * 0.2f);
+        glVertex3f(0.0f, -size * 0.1f, -size * 0.55f);
     glEnd();
+
+    glPopMatrix();
 }
 
 // ============================================================================
 // FUNCTION: drawBird
-// Description: Renders a flock of 5 sleek birds with natural formation flying.
+// Description: Renders a flock of 3D birds navigating through 3D space.
 // ============================================================================
 void drawBird()
 {
-    // Real time based constant movement logic
     float currentTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-
     float birdOffsetX = fmod(currentTime * 70.0f, 2000.0f);
-
-    // ------------------------------------------------------------------------
-    // NOTE: Coordinate alignment: coordinates need to move from right to left.
-    // birdOffsetX will be increasing, so subtract it from base coordinates.
-    // ------------------------------------------------------------------------
-
-    // 2. Wing Flapping Speed
     float time = glutGet(GLUT_ELAPSED_TIME) * 0.007f;
 
-    // Flock of birds with staggered wing flap angles and positions
-    // base X coordinates: subtract birdOffsetX for smooth right-to-left flight
-    drawSingleBird(1350.0f - birdOffsetX, 85.0f,  9.0f, time);
-    drawSingleBird(1385.0f - birdOffsetX, 105.0f, 11.0f, time + 0.7f);
-    drawSingleBird(1420.0f - birdOffsetX, 75.0f,  8.0f,  time + 1.4f);
-    drawSingleBird(1455.0f - birdOffsetX, 95.0f,  10.0f, time + 2.1f);
-    drawSingleBird(1490.0f - birdOffsetX, 115.0f, 7.5f,  time + 2.8f);
+    // Flock rendering with varying X, Y, and Z depths
+    drawSingleBird3D(1650.0f - birdOffsetX, 85.0f,  0.0f,   9.0f, time);
+    drawSingleBird3D(1685.0f - birdOffsetX, 105.0f, -15.0f, 11.0f, time + 0.7f);
+    drawSingleBird3D(1720.0f - birdOffsetX, 75.0f,  20.0f,  8.0f,  time + 1.4f);
+    drawSingleBird3D(1755.0f - birdOffsetX, 95.0f,  -10.0f, 10.0f, time + 2.1f);
+    drawSingleBird3D(1790.0f - birdOffsetX, 115.0f, 10.0f,  7.5f,  time + 2.8f);
 }
-
-
-
-
 
 
 
@@ -2743,45 +2787,204 @@ void drawFlagPole()
     glEnd();
 }
 
+
+
+
+
+
+
+
+
+
+
 // ============================================================================
 // FUNCTION: drawBangladeshFlag
-// Position: Centered attached to Pole at X = 800.0f
+// Position: Attached to Flag Pole at X = 800.0f
 // ============================================================================
+
 void drawBangladeshFlag()
 {
-    float poleX = 800.0f; // Shifted from 745.0f to 800.0f
+    float poleX = 800.0f;
     float topY = 275.0f;
+
     float flagW = 55.0f;
     float flagH = 33.0f;
 
-    float time = glutGet(GLUT_ELAPSED_TIME) * 0.005f;
-    flagWaveOffset = sin(time) * 4.5f;
+    // ---------------------------------------------------------
+    // Animation timing
+    // ---------------------------------------------------------
 
+    float time = glutGet(GLUT_ELAPSED_TIME) * 0.0045f;
+
+    // Overall wind motion
+    float wind = sin(time) * 3.0f;
+
+    // Shearing transformation
+    float shear = sin(time * 1.4f) * 0.12f;
+
+
+    // ---------------------------------------------------------
     // Green Flag Body
+    // ---------------------------------------------------------
+
     glColor3fv(COLOR_FLAG_GREEN);
+
+    int segments = 18;
+
     glBegin(GL_QUADS);
-    glVertex2f(poleX, topY);
-    glVertex2f(poleX + flagW + flagWaveOffset, topY);
-    glVertex2f(poleX + flagW + flagWaveOffset, topY + flagH);
-    glVertex2f(poleX, topY + flagH);
+
+    for (int i = 0; i < segments; i++)
+    {
+        float t1 = (float)i / segments;
+        float t2 = (float)(i + 1) / segments;
+
+        float x1 = poleX + flagW * t1;
+        float x2 = poleX + flagW * t2;
+
+        // Wave strength increases gradually away from the pole
+        float wave1 =
+            sin(time * 2.0f + t1 * 5.0f)
+            * 2.5f * t1;
+
+        float wave2 =
+            sin(time * 2.0f + t2 * 5.0f)
+            * 2.5f * t2;
+
+        // Wind becomes stronger toward the free end
+        float wind1 =
+            wind * t1 * t1;
+
+        float wind2 =
+            wind * t2 * t2;
+
+        // -----------------------------------------------------
+        // Top edge
+        // -----------------------------------------------------
+
+        float topX1 =
+            x1 + wave1 + wind1;
+
+        float topX2 =
+            x2 + wave2 + wind2;
+
+        // -----------------------------------------------------
+        // Bottom edge
+        // Shearing creates horizontal displacement
+        // based on vertical position
+        // -----------------------------------------------------
+
+        float bottomX1 =
+            x1 + wave1 + wind1 + shear * flagH;
+
+        float bottomX2 =
+            x2 + wave2 + wind2 + shear * flagH;
+
+
+        // Keep the pole-side edge fixed
+        if (i == 0)
+        {
+            topX1 = poleX;
+            bottomX1 = poleX;
+        }
+
+        glVertex2f(topX1, topY);
+        glVertex2f(topX2, topY);
+
+        glVertex2f(bottomX2, topY + flagH);
+        glVertex2f(bottomX1, topY + flagH);
+    }
+
     glEnd();
 
+
+    // ---------------------------------------------------------
     // Red Disc
+    // ---------------------------------------------------------
+
     glColor3fv(COLOR_FLAG_RED);
-    float cx = poleX + (flagW * 0.45f) + (flagWaveOffset * 0.5f);
-    float cy = topY + (flagH * 0.5f);
+
+    float discPosition = 0.45f;
+
+    float discBaseX =
+        poleX + flagW * discPosition;
+
+    float discWave =
+        sin(time * 2.0f + discPosition * 5.0f)
+        * 2.5f * discPosition;
+
+    float discWind =
+        wind * discPosition * discPosition;
+
+    // Same shear displacement used by the flag
+    float discShear =
+        shear * (flagH * 0.5f);
+
+    float cx =
+        discBaseX +
+        discWave +
+        discWind +
+        discShear;
+
+    float cy =
+        topY +
+        flagH * 0.5f;
+
     float r = 10.0f;
-    int segments = 30;
+
+    int circleSegments = 40;
+
+
+    // ---------------------------------------------------------
+    // Draw slightly sheared red disc
+    // ---------------------------------------------------------
 
     glBegin(GL_TRIANGLE_FAN);
+
     glVertex2f(cx, cy);
-    for (int i = 0; i <= segments; i++)
+
+    for (int i = 0; i <= circleSegments; i++)
     {
-        float angle = i * 2.0f * 3.14159f / segments;
-        glVertex2f(cx + (r * cos(angle)), cy + (r * sin(angle)));
+        float angle =
+            i * 2.0f * 3.14159265f
+            / circleSegments;
+
+        float localX =
+            r * cos(angle);
+
+        float localY =
+            r * sin(angle);
+
+        // Shearing transformation
+        float shearedX =
+            localX + shear * localY;
+
+        glVertex2f(
+            cx + shearedX,
+            cy + localY
+        );
     }
+
+    glEnd();
+
+
+    // ---------------------------------------------------------
+    // Small attachment strip
+    // Makes the connection with the pole visually clear
+    // ---------------------------------------------------------
+
+    glColor3fv(COLOR_FLAG_GREEN);
+
+    glBegin(GL_QUADS);
+
+    glVertex2f(poleX - 0.8f, topY);
+    glVertex2f(poleX + 1.2f, topY);
+
+    glVertex2f(poleX + 1.2f, topY + flagH);
+    glVertex2f(poleX - 0.8f, topY + flagH);
+
     glEnd();
 }
+
 
 
 
@@ -6881,7 +7084,7 @@ void drawBench3D()
     float ySeatTop = 512.0f, ySeatBottom = 513.2f;
 
     // ========================================================================
-    // 1. SEAT SLATS 
+    // 1. SEAT SLATS
     // ========================================================================
     float seatSlatsZ[] = { 1.0f, 3.5f, 6.0f, 8.5f, 11.0f }; // 5 Slats
     float slatDepth = 2.0f;
@@ -6892,7 +7095,7 @@ void drawBench3D()
         float zBack = zFront + slatDepth;
 
         glBegin(GL_QUADS);
-        // Top Face 
+        // Top Face
         glColor3f(0.88f, 0.68f, 0.48f);
         glVertex3f(xLeft,  ySeatTop, zFront);
         glColor3f(0.88f, 0.68f, 0.48f);
@@ -6996,7 +7199,7 @@ void drawBench3D()
         float x1 = legsX[k][0];
         float x2 = legsX[k][1];
 
-        // --- Foot Pads 
+        // --- Foot Pads
         glBegin(GL_QUADS);
         glColor3f(0.10f, 0.10f, 0.12f);
         // Front Leg Footpad
@@ -7070,7 +7273,7 @@ void drawBench3D()
         glVertex3f(x1, ySeatBottom, 13.0f);
         glEnd();
 
-        // --- Armrest 
+        // --- Armrest
         if (k != 1)
         {
             glBegin(GL_QUADS);
@@ -7125,7 +7328,7 @@ void drawBench3D()
     }
 
     // ========================================================================
-    // 5. CROSS-CONNECTING BARS 
+    // 5. CROSS-CONNECTING BARS
     // ========================================================================
     glColor3f(0.15f, 0.15f, 0.18f);
     glBegin(GL_QUADS);
@@ -11750,6 +11953,46 @@ void drawBRTCBus()
     glDisable(GL_BLEND);
     glPopMatrix();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
