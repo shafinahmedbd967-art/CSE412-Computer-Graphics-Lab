@@ -765,40 +765,6 @@ void drawSun()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ============================================================================
 // FUNCTION: drawSingleCloud
 // Description: Keeps the clean original shape, but trims the lower bulge to make
