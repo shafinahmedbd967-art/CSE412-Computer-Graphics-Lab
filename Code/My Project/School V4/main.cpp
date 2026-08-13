@@ -2703,6 +2703,9 @@ void drawBangladeshFlag()
     glVertex2f(poleX, topY + flagH);
     glEnd();
 
+
+
+    
     // Red Disc
     glColor3fv(COLOR_FLAG_RED);
     float cx = poleX + (flagW * 0.45f) + (flagWaveOffset * 0.5f);
