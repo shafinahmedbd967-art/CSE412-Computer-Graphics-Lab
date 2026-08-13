@@ -1059,17 +1059,6 @@ void drawBird()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // BUTTERFLY
 // Helper function to draw a single small butterfly
 void drawSingleButterfly(float x, float y, float scale, float wingAngle, float r, float g, float b)
