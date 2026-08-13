@@ -909,24 +909,6 @@ void drawCloud()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #include <windows.h>
 #include <mmsystem.h>
 #include <cmath>
