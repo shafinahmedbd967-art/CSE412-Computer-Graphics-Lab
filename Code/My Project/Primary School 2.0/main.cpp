@@ -681,36 +681,6 @@ void drawSky()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ============================================================================
 // FUNCTION: drawSun
 // Description: Renders a realistic 11 AM sun with a bright core and soft radial glow effect.
