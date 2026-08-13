@@ -1221,63 +1221,6 @@ void drawButterfly()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ============================================================================
 // FUNCTION: drawAirplane
 // Description: Renders a highly realistic, shaded commercial airliner
