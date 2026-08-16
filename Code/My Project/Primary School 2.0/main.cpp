@@ -12176,7 +12176,7 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(specialKeys);
-    PlaySound(TEXT("bird_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+    //PlaySound(TEXT("bird_sound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
     // Timers
     glutTimerFunc(0, updateMetroRail, 0);
