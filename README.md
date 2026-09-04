@@ -102,7 +102,7 @@ Throughout the semester, this lab covered the following core areas of computer g
 
 The semester's coursework culminated in a full-scale group project: an animated, interactive 2D/3D simulation of a Bangladeshi primary school campus, featuring a school building, garden, Shaheed Minar, playground, boundary wall with a working gate, roads with moving vehicles, ambient sound, and real-time keyboard interactivity.
 
-📁 Located in [`/Project`](./Project)
+
 🔗 Standalone repository: [Bangladesh-Primary-School-OpenGL](https://github.com/shafinahmedbd967-art/Bangladesh-Primary-School-OpenGL)
 
 ---
