@@ -42,7 +42,6 @@ CSE412-Computer-Graphics-Lab/
 ├── Lab Manual/        # Official lab manuals and instructions provided for the course
 ├── Lab Report/         # Submitted lab reports for individual experiments
 ├── Lab Work/           # In-lab exercises, practice programs, and drafts
-├── Project/            # Final mini project (Interactive Bangladeshi Primary School — OpenGL)
 └── README.md
 ```
 
